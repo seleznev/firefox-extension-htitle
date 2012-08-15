@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://htitle/skin/overlay.css" type="text/css"?>
+
+<overlay id="htitle"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
+
+    <script type="application/x-javascript" src="chrome://htitle/content/HTitle.js"/>
+
+    <toolbox id="navigator-toolbox">
+        <toolbar id="toolbar-htitle" toolbarname=""
+                class="toolbar-primary chromeclass-toolbar"
+                fullscreentoolbar="false"
+                onmousedown="HTitle.omMouseDown(event);"
+                onmouseup="HTitle.omMouseUp();"
+                onmouseout="HTitle.omMouseOut();"
+                context="toolbar-context-menu"/>
+    </toolbox>
+
+</overlay>
+

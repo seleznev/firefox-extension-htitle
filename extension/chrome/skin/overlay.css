@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/*** 1px toolbar for restore window ***/
+
+#toolbar-htitle {
+  -moz-appearance: none;
+  background: transparent !important;
+  max-height: 1px;
+  min-height: 1px;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  min-width: 100%;
+}
+
+#toolbar-htitle:active {
+  cursor: move;
+}
+
+#main-window:not([hidechrome="true"]) #toolbar-htitle {
+  display: none;
+}
+
+/*** Padding for tabs bar ***/
+
+#main-window:not([hidechrome="false"]) #TabsToolbar:not([tabsontop="false"]) {
+  margin-top: 2px;
+}

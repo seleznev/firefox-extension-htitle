@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>{c6448328-31f7-4b12-a2e0-5c39d0290307}</em:id>
+    <em:type>2</em:type>
+    <em:name>HTitle</em:name>
+    <em:version>1.0</em:version>
+    <em:description>Hide title bar if window is maximized (like GNOME 3).</em:description>
+    <em:homepageURL>https://github.com/seleznev/firefox-extension-htitle</em:homepageURL>
+    <em:creator>Alexander Seleznev</em:creator>
+    
+    <em:localized>
+      <Description em:locale="ru-RU">
+        <em:name>HTitle</em:name>
+        <em:description>Скрывает заголовок у развернутого на весь экран окна (в стиле приложений GNOME 3).</em:description>
+      </Description>
+    </em:localized>
+    
+    <em:targetPlatform>Linux</em:targetPlatform>
+    
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>10.0</em:minVersion>
+        <em:maxVersion>17.0a1</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    
+  </Description>
+</RDF>
