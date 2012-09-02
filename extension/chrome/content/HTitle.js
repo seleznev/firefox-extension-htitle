@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var HTitle = {
-    DEBUG: false,
+    DEBUG: true,
     
     window: null,
     isFullscreen: false,
     stateBeforeFullscreen: 0,
     firstState: 0,
-    magicCounter: 0,
-    countSizeModeChange: 0,
+    magicCounter1: 0,
+    magicCounter2: 0,
     
     isMouseDown: false,
     
@@ -19,14 +19,20 @@ var HTitle = {
         HTitle.isFullscreen = false;
         HTitle.stateBeforeFullscreen = 0;
         HTitle.firstState = 0;
-        HTitle.magicCounter = 0;
-        HTitle.countSizeModeChange = 0;
+        HTitle.magicCounter1 = 0;
+        HTitle.magicCounter2 = 0;
         
         if (HTitle.DEBUG)
             HTitle.onLog("init");
     },
     
     onWindowStateChange: function(e) {
+        if (HTitle.firstState == 0) {
+            HTitle.firstState = window.windowState;
+            if (HTitle.DEBUG)
+                HTitle.onLog("FirstState");
+        }
+        
         if (window.windowState == 4) {
             HTitle.isFullscreen = true;
             return;
@@ -41,26 +47,34 @@ var HTitle = {
         
         if (HTitle.DEBUG) {
             switch (e.type) {
-                case "resize": HTitle.magicCounter++; break;
-                case "sizemodechange": HTitle.countSizeModeChange++; break;
+                case "resize": HTitle.magicCounter1++; break;
+                case "sizemodechange": HTitle.magicCounter2++; break;
             }
         }
-        else if (e.type == "resize" && HTitle.magicCounter < 3)
-            HTitle.magicCounter++;
+        else if (e.type == "resize" && HTitle.magicCounter1 < 4)
+            HTitle.magicCounter1++;
         
         if (HTitle.DEBUG)
             HTitle.onLog(e.type);
         
-        if (HTitle.firstState == 0) {
-            HTitle.firstState = window.windowState;
-        }
-        
         if (e.type == "sizemodechange") {
             if (window.windowState == 1)
                 HTitle.window.setAttribute("hidechrome", true);
-            else if (HTitle.firstState == 1 && HTitle.magicCounter == 2) {
+            else {
                 // It's magic.
-                window.maximize();
+                // FIXME
+                if (HTitle.firstState == 1 && (
+                        (HTitle.magicCounter1 == 3 && HTitle.magicCounter2 == 2) ||
+                        (HTitle.magicCounter1 == 4 && HTitle.magicCounter2 == 2)
+                    )
+                ) {
+                    window.maximize();
+                }
+                else if (HTitle.firstState == 3 && (
+                        HTitle.magicCounter1 == 3 && HTitle.magicCounter2 == 2)
+                ) {
+                    HTitle.window.setAttribute("hidechrome", false);
+                }
             }
         }
         
@@ -74,6 +88,38 @@ var HTitle = {
             HTitle.onLog(e.type + "2");
     },
     
+    onMouseDown: function(e) {
+        var e = e || window.event;
+        if ('object' === typeof e) {
+            if (e.button == 0)
+                HTitle.isMouseDown = true;
+        }
+    },
+    
+    onMouseOut: function() {
+        if (HTitle.isMouseDown) {
+            window.restore();
+            HTitle.isMouseDown = false;
+        }
+    },
+    
+    onMouseUp: function() {
+        HTitle.isMouseDown = false;
+    },
+    
+    onClick: function() {
+        if (window.windowState == 3 && HTitle.window.getAttribute("hidechrome")) {
+            if (HTitle.DEBUG)
+                HTitle.onLog("onClick");
+            HTitle.window.setAttribute("hidechrome", false);
+        }
+        
+        Application.console.log(":: HTitle debug log\n" + HTitle.logStr + ":: End");
+        HTitle.logStr = "";
+    },
+    
+    logStr: "",
+    
     onLog: function(who) {
         switch (window.windowState) {
             case 1:  var windowState = "maximized"; break;
@@ -82,26 +128,9 @@ var HTitle = {
             default: var windowState = window.windowState.toString();
         }
         
-        Application.console.log(who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter = " + HTitle.magicCounter + "; countSizeModeChange = " + HTitle.countSizeModeChange + "; isFullscreen = " + HTitle.isFullscreen + ".");
-    },
-    
-    omMouseDown: function(e) {
-        var e = e || window.event;
-        if ('object' === typeof e) {
-            if (e.button == 0)
-                HTitle.isMouseDown = true;
-        }
-    },
-    
-    omMouseOut: function() {
-        if (HTitle.isMouseDown) {
-            window.restore();
-            HTitle.isMouseDown = false;
-        }
-    },
-    
-    omMouseUp: function() {
-        HTitle.isMouseDown = false;
+        HTitle.logStr += who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".\n";
+        
+        //Application.console.log(who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".");
     },
 }
 

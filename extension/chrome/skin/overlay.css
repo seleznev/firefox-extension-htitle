@@ -4,7 +4,7 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/*** 1px toolbar for restore window ***/
+/*** Toolbar for restore window ***/
 
 #toolbar-htitle {
   -moz-appearance: none;
@@ -16,6 +16,10 @@
   position: fixed;
   top: 0;
   min-width: 100%;
+}
+
+#main-window[sizemode="normal"][hidechrome="true"] #toolbar-htitle {
+  min-height: 100%;
 }
 
 #toolbar-htitle:active {
