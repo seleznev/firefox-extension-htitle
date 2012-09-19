@@ -83,7 +83,6 @@ var HTitle = {
                     ) {
                         window.restore();
                         HTitle.needMagic = false;
-                        HTitle.onClick();
                     }
                     else
                         HTitle.window.setAttribute("hidechrome", true);
@@ -99,7 +98,6 @@ var HTitle = {
                     ) {
                         window.maximize();
                         HTitle.needMagic = false;
-                        HTitle.onClick();
                     }
                     
                     // Need show title
@@ -109,7 +107,6 @@ var HTitle = {
                     ) {
                         HTitle.window.setAttribute("hidechrome", false);
                         HTitle.needMagic = false;
-                        HTitle.onClick();
                     }
                 }
             }
@@ -146,13 +143,10 @@ var HTitle = {
     
     onClick: function() {
         if (window.windowState == 3 && HTitle.window.getAttribute("hidechrome")) {
-            if (HTitle.DEBUG)
-                HTitle.onLog("onClick");
+            //if (HTitle.DEBUG)
+            //    HTitle.onLog("onClick");
             HTitle.window.setAttribute("hidechrome", false);
         }
-        
-        Application.console.log(":: HTitle debug log\n" + HTitle.logStr + ":: End");
-        HTitle.logStr = "";
     },
     
     logStr: "",
@@ -171,6 +165,10 @@ var HTitle = {
     },
     
     disableMagic: function(e) {
+        if (HTitle.needMagic) {
+            Application.console.log(":: HTitle debug log\n" + HTitle.logStr + ":: End");
+            HTitle.logStr = "";
+        }
         HTitle.needMagic = false;
     },
 }
