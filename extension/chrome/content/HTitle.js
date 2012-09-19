@@ -12,6 +12,11 @@ var HTitle = {
     magicCounter1: 0,
     magicCounter2: 0,
     
+    needMagic: true,
+    aMaximize: [ 202 ],
+    aShowTitle: [],
+    aNotMaximize: [ 101, 301 ],
+    
     isMouseDown: false,
     
     init: function() {
@@ -24,6 +29,17 @@ var HTitle = {
         
         if (HTitle.DEBUG)
             HTitle.onLog("init");
+    },
+    
+    isNeedMagic: function(mCounter1, mCounter2, mArray) {
+        mNumber = mCounter1 * 100 + mCounter2;
+        
+        var length = mArray.length;
+        for (var i = 0; i < length; i++) {
+            if (mArray[i] == mNumber)
+                return true;
+        }
+        return false;
     },
     
     onWindowStateChange: function(e) {
@@ -59,21 +75,41 @@ var HTitle = {
         
         if (e.type == "sizemodechange") {
             if (window.windowState == 1)
-                HTitle.window.setAttribute("hidechrome", true);
-            else {
-                // It's magic.
-                // FIXME
-                if (HTitle.firstState == 1 && (
-                        (HTitle.magicCounter1 == 3 && HTitle.magicCounter2 == 2) ||
-                        (HTitle.magicCounter1 == 4 && HTitle.magicCounter2 == 2)
-                    )
-                ) {
-                    window.maximize();
+                if (HTitle.needMagic) {
+                    // Not need maximizied
+                    if (
+                            HTitle.firstState == 3 &&
+                            HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aNotMaximize)
+                    ) {
+                        HTitle.needMagic = false;
+                        HTitle.onClick();
+                    }
+                    else
+                        HTitle.window.setAttribute("hidechrome", true);
                 }
-                else if (HTitle.firstState == 3 && (
-                        HTitle.magicCounter1 == 3 && HTitle.magicCounter2 == 2)
-                ) {
-                    HTitle.window.setAttribute("hidechrome", false);
+                else
+                    HTitle.window.setAttribute("hidechrome", true);
+            else {
+                if (HTitle.needMagic) {
+                    // Need maximizied
+                    if (
+                            HTitle.firstState == 1 &&
+                            HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aMaximize)
+                    ) {
+                        window.maximize();
+                        HTitle.needMagic = false;
+                        HTitle.onClick();
+                    }
+                    
+                    // Need show title
+                    if (
+                            HTitle.firstState == 3 &&
+                            HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aShowTitle)
+                    ) {
+                        HTitle.window.setAttribute("hidechrome", false);
+                        HTitle.needMagic = false;
+                        HTitle.onClick();
+                    }
                 }
             }
         }
