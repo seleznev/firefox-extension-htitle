@@ -169,8 +169,13 @@ var HTitle = {
         
         //Application.console.log(who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".");
     },
+    
+    disableMagic: function(e) {
+        HTitle.needMagic = false;
+    },
 }
 
 window.addEventListener("load",           HTitle.init);
 window.addEventListener("resize",         HTitle.onWindowStateChange);
 window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
+window.addEventListener("mousemove",      HTitle.disableMagic);
