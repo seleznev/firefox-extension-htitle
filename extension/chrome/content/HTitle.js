@@ -13,9 +13,9 @@ var HTitle = {
     magicCounter2: 0,
     
     needMagic: true,
-    aMaximize: [ 202 ],
+    aMaximize: [ 202, 302, 402 ],
     aShowTitle: [],
-    aNotMaximize: [ 101, 301 ],
+    aNotMaximize: [], /* 101, 301 */
     
     isMouseDown: false,
     
@@ -43,7 +43,7 @@ var HTitle = {
     },
     
     onWindowStateChange: function(e) {
-        if (HTitle.firstState == 0) {
+        if (HTitle.firstState == 0 && e.type == "sizemodechange") {
             HTitle.firstState = window.windowState;
             if (HTitle.DEBUG)
                 HTitle.onLog("FirstState");
