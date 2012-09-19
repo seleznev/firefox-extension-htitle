@@ -81,6 +81,7 @@ var HTitle = {
                             HTitle.firstState == 3 &&
                             HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aNotMaximize)
                     ) {
+                        window.restore();
                         HTitle.needMagic = false;
                         HTitle.onClick();
                     }
