@@ -143,8 +143,6 @@ var HTitle = {
     
     onClick: function() {
         if (window.windowState == 3 && HTitle.window.getAttribute("hidechrome")) {
-            //if (HTitle.DEBUG)
-            //    HTitle.onLog("onClick");
             HTitle.window.setAttribute("hidechrome", false);
         }
     },
@@ -160,16 +158,15 @@ var HTitle = {
         }
         
         HTitle.logStr += who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".\n";
-        
-        //Application.console.log(who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".");
     },
     
     disableMagic: function(e) {
-        if (HTitle.needMagic) {
+        if (HTitle.DEBUG) {
             Application.console.log(":: HTitle debug log\n" + HTitle.logStr + ":: End");
             HTitle.logStr = "";
         }
         HTitle.needMagic = false;
+        window.removeEventListener("mousemove", HTitle.disableMagic);
     },
 }
 
