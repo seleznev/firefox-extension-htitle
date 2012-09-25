@@ -61,14 +61,12 @@ var HTitle = {
             return;
         }
         
-        if (HTitle.DEBUG) {
+        if (HTitle.DEBUG || (HTitle.magicCounter1 < 5 && HTitle.magicCounter2 < 5) ) {
             switch (e.type) {
                 case "resize": HTitle.magicCounter1++; break;
                 case "sizemodechange": HTitle.magicCounter2++; break;
             }
         }
-        else if (e.type == "resize" && HTitle.magicCounter1 < 4)
-            HTitle.magicCounter1++;
         
         if (HTitle.DEBUG)
             HTitle.onLog(e.type);
