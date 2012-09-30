@@ -49,14 +49,14 @@ var HTitle = {
                 HTitle.onLog("FirstState");
         }
         
-        if (window.windowState == 4) {
+        if (window.windowState == window.STATE_FULLSCREEN) {
             HTitle.isFullscreen = true;
             return;
         }
         
         if (HTitle.isFullscreen) {
             HTitle.isFullscreen = false;
-            if (HTitle.stateBeforeFullscreen == 1)
+            if (HTitle.stateBeforeFullscreen == window.STATE_MAXIMIZED)
                 window.maximize();
             return;
         }
@@ -72,11 +72,11 @@ var HTitle = {
             HTitle.onLog(e.type);
         
         if (e.type == "sizemodechange") {
-            if (window.windowState == 1)
+            if (window.windowState == window.STATE_MAXIMIZED)
                 if (HTitle.needMagic) {
                     // Not need maximizied
                     if (
-                            HTitle.firstState == 3 &&
+                            HTitle.firstState == window.STATE_NORMAL &&
                             HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aNotMaximize)
                     ) {
                         window.restore();
@@ -91,7 +91,7 @@ var HTitle = {
                 if (HTitle.needMagic) {
                     // Need maximizied
                     if (
-                            HTitle.firstState == 1 &&
+                            HTitle.firstState == window.STATE_MAXIMIZED &&
                             HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aMaximize)
                     ) {
                         window.maximize();
@@ -100,7 +100,7 @@ var HTitle = {
                     
                     // Need show title
                     if (
-                            HTitle.firstState == 3 &&
+                            HTitle.firstState == window.STATE_NORMAL &&
                             HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aShowTitle)
                     ) {
                         HTitle.window.setAttribute("hidechrome", false);
@@ -110,7 +110,7 @@ var HTitle = {
             }
         }
         
-        if (e.type == "resize" && window.windowState == 3 && HTitle.window.getAttribute("hidechrome")) {
+        if (e.type == "resize" && window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
             HTitle.window.setAttribute("hidechrome", false);
         }
         
@@ -140,7 +140,7 @@ var HTitle = {
     },
     
     onClick: function() {
-        if (window.windowState == 3 && HTitle.window.getAttribute("hidechrome")) {
+        if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
             HTitle.window.setAttribute("hidechrome", false);
         }
     },
@@ -149,9 +149,9 @@ var HTitle = {
     
     onLog: function(who) {
         switch (window.windowState) {
-            case 1:  var windowState = "maximized"; break;
-            case 3:  var windowState = "normal"; break;
-            case 4:  var windowState = "fullscreen"; break;
+            case window.STATE_MAXIMIZED:   var windowState = "maximized"; break;
+            case window.STATE_NORMAL:      var windowState = "normal"; break;
+            case window.STATE_FULLSCREEN:  var windowState = "fullscreen"; break;
             default: var windowState = window.windowState.toString();
         }
         
