@@ -20,6 +20,8 @@ var HTitle = {
     isMouseDown: false,
     
     init: function() {
+        HTitle.DEBUG = Application.prefs.getValue("extensions.htitle.debug", false);
+        
         HTitle.window = document.getElementById("main-window");
         HTitle.isFullscreen = false;
         HTitle.stateBeforeFullscreen = 0;
@@ -140,12 +142,17 @@ var HTitle = {
     },
     
     onClick: function() {
+        if (HTitle.DEBUG) {
+            HTitle.onLog("onClick");
+            HTitle.pushLog();
+        }
         if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
             HTitle.window.setAttribute("hidechrome", false);
         }
     },
     
     logStr: "",
+    logStrCount: 0,
     
     onLog: function(who) {
         switch (window.windowState) {
@@ -156,12 +163,22 @@ var HTitle = {
         }
         
         HTitle.logStr += who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".\n";
+        
+        if (HTitle.logStrCount++ > 10) {
+            HTitle.pushLog();
+            HTitle.logStrCount = 0;
+        }
+    },
+    
+    pushLog: function(e) {
+        Application.console.log(":: HTitle debug log\n" + HTitle.logStr + ":: End");
+        HTitle.logStr = "";
     },
     
     disableMagic: function(e) {
         if (HTitle.DEBUG) {
-            Application.console.log(":: HTitle debug log\n" + HTitle.logStr + ":: End");
-            HTitle.logStr = "";
+            HTitle.onLog("disableMagic");
+            HTitle.pushLog();
         }
         HTitle.needMagic = false;
         window.removeEventListener("mousemove", HTitle.disableMagic);
