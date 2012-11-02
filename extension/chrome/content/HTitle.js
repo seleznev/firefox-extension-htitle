@@ -45,6 +45,14 @@ var HTitle = {
     },
     
     onWindowStateChange: function(e) {
+        if (HTitle.window == null) {
+            if ((HTitle.window = document.getElementById("main-window")) == null) {
+                if (HTitle.DEBUG)
+                    HTitle.pushLog("Error!", "HTitle.window == null");
+                return;
+            }
+        }
+        
         if (HTitle.firstState == 0 && e.type == "sizemodechange") {
             HTitle.firstState = window.windowState;
             if (HTitle.DEBUG)
@@ -144,7 +152,8 @@ var HTitle = {
     onClick: function() {
         if (HTitle.DEBUG) {
             HTitle.onLog("onClick");
-            HTitle.pushLog();
+            HTitle.pushLog(HTitle.logStr);
+            HTitle.logStr = "";
         }
         if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
             HTitle.window.setAttribute("hidechrome", false);
@@ -164,21 +173,20 @@ var HTitle = {
         
         HTitle.logStr += who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".\n";
         
-        if (HTitle.logStrCount++ > 10) {
-            HTitle.pushLog();
+        if (HTitle.logStrCount++ > 50) {
+            HTitle.pushLog(HTitle.logStr);
+            HTitle.logStr = "";
             HTitle.logStrCount = 0;
         }
     },
     
-    pushLog: function(e) {
-        Application.console.log(":: HTitle debug log\n" + HTitle.logStr + ":: End");
-        HTitle.logStr = "";
+    pushLog: function(message="", title="") {
+        Application.console.log(":: HTitle debug log" + " - " + title + "\n" + message + ":: End");
     },
     
     disableMagic: function(e) {
         if (HTitle.DEBUG) {
             HTitle.onLog("disableMagic");
-            HTitle.pushLog();
         }
         HTitle.needMagic = false;
         window.removeEventListener("mousemove", HTitle.disableMagic);
