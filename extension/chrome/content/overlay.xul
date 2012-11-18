@@ -17,7 +17,6 @@
                 class="toolbar-primary chromeclass-toolbar"
                 fullscreentoolbar="false"
                 onclick="HTitle.onClick(event);"
-                onmousemove="HTitle.onClick(event);"
                 onmousedown="HTitle.onMouseDown(event);"
                 onmouseup="HTitle.onMouseUp();"
                 onmouseout="HTitle.onMouseOut();"

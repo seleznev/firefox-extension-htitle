@@ -23,11 +23,6 @@ var HTitle = {
         HTitle.DEBUG = Application.prefs.getValue("extensions.htitle.debug", false);
         
         HTitle.window = document.getElementById("main-window");
-        HTitle.isFullscreen = false;
-        HTitle.stateBeforeFullscreen = 0;
-        HTitle.firstState = 0;
-        HTitle.magicCounter1 = 0;
-        HTitle.magicCounter2 = 0;
         
         if (HTitle.DEBUG)
             HTitle.onLog("init");
@@ -127,7 +122,7 @@ var HTitle = {
         HTitle.stateBeforeFullscreen = window.windowState;
         
         if (HTitle.DEBUG)
-            HTitle.onLog(e.type + "2");
+            HTitle.onLog(e.type + "_end");
     },
     
     onMouseDown: function(e) {
