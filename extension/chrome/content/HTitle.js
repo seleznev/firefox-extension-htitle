@@ -48,7 +48,7 @@ var HTitle = {
             }
         }
         
-        if (HTitle.firstState == 0 && e.type == "sizemodechange") {
+        if (HTitle.firstState == 0) {
             HTitle.firstState = window.windowState;
             if (HTitle.DEBUG)
                 HTitle.onLog("FirstState");
