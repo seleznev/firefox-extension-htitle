@@ -16,16 +16,11 @@
   position: fixed;
   top: 0;
   min-width: 100%;
-  -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
-/*  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");*/
+  -moz-binding: url(chrome://global/content/bindings/general.xml#windowdragbox);
 }
 
 #main-window[sizemode="normal"][hidechrome="true"] #toolbar-htitle {
   min-height: 100%;
-}
-
-#toolbar-htitle:active {
-  cursor: move;
 }
 
 #main-window:not([hidechrome="true"]) #toolbar-htitle {
@@ -48,6 +43,7 @@ window:not([sizemode="maximized"]) toolbar:not([customizing]) #htitle-close-butt
 }
 
 /*** ***/
+
 #toolbar-menubar:not([autohide="true"]),
 #TabsToolbar[tabsontop="true"],
 #nav-bar[tabsontop="false"] {
