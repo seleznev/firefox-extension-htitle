@@ -6,22 +6,32 @@
 
 <?xml-stylesheet href="chrome://htitle/skin/overlay.css" type="text/css"?>
 
+<!DOCTYPE overlay [
+<!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd">
+%browserDTD;
+]>
+
 <overlay id="htitle"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml">
-
-    <script type="application/x-javascript" src="chrome://htitle/content/HTitle.js"/>
-
-    <toolbox id="navigator-toolbox">
-        <toolbar id="toolbar-htitle" toolbarname=""
-                class="toolbar-primary chromeclass-toolbar"
-                fullscreentoolbar="false"
-                onclick="HTitle.onClick(event);"
-                onmousedown="HTitle.onMouseDown(event);"
-                onmouseup="HTitle.onMouseUp();"
-                onmouseout="HTitle.onMouseOut();"
-                context="toolbar-context-menu"/>
-    </toolbox>
-
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
+  
+  <script type="application/x-javascript" src="chrome://htitle/content/HTitle.js"/>
+  
+  <toolbox id="navigator-toolbox">
+    <toolbar id="toolbar-htitle" toolbarname=""
+             class="toolbar-primary chromeclass-toolbar"
+             fullscreentoolbar="false"
+             onclick="HTitle.onClick(event);"
+             context="toolbar-context-menu"/>
+  </toolbox>
+  
+  <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton id="htitle-close-button"
+                   class="toolbarbutton-1 chromeclass-toolbar-additional"
+                   removable="true"
+                   label="&closeWindow.label;" tooltiptext="&fullScreenClose.tooltip;"
+                   style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
+                   oncommand="BrowserTryToCloseWindow();"/>
+  </toolbarpalette>
+  
 </overlay>
-

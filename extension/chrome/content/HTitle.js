@@ -125,25 +125,6 @@ var HTitle = {
             HTitle.onLog(e.type + "_end");
     },
     
-    onMouseDown: function(e) {
-        var e = e || window.event;
-        if ('object' === typeof e) {
-            if (e.button == 0)
-                HTitle.isMouseDown = true;
-        }
-    },
-    
-    onMouseOut: function() {
-        if (HTitle.isMouseDown) {
-            window.restore();
-            HTitle.isMouseDown = false;
-        }
-    },
-    
-    onMouseUp: function() {
-        HTitle.isMouseDown = false;
-    },
-    
     onClick: function() {
         if (HTitle.DEBUG) {
             HTitle.onLog("onClick");
