@@ -14,12 +14,12 @@ Please visit extension's page on [addons.mozilla.org](https://addons.mozilla.org
 
 Normal window:
 
-![Screenshot](firefox-extension-htitle/raw/master/screenshots/screenshot-normal-window.png)
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-normal-window.png)
 
 Maximized window:
 
-![Screenshot](firefox-extension-htitle/raw/master/screenshots/screenshot-maximized-window.png)
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-maximized-window.png)
 
 Maximized window without panel:
 
-![Screenshot](firefox-extension-htitle/raw/master/screenshots/screenshot-maximized-window-without-panel.png)
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-maximized-window-without-panel.png)
