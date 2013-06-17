@@ -4,6 +4,7 @@
 
 var HTitle = {
     DEBUG: false,
+    ENABLED: true,
     
     window: null,
     isFullscreen: false,
@@ -22,7 +23,33 @@ var HTitle = {
     init: function() {
         HTitle.DEBUG = Application.prefs.getValue("extensions.htitle.debug", false);
         
-        HTitle.window = document.getElementById("main-window");
+        if (Application.prefs.getValue("extensions.htitle.check_gnome_shell", false)) {
+            var file = Components.classes["@mozilla.org/file/local;1"]
+                                 .createInstance(Components.interfaces.nsIFile);
+            
+            file.initWithPath("/bin/pidof");
+            
+            if (file.isExecutable) {
+                var process = Components.classes["@mozilla.org/process/util;1"]
+                                        .createInstance(Components.interfaces.nsIProcess);
+                process.init(file);
+                
+                var args = ["gnome-shell"];
+                process.run(true, args, args.length);
+                
+                if (process.exitValue == 1) {
+                    HTitle.ENABLED = false;
+                }
+            }
+        }
+        
+        if (HTitle.ENABLED) {
+            HTitle.window = document.getElementById("main-window");
+            
+            window.addEventListener("resize",         HTitle.onWindowStateChange);
+            window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
+            window.addEventListener("mousemove",      HTitle.disableMagic);
+        }
         
         if (HTitle.DEBUG)
             HTitle.onLog("init");
@@ -170,6 +197,3 @@ var HTitle = {
 }
 
 window.addEventListener("load",           HTitle.init);
-window.addEventListener("resize",         HTitle.onWindowStateChange);
-window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
-window.addEventListener("mousemove",      HTitle.disableMagic);
