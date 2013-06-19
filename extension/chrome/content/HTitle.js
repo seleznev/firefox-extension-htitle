@@ -29,17 +29,28 @@ var HTitle = {
             
             file.initWithPath("/bin/pidof");
             
-            if (file.isExecutable) {
+            if (file.exists() && file.isExecutable()) {
                 var process = Components.classes["@mozilla.org/process/util;1"]
                                         .createInstance(Components.interfaces.nsIProcess);
-                process.init(file);
-                
-                var args = ["gnome-shell"];
-                process.run(true, args, args.length);
+
+                try {
+                    process.init(file);
+                    
+                    var args = ["gnome-shell"];
+                    process.run(true, args, args.length);
+                }
+                catch (error) {
+                    if (HTitle.DEBUG)
+                        HTitle.pushLog("Error!", error.message);
+                }
                 
                 if (process.exitValue == 1) {
                     HTitle.ENABLED = false;
                 }
+            }
+            else {
+                if (HTitle.DEBUG)
+                    HTitle.pushLog("Error!", "/bin/pidof isn't exist");
             }
         }
         
@@ -50,6 +61,8 @@ var HTitle = {
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
             window.addEventListener("mousemove",      HTitle.disableMagic);
         }
+        else if (HTitle.DEBUG)
+            HTitle.pushLog("Warning!", "HTitle is disabled");
         
         if (HTitle.DEBUG)
             HTitle.onLog("init");
