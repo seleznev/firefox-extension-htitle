@@ -24,20 +24,28 @@ var HTitle = {
         HTitle.DEBUG = Application.prefs.getValue("extensions.htitle.debug", false);
         
         if (Application.prefs.getValue("extensions.htitle.check_gnome_shell", false)) {
+            HTitle.log("Start checking DE", "DEBUG");
+            
             var file = Components.classes["@mozilla.org/file/local;1"]
                                  .createInstance(Components.interfaces.nsIFile);
-
+            
             var env = Components.classes["@mozilla.org/process/environment;1"]
                                 .getService(Components.interfaces.nsIEnvironment);
             var path = env.get("PATH").split(":");
-
+            
+            HTitle.log("PATH = " + path, "DEBUG");
+            
             var pidof_path = null
             for (var i = 0; i < path.length; i++) {
                 var full_path = path[i] + "/pidof";
                 file.initWithPath(full_path);
                 if (file.exists() && file.isExecutable()) {
                     pidof_path = full_path;
+                    HTitle.log("Path to pidof is \"" + full_path + "\"", "DEBUG");
                     break;
+                }
+                else {
+                    HTitle.log("File \"" + full_path + "\" doesn't exists", "DEBUG");
                 }
             }
             
@@ -52,8 +60,7 @@ var HTitle = {
                     process.run(true, args, args.length);
                 }
                 catch (error) {
-                    if (HTitle.DEBUG)
-                        HTitle.pushLog("Error!", error.message);
+                    HTitle.log(error.message, "ERROR");
                 }
                 
                 if (process.exitValue == 1) {
@@ -61,23 +68,25 @@ var HTitle = {
                 }
             }
             else {
-                if (HTitle.DEBUG)
-                    HTitle.pushLog("Error!", "pidof doesn't exist");
+                HTitle.log("pidof doesn't exist", "ERROR");
             }
         }
         
         if (HTitle.ENABLED) {
+            HTitle.log("Extension initialization...", "DEBUG");
+            
             HTitle.window = document.getElementById("main-window");
             
             window.addEventListener("resize",         HTitle.onWindowStateChange);
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
             window.addEventListener("mousemove",      HTitle.disableMagic);
         }
-        else
+        else {
+            HTitle.log("Extension is disabled", "INFO");
             return;
+        }
         
-        if (HTitle.DEBUG)
-            HTitle.onLog("init");
+        HTitle.logWindowState("init");
     },
     
     isNeedMagic: function(mCounter1, mCounter2, mArray) {
@@ -94,16 +103,14 @@ var HTitle = {
     onWindowStateChange: function(e) {
         if (HTitle.window == null) {
             if ((HTitle.window = document.getElementById("main-window")) == null) {
-                if (HTitle.DEBUG)
-                    HTitle.pushLog("Error!", "HTitle.window == null");
+                HTitle.log("HTitle.window == null", "DEBUG");
                 return;
             }
         }
         
         if (HTitle.firstState == 0) {
             HTitle.firstState = window.windowState;
-            if (HTitle.DEBUG)
-                HTitle.onLog("FirstState");
+            HTitle.logWindowState("FirstState");
         }
         
         if (window.windowState == window.STATE_FULLSCREEN) {
@@ -125,8 +132,7 @@ var HTitle = {
             }
         }
         
-        if (HTitle.DEBUG)
-            HTitle.onLog(e.type);
+        HTitle.logWindowState(e.type);
         
         if (e.type == "sizemodechange") {
             if (window.windowState == window.STATE_MAXIMIZED)
@@ -173,25 +179,22 @@ var HTitle = {
         
         HTitle.stateBeforeFullscreen = window.windowState;
         
-        if (HTitle.DEBUG)
-            HTitle.onLog(e.type + "_end");
+        HTitle.logWindowState(e.type + "_end");
     },
     
     onClick: function() {
-        if (HTitle.DEBUG) {
-            HTitle.onLog("onClick");
-            HTitle.pushLog(HTitle.logStr);
-            HTitle.logStr = "";
-        }
+        HTitle.logWindowState("onClick");
         if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
             HTitle.window.setAttribute("hidechrome", false);
         }
     },
     
-    logStr: "",
-    logStrCount: 0,
-    
-    onLog: function(who) {
+    logWindowStateCount: 0,
+    logWindowStateMessage: "\n",
+    logWindowState: function(from) {
+        if (HTitle.DEBUG == false)
+            return
+        
         switch (window.windowState) {
             case window.STATE_MAXIMIZED:   var windowState = "maximized"; break;
             case window.STATE_NORMAL:      var windowState = "normal"; break;
@@ -199,23 +202,27 @@ var HTitle = {
             default: var windowState = window.windowState.toString();
         }
         
-        HTitle.logStr += who + ": windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".\n";
+        HTitle.logWindowStateCount++;
+        HTitle.logWindowStateMessage += "Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".\n";
         
-        if (HTitle.logStrCount++ > 50) {
-            HTitle.pushLog(HTitle.logStr);
-            HTitle.logStr = "";
-            HTitle.logStrCount = 0;
-        }
+        if (HTitle.logWindowStateCount > 20) {
+            HTitle.log(HTitle.logWindowStateMessage, "DEBUG");
+            HTitle.logWindowStateCount = 0;
+            HTitle.logWindowStateMessage = "\n";
+        }        
     },
     
-    pushLog: function(message="", title="") {
-        Application.console.log(":: HTitle debug log" + " - " + title + "\n" + message + ":: End");
+    log: function(message, level="ERROR") {
+        if (HTitle.DEBUG == false && level == "DEBUG")
+            return;
+        
+        var timestamp = Date.now();
+        Application.console.log("[" + timestamp + "] " + level + " HTitle: " + message);
     },
     
     disableMagic: function(e) {
-        if (HTitle.DEBUG) {
-            HTitle.onLog("disableMagic");
-        }
+        HTitle.logWindowState("disableMagic");
+
         HTitle.needMagic = false;
         window.removeEventListener("mousemove", HTitle.disableMagic);
     },
