@@ -63,6 +63,7 @@ var HTitle = {
                     HTitle.log(error.message, "ERROR");
                 }
                 
+                HTitle.log("Exit value is \"" + process.exitValue + "\"", "DEBUG");
                 if (process.exitValue == 1) {
                     HTitle.ENABLED = false;
                 }
@@ -203,9 +204,9 @@ var HTitle = {
         }
         
         HTitle.logWindowStateCount++;
-        HTitle.logWindowStateMessage += "Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + ".\n";
+        HTitle.logWindowStateMessage += "Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + "\n";
         
-        if (HTitle.logWindowStateCount > 20) {
+        if (HTitle.logWindowStateCount > 50) {
             HTitle.log(HTitle.logWindowStateMessage, "DEBUG");
             HTitle.logWindowStateCount = 0;
             HTitle.logWindowStateMessage = "\n";
