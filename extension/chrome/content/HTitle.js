@@ -6,19 +6,12 @@ var HTitle = {
     DEBUG: false,
     ENABLED: true,
     
+    TIMEWAIT: 200, // ms
+    
     window: null,
-    isFullscreen: false,
-    stateBeforeFullscreen: 0,
-    firstState: 0,
-    magicCounter1: 0,
-    magicCounter2: 0,
     
-    needMagic: true,
-    aMaximize: [ 202, 302, 402 ],
-    aShowTitle: [],
-    aNotMaximize: [], /* 101, 301 */
-    
-    isMouseDown: false,
+    previousState: 0,
+    previousChangeTime: 0,
     
     _find_path_to_exec: function(name) {
         var file = Components.classes["@mozilla.org/file/local;1"]
@@ -30,7 +23,7 @@ var HTitle = {
         
         HTitle.log("PATH = " + path, "DEBUG");
         
-        var path_to_exec = null
+        var path_to_exec = null;
         for (var i = 0; i < path.length; i++) {
             var full_path_to_exec = path[i] + "/" + name;
             file.initWithPath(full_path_to_exec);
@@ -49,7 +42,7 @@ var HTitle = {
     
     _run: function(path, args, needWait=true) {
         var file = Components.classes["@mozilla.org/file/local;1"]
-                                 .createInstance(Components.interfaces.nsIFile);
+                             .createInstance(Components.interfaces.nsIFile);
         
         file.initWithPath(path);
         
@@ -110,117 +103,38 @@ var HTitle = {
             HTitle.log("Start in legacy mode", "DEBUG");
             
             HTitle.window = document.getElementById("main-window");
-            
-            window.addEventListener("resize",         HTitle.onWindowStateChange);
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
-            window.addEventListener("mousemove",      HTitle.disableMagic);
-            
-            HTitle.logWindowState("init");
         }
-    },
-    
-    isNeedMagic: function(mCounter1, mCounter2, mArray) {
-        mNumber = mCounter1 * 100 + mCounter2;
-        
-        var length = mArray.length;
-        for (var i = 0; i < length; i++) {
-            if (mArray[i] == mNumber)
-                return true;
-        }
-        return false;
     },
     
     onWindowStateChange: function(e) {
-        if (HTitle.window == null) {
-            if ((HTitle.window = document.getElementById("main-window")) == null) {
-                HTitle.log("HTitle.window == null", "DEBUG");
-                return;
-            }
-        }
-        
-        if (HTitle.firstState == 0) {
-            HTitle.firstState = window.windowState;
-            HTitle.logWindowState("FirstState");
-        }
-        
-        if (window.windowState == window.STATE_FULLSCREEN) {
-            HTitle.isFullscreen = true;
+        if (
+                HTitle.previousState == window.windowState ||
+                window.windowState == window.STATE_FULLSCREEN ||
+                Date.now() - HTitle.previousChangeTime < HTitle.TIMEWAIT
+            ) {
             return;
         }
         
-        if (HTitle.isFullscreen) {
-            HTitle.isFullscreen = false;
-            if (HTitle.stateBeforeFullscreen == window.STATE_MAXIMIZED)
-                window.maximize();
-            return;
-        }
+        HTitle.logWindowState("onWindowStateChange");
         
-        if (HTitle.DEBUG || (HTitle.magicCounter1 < 5 && HTitle.magicCounter2 < 5) ) {
-            switch (e.type) {
-                case "resize": HTitle.magicCounter1++; break;
-                case "sizemodechange": HTitle.magicCounter2++; break;
-            }
-        }
-        
-        HTitle.logWindowState(e.type);
-        
-        if (e.type == "sizemodechange") {
-            if (window.windowState == window.STATE_MAXIMIZED)
-                if (HTitle.needMagic) {
-                    // Not need maximizied
-                    if (
-                            HTitle.firstState == window.STATE_NORMAL &&
-                            HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aNotMaximize)
-                    ) {
-                        window.restore();
-                        HTitle.needMagic = false;
-                    }
-                    else
-                        HTitle.window.setAttribute("hidechrome", true);
-                }
-                else
-                    HTitle.window.setAttribute("hidechrome", true);
-            else {
-                if (HTitle.needMagic) {
-                    // Need maximizied
-                    if (
-                            HTitle.firstState == window.STATE_MAXIMIZED &&
-                            HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aMaximize)
-                    ) {
-                        window.maximize();
-                        HTitle.needMagic = false;
-                    }
-                    
-                    // Need show title
-                    if (
-                            HTitle.firstState == window.STATE_NORMAL &&
-                            HTitle.isNeedMagic(HTitle.magicCounter1, HTitle.magicCounter2, HTitle.aShowTitle)
-                    ) {
-                        HTitle.window.setAttribute("hidechrome", false);
-                        HTitle.needMagic = false;
-                    }
-                }
-            }
-        }
-        
-        if (e.type == "resize" && window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
+        if (window.windowState == window.STATE_MAXIMIZED)
+            HTitle.window.setAttribute("hidechrome", true);
+        else {
             HTitle.window.setAttribute("hidechrome", false);
         }
         
-        HTitle.stateBeforeFullscreen = window.windowState;
-        
-        HTitle.logWindowState(e.type + "_end");
+        HTitle.previousState = window.windowState;
+        HTitle.previousChangeTime = Date.now();
     },
     
     onClick: function() {
-        HTitle.logWindowState("onClick");
         if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
+            HTitle.logWindowState("onClick");
             HTitle.window.setAttribute("hidechrome", false);
         }
     },
     
-    logWindowStateCount: 0,
-    logWindowStateMessage: "\n",
     logWindowState: function(from) {
         if (HTitle.DEBUG == false)
             return
@@ -232,14 +146,7 @@ var HTitle = {
             default: var windowState = window.windowState.toString();
         }
         
-        HTitle.logWindowStateCount++;
-        HTitle.logWindowStateMessage += "Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; magicCounter1 = " + HTitle.magicCounter1 + "; magicCounter2 = " + HTitle.magicCounter2 + "; isFullscreen = " + HTitle.isFullscreen + "\n";
-        
-        if (HTitle.logWindowStateCount > 50) {
-            HTitle.log(HTitle.logWindowStateMessage, "DEBUG");
-            HTitle.logWindowStateCount = 0;
-            HTitle.logWindowStateMessage = "\n";
-        }        
+        HTitle.log("Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; isFullscreen = " + HTitle.isFullscreen, "DEBUG");
     },
     
     log: function(message, level="ERROR") {
@@ -248,13 +155,6 @@ var HTitle = {
         
         var timestamp = Date.now();
         Application.console.log("[" + timestamp + "] " + level + " HTitle: " + message);
-    },
-    
-    disableMagic: function(e) {
-        HTitle.logWindowState("disableMagic");
-
-        HTitle.needMagic = false;
-        window.removeEventListener("mousemove", HTitle.disableMagic);
     },
 }
 

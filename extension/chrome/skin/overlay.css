@@ -16,6 +16,9 @@
   position: fixed;
   top: 0;
   min-width: 100%;
+}
+
+#main-window[sizemode="maximized"][hidechrome="true"] #toolbar-htitle {
   -moz-binding: url(chrome://global/content/bindings/general.xml#windowdragbox);
 }
 
