@@ -66,7 +66,7 @@ var HTitle = {
         }
         
         if (needWait) {
-            HTitle.log("Exit value is \"" + process.exitValue + "\"", "DEBUG");
+            HTitle.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
             return process.exitValue;
         }
         else
@@ -92,19 +92,22 @@ var HTitle = {
             }
         }
         
-        HTitle.log("Extension initialization...", "DEBUG");
-        
         var result = -2;
-        var bash_path = HTitle._find_path_to_exec("bash");
-        if (bash_path) {
-            var str = 'for I in `xwininfo -tree -root | grep "(\\"Navigator\\" \\"Firefox\\")" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"`; do xprop -id $I -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
-            HTitle.log(str, "INFO");
-            var args = ["-c", str]
-            result = HTitle._run(bash_path, args, false);
+        
+        if (!Application.prefs.getValue("extensions.htitle.enable_legacy_method", false)) {
+            HTitle.log("Start in normal mode", "DEBUG");
+            
+            var bash_path = HTitle._find_path_to_exec("bash");
+            if (bash_path) {
+                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(\\"Navigator\\" \\"Firefox\\")" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
+                HTitle.log(str, "INFO");
+                var args = ["-c", str]
+                result = HTitle._run(bash_path, args, false);
+            }
         }
         
         if (result != 0) {
-            HTitle.log("bash doesn't exist", "ERROR");
+            HTitle.log("Start in legacy mode", "DEBUG");
             
             HTitle.window = document.getElementById("main-window");
             
