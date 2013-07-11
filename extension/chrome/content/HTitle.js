@@ -20,51 +20,70 @@ var HTitle = {
     
     isMouseDown: false,
     
+    _find_path_to_exec: function(name) {
+        var file = Components.classes["@mozilla.org/file/local;1"]
+                             .createInstance(Components.interfaces.nsIFile);
+        
+        var env = Components.classes["@mozilla.org/process/environment;1"]
+                            .getService(Components.interfaces.nsIEnvironment);
+        var path = env.get("PATH").split(":");
+        
+        HTitle.log("PATH = " + path, "DEBUG");
+        
+        var path_to_exec = null
+        for (var i = 0; i < path.length; i++) {
+            var full_path_to_exec = path[i] + "/" + name;
+            file.initWithPath(full_path_to_exec);
+            if (file.exists() && file.isExecutable()) {
+                path_to_exec = full_path_to_exec;
+                HTitle.log("Path to " + name + " is \"" + full_path_to_exec + "\"", "DEBUG");
+                break;
+            }
+            else {
+                HTitle.log("File \"" + full_path_to_exec + "\" doesn't exists", "DEBUG");
+            }
+        }
+        
+        return path_to_exec;
+    },
+    
+    _run: function(path, args, needWait=true) {
+        var file = Components.classes["@mozilla.org/file/local;1"]
+                                 .createInstance(Components.interfaces.nsIFile);
+        
+        file.initWithPath(path);
+        
+        var process = Components.classes["@mozilla.org/process/util;1"]
+                                .createInstance(Components.interfaces.nsIProcess);
+        
+        try {
+            process.init(file);
+            process.run(needWait, args, args.length);
+        }
+        catch (error) {
+            HTitle.log(error.message, "ERROR");
+            return -1;
+        }
+        
+        if (needWait) {
+            HTitle.log("Exit value is \"" + process.exitValue + "\"", "DEBUG");
+            return process.exitValue;
+        }
+        else
+            return 0;
+    },
+    
     init: function() {
         HTitle.DEBUG = Application.prefs.getValue("extensions.htitle.debug", false);
         
         if (Application.prefs.getValue("extensions.htitle.check_gnome_shell", false)) {
             HTitle.log("Start checking DE", "DEBUG");
             
-            var file = Components.classes["@mozilla.org/file/local;1"]
-                                 .createInstance(Components.interfaces.nsIFile);
-            
-            var env = Components.classes["@mozilla.org/process/environment;1"]
-                                .getService(Components.interfaces.nsIEnvironment);
-            var path = env.get("PATH").split(":");
-            
-            HTitle.log("PATH = " + path, "DEBUG");
-            
-            var pidof_path = null
-            for (var i = 0; i < path.length; i++) {
-                var full_path = path[i] + "/pidof";
-                file.initWithPath(full_path);
-                if (file.exists() && file.isExecutable()) {
-                    pidof_path = full_path;
-                    HTitle.log("Path to pidof is \"" + full_path + "\"", "DEBUG");
-                    break;
-                }
-                else {
-                    HTitle.log("File \"" + full_path + "\" doesn't exists", "DEBUG");
-                }
-            }
+            var pidof_path = HTitle._find_path_to_exec("pidof");
             
             if (pidof_path) {
-                var process = Components.classes["@mozilla.org/process/util;1"]
-                                        .createInstance(Components.interfaces.nsIProcess);
-
-                try {
-                    process.init(file);
-                    
-                    var args = ["gnome-shell"];
-                    process.run(true, args, args.length);
-                }
-                catch (error) {
-                    HTitle.log(error.message, "ERROR");
-                }
-                
-                HTitle.log("Exit value is \"" + process.exitValue + "\"", "DEBUG");
-                if (process.exitValue == 1) {
+                var exitValue = HTitle._run(pidof_path, ["gnome-shell"]);
+                if (exitValue == 1) {
                     HTitle.ENABLED = false;
                 }
             }
