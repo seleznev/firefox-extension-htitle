@@ -1,4 +1,7 @@
 content   htitle               chrome/content/
 skin      htitle  classic/1.0  chrome/skin/
 
+locale    htitle  en-US        chrome/locale/en-US/
+locale    htitle  ru           chrome/locale/ru/
+
 overlay chrome://browser/content/browser.xul chrome://htitle/content/overlay.xul
