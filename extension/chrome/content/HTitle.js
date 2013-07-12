@@ -5,8 +5,9 @@
 var HTitle = {
     DEBUG: false,
     ENABLED: true,
-    
     TIMEWAIT: 200, // ms
+    
+    prefs: null,
     
     window: null,
     
@@ -87,9 +88,13 @@ var HTitle = {
     },
     
     init: function() {
-        HTitle.DEBUG = Application.prefs.getValue("extensions.htitle.debug", false);
+        HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                                 .getService(Components.interfaces.nsIPrefService)
+                                 .getBranch("extensions.htitle.");
         
-        if (Application.prefs.getValue("extensions.htitle.check_gnome_shell", false)) {
+        HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
+        
+        if (HTitle.prefs.getBoolPref("check_gnome_shell")) {
             HTitle.log("Start checking DE", "DEBUG");
             
             var pidof_path = HTitle._find_path_to_exec("pidof");
@@ -107,7 +112,7 @@ var HTitle = {
         
         var result = -2;
         
-        if (!Application.prefs.getValue("extensions.htitle.enable_legacy_method", false)) {
+        if (!HTitle.prefs.getBoolPref("enable_legacy_method")) {
             HTitle.log("Start in normal mode", "DEBUG");
             
             var bash_path = HTitle._find_path_to_exec("bash");
@@ -130,7 +135,7 @@ var HTitle = {
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
         }
         
-        if (Application.prefs.getValue("extensions.htitle.show_close_button", false)) {
+        if (HTitle.prefs.getBoolPref("show_close_button")) {
             HTitle.loadStyle("window-controls");
         }
     },
