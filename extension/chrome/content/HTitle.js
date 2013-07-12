@@ -15,6 +15,27 @@ var HTitle = {
     previousState: 0,
     previousChangeTime: 0,
     
+    init: function() {
+        HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                                 .getService(Components.interfaces.nsIPrefService)
+                                 .getBranch("extensions.htitle.");
+        
+        HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
+        
+        HTitle.prefs.addObserver("", HTitle, false);
+        
+        if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0) {
+            HTitle.ENABLED = false;
+        }
+        
+        if (HTitle.ENABLED)
+            HTitle.launch();
+        
+        if (HTitle.prefs.getBoolPref("show_close_button")) {
+            HTitle.loadStyle("window-controls");
+        }
+    },
+    
     _find_path_to_exec: function(name) {
         var file = Components.classes["@mozilla.org/file/local;1"]
                              .createInstance(Components.interfaces.nsIFile);
@@ -152,27 +173,6 @@ var HTitle = {
         HTitle.currentMode = "normal";
         HTitle.previousState = 0;
         HTitle.previousChangeTime = 0;
-    },
-    
-    init: function() {
-        HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                                 .getService(Components.interfaces.nsIPrefService)
-                                 .getBranch("extensions.htitle.");
-        
-        HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
-        
-        HTitle.prefs.addObserver("", HTitle, false);
-        
-        if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0) {
-            HTitle.ENABLED = false;
-        }
-        
-        if (HTitle.ENABLED)
-            HTitle.launch();
-        
-        if (HTitle.prefs.getBoolPref("show_close_button")) {
-            HTitle.loadStyle("window-controls");
-        }
     },
     
     observe: function(subject, topic, data) {
