@@ -11,6 +11,7 @@ var HTitle = {
     
     window: null,
     
+    currentMode: "normal",
     previousState: 0,
     previousChangeTime: 0,
     
@@ -87,29 +88,25 @@ var HTitle = {
             sss.unregisterSheet(uri, sss.USER_SHEET);
     },
     
-    init: function() {
-        HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                                 .getService(Components.interfaces.nsIPrefService)
-                                 .getBranch("extensions.htitle.");
+    checkPresenceGnomeShell: function() {
+        HTitle.log("Start checking DE", "DEBUG");
         
-        HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
+        var pidof_path = HTitle._find_path_to_exec("pidof");
         
-        if (HTitle.prefs.getBoolPref("check_gnome_shell")) {
-            HTitle.log("Start checking DE", "DEBUG");
-            
-            var pidof_path = HTitle._find_path_to_exec("pidof");
-            
-            if (pidof_path) {
-                var exitValue = HTitle._run(pidof_path, ["gnome-shell"]);
-                if (exitValue == 1) {
-                    HTitle.ENABLED = false;
-                }
-            }
-            else {
-                HTitle.log("pidof doesn't exist", "ERROR");
-            }
+        if (pidof_path) {
+            var exitValue = HTitle._run(pidof_path, ["gnome-shell"]);
+            if (exitValue == 1)
+                return 1;
+            else
+                return 0;
         }
-        
+        else {
+            HTitle.log("pidof doesn't exist", "ERROR");
+            return 2;
+        }
+    },
+    
+    launch: function() {
         var result = -2;
         
         if (!HTitle.prefs.getBoolPref("enable_legacy_method")) {
@@ -128,15 +125,94 @@ var HTitle = {
         if (result == 0) {
             HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
             HTitle.window.setAttribute("hidechrome", false);
+            HTitle.currentMode = "normal";
         }
         else {
             HTitle.log("Start in legacy mode", "DEBUG");
-            
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
+            HTitle.currentMode = "legacy";
+            HTitle.onWindowStateChange();
         }
+    },
+    
+    stop: function() {
+        if (HTitle.currentMode == "normal") {
+            var bash_path = HTitle._find_path_to_exec("bash");
+            if (bash_path) {
+                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(\\"Navigator\\" \\"Firefox\\")" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
+                var args = ["-c", str]
+                HTitle._run(bash_path, args, false);
+            }
+            HTitle.window.removeAttribute("hidetitlebarwhenmaximized");
+        }
+        else if (HTitle.currentMode == "legacy") {
+            window.removeEventListener("sizemodechange", HTitle.onWindowStateChange);
+            HTitle.window.setAttribute("hidechrome", false);
+        }
+        HTitle.currentMode = "normal";
+        HTitle.previousState = 0;
+        HTitle.previousChangeTime = 0;
+    },
+    
+    init: function() {
+        HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                                 .getService(Components.interfaces.nsIPrefService)
+                                 .getBranch("extensions.htitle.");
+        
+        HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
+        
+        HTitle.prefs.addObserver("", HTitle, false);
+        
+        if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0) {
+            HTitle.ENABLED = false;
+        }
+        
+        if (HTitle.ENABLED)
+            HTitle.launch();
         
         if (HTitle.prefs.getBoolPref("show_close_button")) {
             HTitle.loadStyle("window-controls");
+        }
+    },
+    
+    observe: function(subject, topic, data) {
+        if (topic != "nsPref:changed") {
+            return;
+        }
+
+        switch(data) {
+            case "show_close_button":
+                if (HTitle.prefs.getBoolPref("show_close_button")) {
+                    HTitle.log("Enable show close button", "DEBUG");
+                    HTitle.loadStyle("window-controls");
+                }
+                else {
+                    HTitle.log("Disable show close button", "DEBUG");
+                    HTitle.unloadStyle("window-controls");
+                }
+                break;
+            case "enable_legacy_method":
+                if (HTitle.ENABLED) {
+                    HTitle.stop();
+                    HTitle.launch();
+                }
+                break;
+            case "check_gnome_shell":
+                if (!HTitle.ENABLED && !HTitle.prefs.getBoolPref("check_gnome_shell")) {
+                    HTitle.ENABLED = true;
+                    HTitle.launch();
+                }
+                else if (HTitle.ENABLED && !HTitle.prefs.getBoolPref("check_gnome_shell")) {
+                    return;
+                }
+                else if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0 && HTitle.ENABLED) {
+                    HTitle.ENABLED = false;
+                    HTitle.stop();
+                }
+                break;
+            case "debug":
+                HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
+                break;
         }
     },
     
@@ -190,6 +266,11 @@ var HTitle = {
         var timestamp = Date.now();
         Application.console.log("[" + timestamp + "] " + level + " HTitle: " + message);
     },
+    
+    shutdown: function() {
+        HTitle.prefs.removeObserver("", HTitle);
+    },
 }
 
-window.addEventListener("load", HTitle.init);
+window.addEventListener("load",   HTitle.init);
+window.addEventListener("unload", HTitle.shutdown);
