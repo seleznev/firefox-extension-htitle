@@ -32,8 +32,9 @@
 
 /*** Padding for tabs bar ***/
 
-#main-window:not([hidechrome="false"]) #TabsToolbar:not([tabsontop="false"]) {
-  margin-top: 2px;
+#main-window[hidetitlebarwhenmaximized="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]),
+#main-window[hidechrome="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]) {
+  padding-top: 2px;
 }
 
 /*** Close button ***/

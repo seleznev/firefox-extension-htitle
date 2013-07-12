@@ -118,10 +118,15 @@ var HTitle = {
             }
         }
         
-        if (result != 0) {
+        HTitle.window = document.getElementById("main-window");
+        
+        if (result == 0) {
+            HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
+            HTitle.window.setAttribute("hidechrome", false);
+        }
+        else {
             HTitle.log("Start in legacy mode", "DEBUG");
             
-            HTitle.window = document.getElementById("main-window");
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
         }
         
