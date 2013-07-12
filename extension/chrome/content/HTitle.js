@@ -155,6 +155,7 @@ var HTitle = {
         if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
             HTitle.logWindowState("onClick");
             HTitle.window.setAttribute("hidechrome", false);
+            HTitle.previousState = window.STATE_NORMAL;
         }
     },
     
