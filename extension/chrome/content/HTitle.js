@@ -66,6 +66,26 @@ var HTitle = {
             return 0;
     },
     
+    loadStyle: function(name) {
+        var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
+                            .getService(Components.interfaces.nsIStyleSheetService);
+        var io = Components.classes["@mozilla.org/network/io-service;1"]
+                           .getService(Components.interfaces.nsIIOService);
+        var uri = io.newURI("chrome://htitle/skin/" + name + ".css", null, null);
+        if (!sss.sheetRegistered(uri, sss.USER_SHEET))
+            sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+    },
+    
+    unloadStyle: function(name) {
+        var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
+                            .getService(Components.interfaces.nsIStyleSheetService);
+        var io = Components.classes["@mozilla.org/network/io-service;1"]
+                           .getService(Components.interfaces.nsIIOService);
+        var uri = io.newURI("chrome://htitle/skin/" + name + ".css", null, null);
+        if (sss.sheetRegistered(uri, sss.USER_SHEET))
+            sss.unregisterSheet(uri, sss.USER_SHEET);
+    },
+    
     init: function() {
         HTitle.DEBUG = Application.prefs.getValue("extensions.htitle.debug", false);
         
@@ -103,6 +123,10 @@ var HTitle = {
             
             HTitle.window = document.getElementById("main-window");
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
+        }
+        
+        if (Application.prefs.getValue("extensions.htitle.show_close_button", false)) {
+            HTitle.loadStyle("window-controls");
         }
     },
     
