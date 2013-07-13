@@ -21,7 +21,7 @@
     <toolbar id="toolbar-htitle" toolbarname=""
              class="toolbar-primary chromeclass-toolbar"
              fullscreentoolbar="false"
-             onclick="HTitle.onClick(event);"
+             onclick="HTitle.checkWindowState(event);"
              context="toolbar-context-menu"/>
   </toolbox>
   

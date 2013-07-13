@@ -5,7 +5,8 @@
 var HTitle = {
     DEBUG: false,
     ENABLED: true,
-    TIMEWAIT: 200, // ms
+    TIMEOUT_CHECK: 200, // ms
+    TIMEOUT_BETWEEN_CHANGES: 200, // ms
     
     prefs: null,
     
@@ -21,6 +22,8 @@ var HTitle = {
                                  .getBranch("extensions.htitle.");
         
         HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
+        HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy.timeout_check");
+        HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy.timeout_between_changes");
         
         HTitle.prefs.addObserver("", HTitle, false);
         
@@ -152,7 +155,9 @@ var HTitle = {
             HTitle.log("Start in legacy mode", "DEBUG");
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
             HTitle.currentMode = "legacy";
-            HTitle.onWindowStateChange();
+            //HTitle.onWindowStateChange();
+            
+            setTimeout(function(){HTitle.checkWindowState();}, HTitle.TIMEOUT_CHECK);
         }
     },
     
@@ -213,6 +218,12 @@ var HTitle = {
             case "debug":
                 HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
                 break;
+            case "legacy.timeout_check":
+                HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy.timeout_check");
+                break;
+            case "legacy.timeout_between_changes":
+                HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy.timeout_between_changes");
+                break;
         }
     },
     
@@ -220,7 +231,7 @@ var HTitle = {
         if (
                 HTitle.previousState == window.windowState ||
                 window.windowState == window.STATE_FULLSCREEN ||
-                Date.now() - HTitle.previousChangeTime < HTitle.TIMEWAIT
+                Date.now() - HTitle.previousChangeTime < HTitle.TIMEOUT_BETWEEN_CHANGES
             ) {
             return;
         }
@@ -237,11 +248,18 @@ var HTitle = {
         HTitle.previousChangeTime = Date.now();
     },
     
-    onClick: function() {
+    checkWindowState: function() {
         if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
-            HTitle.logWindowState("onClick");
+            HTitle.logWindowState("checkWindowState");
             HTitle.window.setAttribute("hidechrome", false);
             HTitle.previousState = window.STATE_NORMAL;
+            HTitle.previousChangeTime = Date.now();
+        }
+        else if (window.windowState == window.STATE_MAXIMIZED && HTitle.window.getAttribute("hidechrome") != true) {
+            HTitle.logWindowState("checkWindowState");
+            HTitle.window.setAttribute("hidechrome", true);
+            HTitle.previousState = window.STATE_MAXIMIZED;
+            HTitle.previousChangeTime = Date.now();
         }
     },
     
