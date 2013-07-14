@@ -280,11 +280,16 @@ var HTitle = {
     },
     
     log: function(message, level="ERROR") {
+        // TODO: Logging a message with additional information
+        // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsIConsoleService
+        
         if (HTitle.DEBUG == false && level == "DEBUG")
             return;
         
-        var timestamp = Date.now();
-        Application.console.log("[" + timestamp + "] " + level + " HTitle: " + message);
+        var console = Components.classes["@mozilla.org/consoleservice;1"]
+                                .getService(Components.interfaces.nsIConsoleService);
+        
+        console.logStringMessage("[" + Date.now() + "] " + level + " HTitle: " + message);
     },
     
     shutdown: function() {
