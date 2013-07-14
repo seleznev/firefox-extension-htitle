@@ -37,6 +37,8 @@ var HTitle = {
         if (HTitle.prefs.getBoolPref("show_close_button")) {
             HTitle.loadStyle("window-controls");
         }
+        
+        HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
     
     _find_path_to_exec: function(name) {
@@ -251,13 +253,13 @@ var HTitle = {
     },
     
     checkWindowState: function() {
-        if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome")) {
+        if (window.windowState == window.STATE_NORMAL) {
             HTitle.logWindowState("checkWindowState");
             HTitle.window.setAttribute("hidechrome", false);
             HTitle.previousState = window.STATE_NORMAL;
             HTitle.previousChangeTime = Date.now();
         }
-        else if (window.windowState == window.STATE_MAXIMIZED && HTitle.window.getAttribute("hidechrome") != true) {
+        else if (window.windowState == window.STATE_MAXIMIZED) {
             HTitle.logWindowState("checkWindowState");
             HTitle.window.setAttribute("hidechrome", true);
             HTitle.previousState = window.STATE_MAXIMIZED;
@@ -276,7 +278,7 @@ var HTitle = {
             default: var windowState = window.windowState.toString();
         }
         
-        HTitle.log("Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome") + "; isFullscreen = " + HTitle.isFullscreen, "DEBUG");
+        HTitle.log("Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome"), "DEBUG");
     },
     
     log: function(message, level="ERROR") {
