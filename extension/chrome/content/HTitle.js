@@ -228,11 +228,13 @@ var HTitle = {
     },
     
     onWindowStateChange: function(e) {
-        if (
-                HTitle.previousState == window.windowState ||
-                window.windowState == window.STATE_FULLSCREEN ||
-                Date.now() - HTitle.previousChangeTime < HTitle.TIMEOUT_BETWEEN_CHANGES
-            ) {
+        if (HTitle.previousState == window.windowState || window.windowState == window.STATE_FULLSCREEN || window.windowState == window.STATE_MINIMIZED) {
+            return;
+        }
+        
+        if ((Date.now() - HTitle.previousChangeTime) < HTitle.TIMEOUT_BETWEEN_CHANGES) {
+            if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome"))
+                 window.maximize();
             return;
         }
         
