@@ -14,5 +14,4 @@
   <setting pref="extensions.htitle.show_close_button" type="bool" title="&showclosebutton.label;"/>
   <setting pref="extensions.htitle.legacy_mode.enable" type="bool" title="&enablelegacymethod.label;"/>
   <setting pref="extensions.htitle.check_gnome_shell" type="bool" title="&checkgnomeshell.label;"/>
-  <setting pref="extensions.htitle.debug" type="bool" title="&debugmode.label;"/>
 </window>

@@ -5,4 +5,3 @@
 <!ENTITY showclosebutton.label    "Показывать кнопку закрытия окна">
 <!ENTITY checkgnomeshell.label    "Проверять наличие запущенного GNOME Shell">
 <!ENTITY enablelegacymethod.label "Использовать устаревший метод">
-<!ENTITY debugmode.label          "Включить DEBUG режим">

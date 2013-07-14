@@ -4,5 +4,4 @@
 
 <!ENTITY showclosebutton.label    "Show close window button">
 <!ENTITY checkgnomeshell.label    "Work only with GNOME Shell">
-<!ENTITY enablelegacymethod.label "Use legacy method">
-<!ENTITY debugmode.label          "Enable DEBUG mode">
+<!ENTITY enablelegacymethod.label "Use legacy mode">
