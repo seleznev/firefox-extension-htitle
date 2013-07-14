@@ -16,6 +16,8 @@ var HTitle = {
     previousState: 0,
     previousChangeTime: 0,
     
+    defaultModeFailed: false,
+    
     init: function() {
         HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
                                  .getService(Components.interfaces.nsIPrefService)
@@ -139,10 +141,13 @@ var HTitle = {
             HTitle.log("Start in normal mode", "DEBUG");
             
             var bash_path = HTitle._find_path_to_exec("bash");
-            if (bash_path) {
+            if (bash_path && HTitle._find_path_to_exec("xwininfo") && HTitle._find_path_to_exec("xprop")) {
                 var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(\\"Navigator\\" \\"Firefox\\")" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
                 var args = ["-c", str]
                 result = HTitle._run(bash_path, args, false);
+            }
+            else {
+                result = -1;
             }
         }
         
@@ -154,6 +159,10 @@ var HTitle = {
             HTitle.currentMode = "normal";
         }
         else {
+            if (result == -1 && !HTitle.defaultModeFailed) {
+                HTitle.defaultModeFailed = true;
+                HTitle.prefs.setBoolPref("legacy_mode.enable", true);
+            }
             HTitle.log("Start in legacy mode", "DEBUG");
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
             HTitle.currentMode = "legacy";
@@ -199,7 +208,7 @@ var HTitle = {
                 }
                 break;
             case "legacy_mode.enable":
-                if (HTitle.ENABLED) {
+                if (HTitle.ENABLED && !HTitle.defaultModeFailed) {
                     HTitle.stop();
                     HTitle.launch();
                 }
