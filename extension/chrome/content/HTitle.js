@@ -22,8 +22,8 @@ var HTitle = {
                                  .getBranch("extensions.htitle.");
         
         HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
-        HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy.timeout_check");
-        HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy.timeout_between_changes");
+        HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy_mode.timeout_check");
+        HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy_mode.timeout_between_changes");
         
         HTitle.prefs.addObserver("", HTitle, false);
         
@@ -133,7 +133,7 @@ var HTitle = {
     launch: function() {
         var result = -2;
         
-        if (!HTitle.prefs.getBoolPref("enable_legacy_method")) {
+        if (!HTitle.prefs.getBoolPref("legacy_mode.enable")) {
             HTitle.log("Start in normal mode", "DEBUG");
             
             var bash_path = HTitle._find_path_to_exec("bash");
@@ -196,7 +196,7 @@ var HTitle = {
                     HTitle.unloadStyle("window-controls");
                 }
                 break;
-            case "enable_legacy_method":
+            case "legacy_mode.enable":
                 if (HTitle.ENABLED) {
                     HTitle.stop();
                     HTitle.launch();
@@ -218,11 +218,11 @@ var HTitle = {
             case "debug":
                 HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
                 break;
-            case "legacy.timeout_check":
-                HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy.timeout_check");
+            case "legacy_mode.timeout_check":
+                HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy_mode.timeout_check");
                 break;
-            case "legacy.timeout_between_changes":
-                HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy.timeout_between_changes");
+            case "legacy_mode.timeout_between_changes":
+                HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy_mode.timeout_between_changes");
                 break;
         }
     },
