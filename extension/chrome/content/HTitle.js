@@ -34,7 +34,7 @@ var HTitle = {
         }
         
         if (HTitle.ENABLED)
-            HTitle.launch();
+            HTitle.start();
         
         if (HTitle.prefs.getBoolPref("show_close_button")) {
             HTitle.loadStyle("window-controls");
@@ -134,7 +134,7 @@ var HTitle = {
         }
     },
     
-    launch: function() {
+    start: function() {
         var result = -2;
         
         if (!HTitle.prefs.getBoolPref("legacy_mode.enable")) {
@@ -210,13 +210,13 @@ var HTitle = {
             case "legacy_mode.enable":
                 if (HTitle.ENABLED && !HTitle.defaultModeFailed) {
                     HTitle.stop();
-                    HTitle.launch();
+                    HTitle.start();
                 }
                 break;
             case "check_gnome_shell":
                 if (!HTitle.ENABLED && !HTitle.prefs.getBoolPref("check_gnome_shell")) {
                     HTitle.ENABLED = true;
-                    HTitle.launch();
+                    HTitle.start();
                 }
                 else if (HTitle.ENABLED && !HTitle.prefs.getBoolPref("check_gnome_shell")) {
                     return;
