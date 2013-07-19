@@ -7,7 +7,7 @@
     <em:id>{c6448328-31f7-4b12-a2e0-5c39d0290307}</em:id>
     <em:type>2</em:type>
     <em:name>HTitle</em:name>
-    <em:version>1.3</em:version>
+    <em:version>2.0</em:version>
     <em:description>Hide title bar if window is maximized (like GNOME 3).</em:description>
     <em:homepageURL>https://github.com/seleznev/firefox-extension-htitle</em:homepageURL>
     <em:creator>Alexander Seleznev</em:creator>
@@ -28,7 +28,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>17.0</em:minVersion>
-        <em:maxVersion>26.0a1</em:maxVersion>
+        <em:maxVersion>25.0a1</em:maxVersion>
       </Description>
     </em:targetApplication>
     
