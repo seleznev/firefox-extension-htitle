@@ -2,13 +2,15 @@
 
 Hide title bar if window is maximized.
 
-Please visit extension's page on [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/htitle/) for install latest stable version. Also, it is good place for you positive reviews. For post bug reports and feature requests please use [issues page](https://github.com/seleznev/firefox-extension-htitle/issues). I read it more often. Code of unstable version is contained in [next branch](https://github.com/seleznev/firefox-extension-htitle/tree/next). Use it for testing only.
+Please visit extension's page on [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/htitle/) for install latest stable version. Also, it is good place for you positive reviews. For post bug reports and feature requests please use [issues page](https://github.com/seleznev/firefox-extension-htitle/issues). I read it more often.
 
-## Warning!
+## Important notes
 
-1. **This extension only for GNOME 3!** Please don't use it with another DE (XFCE, KDE, etc).
+1. This extension created only for GNOME 3. And it can create problems with another DE (KDE, XFCE, etc). However, you can use HTitle at your own risk.
 
-2. Don't use HTitle and Hide Caption Titlebar Plus in one time!
+2. If extension doesn't work (it's normally for DE which differ from GNOME 3) please try enable "legacy" mode in settings (on about:addons page).
+
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-settings.png)
 
 ## Screenshots
 
