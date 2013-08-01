@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE vbox SYSTEM "chrome://htitle/locale/settings.dtd">
+
+<window
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    width="1"
+    height="1"
+    onload="window.close();"> <!-- Close window if it gets opened directly for some reason -->
+  <setting pref="extensions.htitle.legacy_mode.enable" type="bool" title="&enablelegacymethod.label;"/>
+  <setting pref="extensions.htitle.check_gnome_shell" type="bool" title="&checkgnomeshell.label;"/>
+</window>

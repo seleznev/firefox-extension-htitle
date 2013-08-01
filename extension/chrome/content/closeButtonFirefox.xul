@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+<!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd">
+%browserDTD;
+]>
+
+<overlay id="htitle"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
+  
+  <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton id="htitle-close-button"
+                   class="toolbarbutton-1 chromeclass-toolbar-additional"
+                   removable="true"
+                   label="&closeWindow.label;" tooltiptext="&fullScreenClose.tooltip;"
+                   style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
+                   oncommand="BrowserTryToCloseWindow();"/>
+  </toolbarpalette>
+  
+</overlay>

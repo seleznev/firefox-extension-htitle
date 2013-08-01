@@ -8,6 +8,7 @@ var HTitle = {
     TIMEOUT_CHECK: 200, // ms
     TIMEOUT_BETWEEN_CHANGES: 200, // ms
     
+    appInfo: null,
     prefs: null,
     
     window: null,
@@ -32,6 +33,9 @@ var HTitle = {
         if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0) {
             HTitle.ENABLED = false;
         }
+        
+        HTitle.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                                   .getService(Components.interfaces.nsIXULAppInfo);
         
         if (HTitle.ENABLED)
             HTitle.start();
@@ -142,7 +146,13 @@ var HTitle = {
             
             var bash_path = HTitle._find_path_to_exec("bash");
             if (bash_path && HTitle._find_path_to_exec("xwininfo") && HTitle._find_path_to_exec("xprop")) {
-                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(\\"Navigator\\" \\"Firefox\\")" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
+                if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+                    var wm_class = '\\"Navigator\\" \\"Firefox\\"';
+                }
+                else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
+                    var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
+                }
+                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
                 var args = ["-c", str]
                 result = HTitle._run(bash_path, args, false);
             }
@@ -151,7 +161,12 @@ var HTitle = {
             }
         }
         
-        HTitle.window = document.getElementById("main-window");
+        if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+            HTitle.window = document.getElementById("main-window");
+        }
+        else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
+            HTitle.window = document.getElementById("messengerWindow");
+        }
         
         if (result == 0) {
             HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
@@ -176,7 +191,13 @@ var HTitle = {
         if (HTitle.currentMode == "normal") {
             var bash_path = HTitle._find_path_to_exec("bash");
             if (bash_path) {
-                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(\\"Navigator\\" \\"Firefox\\")" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
+                if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+                    var wm_class = '\\"Navigator\\" \\"Firefox\\"';
+                }
+                else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
+                    var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
+                }
+                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
                 var args = ["-c", str]
                 HTitle._run(bash_path, args, false);
             }
