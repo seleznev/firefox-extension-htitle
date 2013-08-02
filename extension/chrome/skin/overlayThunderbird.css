@@ -1,0 +1,34 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/*** Toolbar for restore window ***/
+
+#messengerWindow[sizemode="maximized"][hidechrome="true"] #toolbar-htitle {
+  -moz-binding: url(chrome://global/content/bindings/general.xml#windowdragbox);
+}
+
+#messengerWindow[sizemode="normal"][hidechrome="true"] #toolbar-htitle {
+  min-height: 100%;
+}
+
+#messengerWindow:not([hidechrome="true"]) #toolbar-htitle {
+  display: none;
+}
+
+/*** Padding for tabs bar ***/
+
+#messengerWindow[hidetitlebarwhenmaximized="true"] #mail-toolbar-menubar2[autohide="true"] ~ #tabs-toolbar,
+#messengerWindow[hidechrome="true"] #mail-toolbar-menubar2[autohide="true"] ~ #tabs-toolbar {
+  padding-top: 2px !important;
+}
+
+/*** ***/
+
+#mail-toolbar-menubar2:not([autohide="true"]),
+#tabs-toolbar,
+#mail-bar3 {
+  -moz-binding: url(chrome://global/content/bindings/toolbar.xml#toolbar-drag);
+}
