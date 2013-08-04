@@ -41,7 +41,7 @@ var HTitle = {
             HTitle.start();
         
         if (HTitle.prefs.getBoolPref("show_close_button")) {
-            HTitle.loadStyle("window-controls");
+            HTitle.loadStyle("windowControls");
         }
         
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
@@ -221,11 +221,11 @@ var HTitle = {
             case "show_close_button":
                 if (HTitle.prefs.getBoolPref("show_close_button")) {
                     HTitle.log("Enable show close button", "DEBUG");
-                    HTitle.loadStyle("window-controls");
+                    HTitle.loadStyle("windowControls");
                 }
                 else {
                     HTitle.log("Disable show close button", "DEBUG");
-                    HTitle.unloadStyle("window-controls");
+                    HTitle.unloadStyle("windowControls");
                 }
                 break;
             case "legacy_mode.enable":

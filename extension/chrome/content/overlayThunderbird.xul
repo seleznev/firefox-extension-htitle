@@ -4,6 +4,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!DOCTYPE overlay SYSTEM "chrome://htitle/locale/overlay.dtd">
+
 <?xml-stylesheet href="chrome://htitle/skin/overlayThunderbird.css" type="text/css"?>
 
 <overlay id="htitle"
@@ -11,11 +13,10 @@
          xmlns:html="http://www.w3.org/1999/xhtml">
   
   <toolbarpalette id="MailToolbarPalette">
-    <!-- FIXME: Label and tooltiptext -->
     <toolbarbutton id="htitle-close-button"
                    class="toolbarbutton-1 chromeclass-toolbar-additional"
                    removable="true"
-                   label="" tooltiptext=""
+                   label="&closewindowbutton.label;" tooltiptext="&closewindowbutton.tooltip;"
                    style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
                    oncommand="BrowserTryToCloseWindow();"/>
   </toolbarpalette>
