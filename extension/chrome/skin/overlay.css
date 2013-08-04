@@ -23,6 +23,15 @@
 #htitle-close-button {
   list-style-image: url(moz-icon://stock/gtk-close?size=menu);
 }
+
 window:not([sizemode="maximized"]) toolbar:not([customizing]) #htitle-close-button {
   display: none;
+}
+
+#htitle-close-button .toolbarbutton-text {
+  display: none;
+}
+
+toolbar[mode="text"] #htitle-close-button .toolbarbutton-icon {
+  display: -moz-box;
 }
