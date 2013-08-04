@@ -18,7 +18,7 @@
                    removable="true"
                    label="&closewindowbutton.label;" tooltiptext="&closewindowbutton.tooltip;"
                    style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
-                   oncommand="BrowserTryToCloseWindow();"/>
+                   oncommand="window.close();"/>
   </toolbarpalette>
   
 </overlay>
