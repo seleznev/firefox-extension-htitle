@@ -11,6 +11,8 @@ var HTitle = {
     appInfo: null,
     prefs: null,
     
+    tabsObserver: null,
+    
     window: null,
     
     currentMode: "normal",
@@ -18,6 +20,7 @@ var HTitle = {
     previousChangeTime: 0,
     
     defaultModeFailed: false,
+    needClearCurrentset: true,
     
     init: function() {
         HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
@@ -44,7 +47,63 @@ var HTitle = {
             HTitle.loadStyle("windowControls");
         }
         
+        // TabsOnTop
+        HTitle.tabsObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(HTitle.updateWindowControlsPosition);    
+        });
+        HTitle.tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true });
+        
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
+    },
+    
+    addToCurrentset: function(node) {
+        var currentset = node.getAttribute("currentset");
+        currentset = currentset + (currentset == "" ? "" : ",") + "window-controls";
+        node.setAttribute("currentset", currentset);
+    },
+    
+    removeFromCurrentset: function(node) {
+        var currentset = node.getAttribute("currentset");
+        currentset = currentset.replace(/(^|,)window-controls($|,)/, "$2");
+        node.setAttribute("currentset", currentset);
+    },
+    
+    updateWindowControlsPosition: function(mutation) {
+        if (mutation.attributeName != "tabsontop")
+            return;
+        
+        var windowctls = document.getElementById("window-controls");
+
+        var menubar = document.getElementById("toolbar-menubar");
+        var navbar = document.getElementById("nav-bar");
+        var tabsbar = document.getElementById("TabsToolbar");
+        
+        if (!windowctls || !menubar || !navbar || !tabsbar) {
+            return;
+        }
+        
+        var tabsontop = tabsbar.getAttribute("tabsontop");
+        
+        // Removing window controls from currentset attribute
+        if (HTitle.needClearCurrentset) {
+            HTitle.removeFromCurrentset(windowctls.parentNode);
+            HTitle.needClearCurrentset = false;
+        }
+        
+        if (menubar.getAttribute("autohide") == "false") {
+            // Moving to the Menu bar
+        }
+        else if (tabsontop == "true" || navbar.collapsed) {
+            // Moving to the Tabs toolbar
+            windowctls.removeAttribute("flex");
+            tabsbar.appendChild(windowctls);
+        }
+        else {
+            // Moving to the Navigation toolbar
+            windowctls.setAttribute("flex", "1");
+            navbar.appendChild(windowctls);
+            HTitle.log("Window Controls on the Navigation toolbar", "DEBUG");
+        }
     },
     
     _find_path_to_exec: function(name) {
@@ -326,6 +385,7 @@ var HTitle = {
     
     shutdown: function() {
         HTitle.prefs.removeObserver("", HTitle);
+        HTitle.tabsObserver.disconnect();
     },
 }
 
