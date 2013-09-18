@@ -102,11 +102,10 @@ var HTitle = {
             // Moving to the Navigation toolbar
             windowctls.setAttribute("flex", "1");
             navbar.appendChild(windowctls);
-            HTitle.log("Window Controls on the Navigation toolbar", "DEBUG");
         }
     },
     
-    _find_path_to_exec: function(name) {
+    _findPathToExec: function(name) {
         var file = Components.classes["@mozilla.org/file/local;1"]
                              .createInstance(Components.interfaces.nsIFile);
         
@@ -182,7 +181,7 @@ var HTitle = {
     checkPresenceGnomeShell: function() {
         HTitle.log("Start checking DE", "DEBUG");
         
-        var pidof_path = HTitle._find_path_to_exec("pidof");
+        var pidof_path = HTitle._findPathToExec("pidof");
         
         if (pidof_path) {
             var exitValue = HTitle._run(pidof_path, ["gnome-shell"]);
@@ -203,8 +202,8 @@ var HTitle = {
         if (!HTitle.prefs.getBoolPref("legacy_mode.enable")) {
             HTitle.log("Start in normal mode", "DEBUG");
             
-            var bash_path = HTitle._find_path_to_exec("bash");
-            if (bash_path && HTitle._find_path_to_exec("xwininfo") && HTitle._find_path_to_exec("xprop")) {
+            var bash_path = HTitle._findPathToExec("bash");
+            if (bash_path && HTitle._findPathToExec("xwininfo") && HTitle._findPathToExec("xprop")) {
                 if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
                     var wm_class = '\\"Navigator\\" \\"Firefox\\"';
                 }
@@ -248,7 +247,7 @@ var HTitle = {
     
     stop: function() {
         if (HTitle.currentMode == "normal") {
-            var bash_path = HTitle._find_path_to_exec("bash");
+            var bash_path = HTitle._findPathToExec("bash");
             if (bash_path) {
                 if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
                     var wm_class = '\\"Navigator\\" \\"Firefox\\"';
