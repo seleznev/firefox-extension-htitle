@@ -12,6 +12,7 @@ var HTitle = {
     prefs: null,
     
     tabsObserver: null,
+    navbarObserver: null,
     
     window: null,
     
@@ -50,7 +51,13 @@ var HTitle = {
         HTitle.tabsObserver = new MutationObserver(function(mutations) {
             mutations.forEach(HTitle.updateWindowControlsPosition);    
         });
-        HTitle.tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true });
+        HTitle.tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true, attributeFilter: ["tabsontop"] });
+        
+        // Navigation Toolbar
+        HTitle.navbarObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(HTitle.updateWindowControlsPosition);    
+        });
+        HTitle.navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
         
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
@@ -69,9 +76,6 @@ var HTitle = {
     },
     
     updateWindowControlsPosition: function(mutation) {
-        if (mutation.attributeName != "tabsontop")
-            return;
-        
         var windowctls = document.getElementById("window-controls");
 
         var menubar = document.getElementById("toolbar-menubar");
@@ -386,6 +390,7 @@ var HTitle = {
     shutdown: function() {
         HTitle.prefs.removeObserver("", HTitle);
         HTitle.tabsObserver.disconnect();
+        HTitle.navbarObserver.disconnect();
     },
 }
 
