@@ -11,9 +11,7 @@ var HTitle = {
     appInfo: null,
     prefs: null,
     
-    tabsObserver: null,
-    navbarObserver: null,
-    menubarObserver: null,
+    windowControlsObservers: [],
     
     window: null,
     
@@ -46,25 +44,31 @@ var HTitle = {
         
         if (HTitle.prefs.getBoolPref("show_close_button")) {
             HTitle.loadStyle("windowControls");
+            
+            if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+                // TabsOnTop
+                var tabsObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(HTitle.updateWindowControlsPosition);    
+                });
+                tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true, attributeFilter: ["tabsontop"] });
+                
+                // Navigation Toolbar
+                var navbarObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(HTitle.updateWindowControlsPosition);    
+                });
+                navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
+                
+                // Menu Toolbar
+                var menubarObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(HTitle.updateWindowControlsPosition);    
+                });
+                menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
+                
+                HTitle.windowControlsObservers.push(tabsObserver);
+                HTitle.windowControlsObservers.push(navbarObserver);
+                HTitle.windowControlsObservers.push(menubarObserver);
+            }
         }
-        
-        // TabsOnTop
-        HTitle.tabsObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(HTitle.updateWindowControlsPosition);    
-        });
-        HTitle.tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true, attributeFilter: ["tabsontop"] });
-        
-        // Navigation Toolbar
-        HTitle.navbarObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(HTitle.updateWindowControlsPosition);    
-        });
-        HTitle.navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
-        
-        // Menu Toolbar
-        HTitle.menubarObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(HTitle.updateWindowControlsPosition);    
-        });
-        HTitle.menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
         
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
@@ -417,9 +421,9 @@ var HTitle = {
     
     shutdown: function() {
         HTitle.prefs.removeObserver("", HTitle);
-        HTitle.tabsObserver.disconnect();
-        HTitle.navbarObserver.disconnect();
-        HTitle.menubarObserver.disconnect();
+        for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
+            HTitle.windowControlsObservers[i].disconnect();
+        }
     },
 }
 
