@@ -20,7 +20,6 @@ var HTitle = {
     previousChangeTime: 0,
     
     defaultModeFailed: false,
-    needClearCurrentset: true,
     
     init: function() {
         HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
@@ -56,15 +55,16 @@ var HTitle = {
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
     
-    addToCurrentset: function(node) {
+    addToCurrentset: function(node, id) {
         var currentset = node.getAttribute("currentset");
-        currentset = currentset + (currentset == "" ? "" : ",") + "window-controls";
+        currentset = currentset + (currentset == "" ? "" : ",") + id;
         node.setAttribute("currentset", currentset);
     },
     
-    removeFromCurrentset: function(node) {
+    removeFromCurrentset: function(node, id) {
         var currentset = node.getAttribute("currentset");
-        currentset = currentset.replace(/(^|,)window-controls($|,)/, "$2");
+        var re = new RegExp("(^|,)" + id + "($|,)");
+        currentset = currentset.replace(re, "$2");
         node.setAttribute("currentset", currentset);
     },
     
@@ -85,10 +85,7 @@ var HTitle = {
         var tabsontop = tabsbar.getAttribute("tabsontop");
         
         // Removing window controls from currentset attribute
-        if (HTitle.needClearCurrentset) {
-            HTitle.removeFromCurrentset(windowctls.parentNode);
-            HTitle.needClearCurrentset = false;
-        }
+        HTitle.removeFromCurrentset(windowctls.parentNode, "window-controls");
         
         if (menubar.getAttribute("autohide") == "false") {
             // Moving to the Menu bar
@@ -97,12 +94,16 @@ var HTitle = {
             // Moving to the Tabs toolbar
             windowctls.removeAttribute("flex");
             tabsbar.appendChild(windowctls);
+            HTitle.log("Close button moved to the Tabs toolbar...", "DEBUG");
         }
         else {
             // Moving to the Navigation toolbar
             windowctls.setAttribute("flex", "1");
             navbar.appendChild(windowctls);
+            HTitle.log("Close button moved to the Navigation toolbar...", "DEBUG");
         }
+        
+        HTitle.addToCurrentset(windowctls.parentNode, "window-controls");
     },
     
     _findPathToExec: function(name) {
