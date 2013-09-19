@@ -13,6 +13,7 @@ var HTitle = {
     
     tabsObserver: null,
     navbarObserver: null,
+    menubarObserver: null,
     
     window: null,
     
@@ -59,6 +60,12 @@ var HTitle = {
         });
         HTitle.navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
         
+        // Menu Toolbar
+        HTitle.menubarObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(HTitle.updateWindowControlsPosition);    
+        });
+        HTitle.menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
+        
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
     
@@ -93,6 +100,27 @@ var HTitle = {
         
         if (menubar.getAttribute("autohide") == "false") {
             // Moving to the Menu bar
+            var need_spring = true;
+            var nodes = menubar.childNodes;
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].getAttribute("flex") == "1") {
+                    need_spring = false;
+                    break;
+                }
+            }
+            
+            if (need_spring) {
+                var spring = document.createElement("toolbarspring");
+                spring.setAttribute("id", "htitle-menubar-spring");
+                spring.setAttribute("removable", "true");
+                spring.setAttribute("flex", "1");
+                HTitle.addToCurrentset(menubar, "htitle-menubar-spring");
+                menubar.appendChild(spring);
+            }
+            
+            windowctls.removeAttribute("flex");
+            menubar.appendChild(windowctls);
+            HTitle.log("Close button moved to the Menu bar...", "DEBUG");
         }
         else if (tabsontop == "true" || navbar.collapsed) {
             // Moving to the Tabs toolbar
@@ -391,6 +419,7 @@ var HTitle = {
         HTitle.prefs.removeObserver("", HTitle);
         HTitle.tabsObserver.disconnect();
         HTitle.navbarObserver.disconnect();
+        HTitle.menubarObserver.disconnect();
     },
 }
 
