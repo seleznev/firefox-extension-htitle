@@ -107,7 +107,7 @@ var HTitle = {
             var need_spring = true;
             var nodes = menubar.childNodes;
             for (var i = 0; i < nodes.length; i++) {
-                if (nodes[i].getAttribute("flex") == "1") {
+                if (parseInt(nodes[i].getAttribute("flex"), 10) >= 1) {
                     need_spring = false;
                     break;
                 }
