@@ -64,9 +64,16 @@ var HTitle = {
                 });
                 menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
                 
+                // Window
+                var windowObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(HTitle.updateWindowControlsPosition);    
+                });
+                windowObserver.observe(document.getElementById("main-window"), { attributes: true, attributeFilter: ["sizemode"] });
+                
                 HTitle.windowControlsObservers.push(tabsObserver);
                 HTitle.windowControlsObservers.push(navbarObserver);
                 HTitle.windowControlsObservers.push(menubarObserver);
+                HTitle.windowControlsObservers.push(windowObserver);
             }
         }
         
@@ -89,6 +96,7 @@ var HTitle = {
     updateWindowControlsPosition: function(mutation) {
         var windowctls = document.getElementById("window-controls");
 
+        var window = document.getElementById("main-window");
         var menubar = document.getElementById("toolbar-menubar");
         var navbar = document.getElementById("nav-bar");
         var tabsbar = document.getElementById("TabsToolbar");
@@ -102,7 +110,7 @@ var HTitle = {
         // Removing window controls from currentset attribute
         HTitle.removeFromCurrentset(windowctls.parentNode, "window-controls");
         
-        if (menubar.getAttribute("autohide") == "false") {
+        if (menubar.getAttribute("autohide") == "false" && window.getAttribute("sizemode") != "fullscreen") {
             // Moving to the Menu bar
             var need_spring = true;
             var nodes = menubar.childNodes;
@@ -126,7 +134,7 @@ var HTitle = {
             menubar.appendChild(windowctls);
             HTitle.log("Close button moved to the Menu bar...", "DEBUG");
         }
-        else if (tabsontop == "true" || navbar.collapsed) {
+        else if (tabsontop != "false" || navbar.collapsed) {
             // Moving to the Tabs toolbar
             windowctls.removeAttribute("flex");
             tabsbar.appendChild(windowctls);
