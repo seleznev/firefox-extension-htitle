@@ -93,6 +93,13 @@ var HTitle = {
         node.setAttribute("currentset", currentset);
     },
     
+    moveWindowControlsTo: function(windowctls, target) {
+        HTitle.removeFromCurrentset(windowctls.parentNode, "window-controls");
+        target.appendChild(windowctls);
+        HTitle.addToCurrentset(target, "window-controls");
+        HTitle.log("Close button moved to #" + target.id, "DEBUG");
+    },
+    
     updateWindowControlsPosition: function(mutation) {
         var windowctls = document.getElementById("window-controls");
 
@@ -107,11 +114,11 @@ var HTitle = {
         
         var tabsontop = tabsbar.getAttribute("tabsontop");
         
-        // Removing window controls from currentset attribute
-        HTitle.removeFromCurrentset(windowctls.parentNode, "window-controls");
-        
         if (menubar.getAttribute("autohide") == "false" && window.getAttribute("sizemode") != "fullscreen") {
             // Moving to the Menu bar
+            if (menubar == windowctls.parentNode)
+                return;
+            
             var need_spring = true;
             var nodes = menubar.childNodes;
             for (var i = 0; i < nodes.length; i++) {
@@ -131,23 +138,22 @@ var HTitle = {
             }
             
             windowctls.removeAttribute("flex");
-            menubar.appendChild(windowctls);
-            HTitle.log("Close button moved to the Menu bar...", "DEBUG");
+            HTitle.moveWindowControlsTo(windowctls, menubar);
         }
         else if (tabsontop != "false" || navbar.collapsed) {
             // Moving to the Tabs toolbar
+            if (tabsbar == windowctls.parentNode)
+                return;
             windowctls.removeAttribute("flex");
-            tabsbar.appendChild(windowctls);
-            HTitle.log("Close button moved to the Tabs toolbar...", "DEBUG");
+            HTitle.moveWindowControlsTo(windowctls, tabsbar);
         }
         else {
             // Moving to the Navigation toolbar
+            if (navbar == windowctls.parentNode)
+                return;
             windowctls.setAttribute("flex", "1");
-            navbar.appendChild(windowctls);
-            HTitle.log("Close button moved to the Navigation toolbar...", "DEBUG");
+            HTitle.moveWindowControlsTo(windowctls, navbar);
         }
-        
-        HTitle.addToCurrentset(windowctls.parentNode, "window-controls");
     },
     
     _findPathToExec: function(name) {
