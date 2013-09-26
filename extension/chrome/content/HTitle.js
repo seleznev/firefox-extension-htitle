@@ -42,42 +42,62 @@ var HTitle = {
         if (HTitle.ENABLED)
             HTitle.start();
         
-        if (HTitle.prefs.getBoolPref("show_close_button")) {
-            HTitle.loadStyle("windowControls");
-            
-            if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
-                // TabsOnTop
-                var tabsObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(HTitle.updateWindowControlsPosition);    
-                });
-                tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true, attributeFilter: ["tabsontop"] });
-                
-                // Navigation Toolbar
-                var navbarObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(HTitle.updateWindowControlsPosition);    
-                });
-                navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
-                
-                // Menu Toolbar
-                var menubarObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(HTitle.updateWindowControlsPosition);    
-                });
-                menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
-                
-                // Window
-                var windowObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(HTitle.updateWindowControlsPosition);    
-                });
-                windowObserver.observe(document.getElementById("main-window"), { attributes: true, attributeFilter: ["sizemode"] });
-                
-                HTitle.windowControlsObservers.push(tabsObserver);
-                HTitle.windowControlsObservers.push(navbarObserver);
-                HTitle.windowControlsObservers.push(menubarObserver);
-                HTitle.windowControlsObservers.push(windowObserver);
-            }
-        }
+        if (HTitle.prefs.getBoolPref("show_close_button"))
+            HTitle.showWindowControls();
         
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
+    },
+    
+    showWindowControls: function() {
+        if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+            HTitle.loadStyle("windowControls");
+            
+            // TabsOnTop
+            var tabsObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(HTitle.updateWindowControlsPosition);    
+            });
+            tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true, attributeFilter: ["tabsontop"] });
+            
+            // Navigation Toolbar
+            var navbarObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(HTitle.updateWindowControlsPosition);    
+            });
+            navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
+            
+            // Menu Toolbar
+            var menubarObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(HTitle.updateWindowControlsPosition);    
+            });
+            menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
+            
+            // Window
+            var windowObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(HTitle.updateWindowControlsPosition);    
+            });
+            windowObserver.observe(document.getElementById("main-window"), { attributes: true, attributeFilter: ["sizemode"] });
+            
+            HTitle.windowControlsObservers.push(tabsObserver);
+            HTitle.windowControlsObservers.push(navbarObserver);
+            HTitle.windowControlsObservers.push(menubarObserver);
+            HTitle.windowControlsObservers.push(windowObserver);
+        }
+    },
+    
+    hideWindowControls: function() {
+        if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+            HTitle.unloadStyle("windowControls");
+            
+            document.getElementById("htitle-menubar-spring").remove();
+            var windowctls = document.getElementById("window-controls");
+            windowctls.setAttribute("flex", "1");
+            var navbar = document.getElementById("nav-bar");
+            HTitle.moveWindowControlsTo(windowctls, navbar);
+            
+            for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
+                HTitle.windowControlsObservers[i].disconnect();
+            }
+            HTitle.windowControlsObservers = [];
+        }
     },
     
     addToCurrentset: function(node, id) {
@@ -322,19 +342,19 @@ var HTitle = {
     },
     
     observe: function(subject, topic, data) {
-        if (topic != "nsPref:changed") {
+        if (topic != "nsPref:changed")
             return;
-        }
 
         switch(data) {
             case "show_close_button":
                 if (HTitle.prefs.getBoolPref("show_close_button")) {
                     HTitle.log("Enable show close button", "DEBUG");
-                    HTitle.loadStyle("windowControls");
+                    HTitle.updateWindowControlsPosition(null);
+                    HTitle.showWindowControls();
                 }
                 else {
                     HTitle.log("Disable show close button", "DEBUG");
-                    HTitle.unloadStyle("windowControls");
+                    HTitle.hideWindowControls();
                 }
                 break;
             case "legacy_mode.enable":
@@ -435,9 +455,8 @@ var HTitle = {
     
     shutdown: function() {
         HTitle.prefs.removeObserver("", HTitle);
-        for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
-            HTitle.windowControlsObservers[i].disconnect();
-        }
+        if (HTitle.prefs.getBoolPref("show_close_button"))
+            HTitle.hideWindowControls();
     },
 }
 
