@@ -445,8 +445,8 @@ var HTitle = {
 
     shutdown: function() {
         HTitle.prefs.removeObserver("", HTitle);
-        if (HTitle.prefs.getBoolPref("show_close_button"))
-            HTitle.hideWindowControls();
+        //if (HTitle.prefs.getBoolPref("show_close_button"))
+        //    HTitle.hideWindowControls();
     },
 }
 
