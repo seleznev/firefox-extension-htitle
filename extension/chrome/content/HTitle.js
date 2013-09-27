@@ -33,6 +33,7 @@ var HTitle = {
         HTitle.prefs.addObserver("", HTitle, false);
 
         if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0) {
+            // Nothing doing if WM is not GNOME Shell.
             HTitle.ENABLED = false;
         }
 
@@ -50,36 +51,22 @@ var HTitle = {
 
     showWindowControls: function() {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
-            HTitle.loadStyle("windowControls");
+            HTitle.loadStyle("windowControls"); // Appling CSS
 
-            // TabsOnTop
-            var tabsObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);
-            });
-            tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true, attributeFilter: ["tabsontop"] });
-
-            // Navigation Toolbar
-            var navbarObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);
-            });
-            navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
-
-            // Menu Toolbar
-            var menubarObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);
-            });
-            menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
-
-            // Window
-            var windowObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);
-            });
-            windowObserver.observe(document.getElementById("main-window"), { attributes: true, attributeFilter: ["sizemode"] });
-
-            HTitle.windowControlsObservers.push(tabsObserver);
-            HTitle.windowControlsObservers.push(navbarObserver);
-            HTitle.windowControlsObservers.push(menubarObserver);
-            HTitle.windowControlsObservers.push(windowObserver);
+            var targets_map = [["TabsToolbar", "tabsontop"], 
+                    ["nav-bar", "collapsed"],
+                    ["toolbar-menubar", "autohide"],
+                    ["main-window", "sizemode"]
+                ];
+            
+            for (var i = 0; i < targets_map.length; i++) {
+                var tempObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(HTitle.updateWindowControlsPosition);
+                });
+                tempObserver.observe(document.getElementById(targets_map[i][0]), { attributes: true, attributeFilter: [targets_map[i][1]] });
+                HTitle.windowControlsObservers.push(tempObserver);
+            }
+            HTitle.log("HTitle.windowControlsObservers = " + HTitle.windowControlsObservers.length, "DEBUG");
         }
     },
 
@@ -87,7 +74,10 @@ var HTitle = {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
             HTitle.unloadStyle("windowControls");
 
-            document.getElementById("htitle-menubar-spring").remove();
+            var spring = document.getElementById("htitle-menubar-spring");
+            if (spring)
+                spring.remove();
+
             var windowctls = document.getElementById("window-controls");
             windowctls.setAttribute("flex", "1");
             var navbar = document.getElementById("nav-bar");
