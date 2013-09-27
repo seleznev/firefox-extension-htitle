@@ -7,119 +7,119 @@ var HTitle = {
     ENABLED: true,
     TIMEOUT_CHECK: 200, // ms
     TIMEOUT_BETWEEN_CHANGES: 200, // ms
-    
+
     appInfo: null,
     prefs: null,
-    
+
     windowControlsObservers: [],
-    
+
     window: null,
-    
+
     currentMode: "normal",
     previousState: 0,
     previousChangeTime: 0,
-    
+
     defaultModeFailed: false,
-    
+
     init: function() {
         HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
                                  .getService(Components.interfaces.nsIPrefService)
                                  .getBranch("extensions.htitle.");
-        
+
         HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
         HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy_mode.timeout_check");
         HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy_mode.timeout_between_changes");
-        
+
         HTitle.prefs.addObserver("", HTitle, false);
-        
+
         if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0) {
             HTitle.ENABLED = false;
         }
-        
+
         HTitle.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
                                    .getService(Components.interfaces.nsIXULAppInfo);
-        
+
         if (HTitle.ENABLED)
             HTitle.start();
-        
+
         if (HTitle.prefs.getBoolPref("show_close_button"))
             HTitle.showWindowControls();
-        
+
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
-    
+
     showWindowControls: function() {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
             HTitle.loadStyle("windowControls");
-            
+
             // TabsOnTop
             var tabsObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);    
+                mutations.forEach(HTitle.updateWindowControlsPosition);
             });
             tabsObserver.observe(document.getElementById("TabsToolbar"), { attributes: true, attributeFilter: ["tabsontop"] });
-            
+
             // Navigation Toolbar
             var navbarObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);    
+                mutations.forEach(HTitle.updateWindowControlsPosition);
             });
             navbarObserver.observe(document.getElementById("nav-bar"), { attributes: true, attributeFilter: ["collapsed"] });
-            
+
             // Menu Toolbar
             var menubarObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);    
+                mutations.forEach(HTitle.updateWindowControlsPosition);
             });
             menubarObserver.observe(document.getElementById("toolbar-menubar"), { attributes: true, attributeFilter: ["autohide"] });
-            
+
             // Window
             var windowObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);    
+                mutations.forEach(HTitle.updateWindowControlsPosition);
             });
             windowObserver.observe(document.getElementById("main-window"), { attributes: true, attributeFilter: ["sizemode"] });
-            
+
             HTitle.windowControlsObservers.push(tabsObserver);
             HTitle.windowControlsObservers.push(navbarObserver);
             HTitle.windowControlsObservers.push(menubarObserver);
             HTitle.windowControlsObservers.push(windowObserver);
         }
     },
-    
+
     hideWindowControls: function() {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
             HTitle.unloadStyle("windowControls");
-            
+
             document.getElementById("htitle-menubar-spring").remove();
             var windowctls = document.getElementById("window-controls");
             windowctls.setAttribute("flex", "1");
             var navbar = document.getElementById("nav-bar");
             HTitle.moveWindowControlsTo(windowctls, navbar);
-            
+
             for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
                 HTitle.windowControlsObservers[i].disconnect();
             }
             HTitle.windowControlsObservers = [];
         }
     },
-    
+
     addToCurrentset: function(node, id) {
         var currentset = node.getAttribute("currentset");
         currentset = currentset + (currentset == "" ? "" : ",") + id;
         node.setAttribute("currentset", currentset);
     },
-    
+
     removeFromCurrentset: function(node, id) {
         var currentset = node.getAttribute("currentset");
         var re = new RegExp("(^|,)" + id + "($|,)");
         currentset = currentset.replace(re, "$2");
         node.setAttribute("currentset", currentset);
     },
-    
+
     moveWindowControlsTo: function(windowctls, target) {
         HTitle.removeFromCurrentset(windowctls.parentNode, "window-controls");
         target.appendChild(windowctls);
         HTitle.addToCurrentset(target, "window-controls");
         HTitle.log("Close button moved to #" + target.id, "DEBUG");
     },
-    
+
     updateWindowControlsPosition: function(mutation) {
         var windowctls = document.getElementById("window-controls");
 
@@ -127,18 +127,18 @@ var HTitle = {
         var menubar = document.getElementById("toolbar-menubar");
         var navbar = document.getElementById("nav-bar");
         var tabsbar = document.getElementById("TabsToolbar");
-        
+
         if (!windowctls || !menubar || !navbar || !tabsbar) {
             return;
         }
-        
+
         var tabsontop = tabsbar.getAttribute("tabsontop");
-        
+
         if (menubar.getAttribute("autohide") == "false" && window.getAttribute("sizemode") != "fullscreen") {
             // Moving to the Menu bar
             if (menubar == windowctls.parentNode)
                 return;
-            
+
             var need_spring = true;
             var nodes = menubar.childNodes;
             for (var i = 0; i < nodes.length; i++) {
@@ -147,7 +147,7 @@ var HTitle = {
                     break;
                 }
             }
-            
+
             if (need_spring) {
                 var spring = document.createElement("toolbarspring");
                 spring.setAttribute("id", "htitle-menubar-spring");
@@ -156,7 +156,7 @@ var HTitle = {
                 HTitle.addToCurrentset(menubar, "htitle-menubar-spring");
                 menubar.appendChild(spring);
             }
-            
+
             windowctls.removeAttribute("flex");
             HTitle.moveWindowControlsTo(windowctls, menubar);
         }
@@ -175,17 +175,17 @@ var HTitle = {
             HTitle.moveWindowControlsTo(windowctls, navbar);
         }
     },
-    
+
     _findPathToExec: function(name) {
         var file = Components.classes["@mozilla.org/file/local;1"]
                              .createInstance(Components.interfaces.nsIFile);
-        
+
         var env = Components.classes["@mozilla.org/process/environment;1"]
                             .getService(Components.interfaces.nsIEnvironment);
         var path = env.get("PATH").split(":");
-        
+
         HTitle.log("PATH = " + path, "DEBUG");
-        
+
         var path_to_exec = null;
         for (var i = 0; i < path.length; i++) {
             var full_path_to_exec = path[i] + "/" + name;
@@ -199,19 +199,19 @@ var HTitle = {
                 HTitle.log("File \"" + full_path_to_exec + "\" doesn't exists", "DEBUG");
             }
         }
-        
+
         return path_to_exec;
     },
-    
+
     _run: function(path, args, needWait=true) {
         var file = Components.classes["@mozilla.org/file/local;1"]
                              .createInstance(Components.interfaces.nsIFile);
-        
+
         file.initWithPath(path);
-        
+
         var process = Components.classes["@mozilla.org/process/util;1"]
                                 .createInstance(Components.interfaces.nsIProcess);
-        
+
         try {
             process.init(file);
             process.run(needWait, args, args.length);
@@ -220,7 +220,7 @@ var HTitle = {
             HTitle.log(error.message, "ERROR");
             return -1;
         }
-        
+
         if (needWait) {
             HTitle.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
             return process.exitValue;
@@ -228,7 +228,7 @@ var HTitle = {
         else
             return 0;
     },
-    
+
     loadStyle: function(name) {
         var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
                             .getService(Components.interfaces.nsIStyleSheetService);
@@ -238,7 +238,7 @@ var HTitle = {
         if (!sss.sheetRegistered(uri, sss.USER_SHEET))
             sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
     },
-    
+
     unloadStyle: function(name) {
         var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
                             .getService(Components.interfaces.nsIStyleSheetService);
@@ -248,12 +248,12 @@ var HTitle = {
         if (sss.sheetRegistered(uri, sss.USER_SHEET))
             sss.unregisterSheet(uri, sss.USER_SHEET);
     },
-    
+
     checkPresenceGnomeShell: function() {
         HTitle.log("Start checking DE", "DEBUG");
-        
+
         var pidof_path = HTitle._findPathToExec("pidof");
-        
+
         if (pidof_path) {
             var exitValue = HTitle._run(pidof_path, ["gnome-shell"]);
             if (exitValue == 1)
@@ -266,13 +266,13 @@ var HTitle = {
             return 2;
         }
     },
-    
+
     start: function() {
         var result = -2;
-        
+
         if (!HTitle.prefs.getBoolPref("legacy_mode.enable")) {
             HTitle.log("Start in normal mode", "DEBUG");
-            
+
             var bash_path = HTitle._findPathToExec("bash");
             if (bash_path && HTitle._findPathToExec("xwininfo") && HTitle._findPathToExec("xprop")) {
                 if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
@@ -289,14 +289,14 @@ var HTitle = {
                 result = -1;
             }
         }
-        
+
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
             HTitle.window = document.getElementById("main-window");
         }
         else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
             HTitle.window = document.getElementById("messengerWindow");
         }
-        
+
         if (result == 0) {
             HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
             HTitle.window.setAttribute("hidechrome", false);
@@ -311,11 +311,11 @@ var HTitle = {
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
             HTitle.currentMode = "legacy";
             //HTitle.onWindowStateChange();
-            
+
             setTimeout(function(){HTitle.checkWindowState();}, HTitle.TIMEOUT_CHECK);
         }
     },
-    
+
     stop: function() {
         if (HTitle.currentMode == "normal") {
             var bash_path = HTitle._findPathToExec("bash");
@@ -340,7 +340,7 @@ var HTitle = {
         HTitle.previousState = 0;
         HTitle.previousChangeTime = 0;
     },
-    
+
     observe: function(subject, topic, data) {
         if (topic != "nsPref:changed")
             return;
@@ -387,30 +387,30 @@ var HTitle = {
                 break;
         }
     },
-    
+
     onWindowStateChange: function(e) {
         if (HTitle.previousState == window.windowState || window.windowState == window.STATE_FULLSCREEN || window.windowState == window.STATE_MINIMIZED) {
             return;
         }
-        
+
         if ((Date.now() - HTitle.previousChangeTime) < HTitle.TIMEOUT_BETWEEN_CHANGES) {
             if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome"))
                  window.maximize();
             return;
         }
-        
+
         HTitle.logWindowState("onWindowStateChange");
-        
+
         if (window.windowState == window.STATE_MAXIMIZED)
             HTitle.window.setAttribute("hidechrome", true);
         else {
             HTitle.window.setAttribute("hidechrome", false);
         }
-        
+
         HTitle.previousState = window.windowState;
         HTitle.previousChangeTime = Date.now();
     },
-    
+
     checkWindowState: function() {
         if (window.windowState == window.STATE_NORMAL) {
             HTitle.logWindowState("checkWindowState");
@@ -425,34 +425,34 @@ var HTitle = {
             HTitle.previousChangeTime = Date.now();
         }
     },
-    
+
     logWindowState: function(from) {
         if (HTitle.DEBUG == false)
             return
-        
+
         switch (window.windowState) {
             case window.STATE_MAXIMIZED:   var windowState = "maximized"; break;
             case window.STATE_NORMAL:      var windowState = "normal"; break;
             case window.STATE_FULLSCREEN:  var windowState = "fullscreen"; break;
             default: var windowState = window.windowState.toString();
         }
-        
+
         HTitle.log("Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome"), "DEBUG");
     },
-    
+
     log: function(message, level="ERROR") {
         // TODO: Logging a message with additional information
         // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsIConsoleService
-        
+
         if (HTitle.DEBUG == false && level == "DEBUG")
             return;
-        
+
         var console = Components.classes["@mozilla.org/consoleservice;1"]
                                 .getService(Components.interfaces.nsIConsoleService);
-        
+
         console.logStringMessage("[" + Date.now() + "] " + level + " HTitle: " + message);
     },
-    
+
     shutdown: function() {
         HTitle.prefs.removeObserver("", HTitle);
         if (HTitle.prefs.getBoolPref("show_close_button"))

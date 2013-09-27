@@ -9,9 +9,9 @@
 <overlay id="htitle"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
-  
+
   <script type="application/x-javascript" src="chrome://htitle/content/HTitle.js"/>
-  
+
   <toolbox id="navigator-toolbox">
     <toolbar id="toolbar-htitle" toolbarname=""
              class="toolbar-primary chromeclass-toolbar"
@@ -19,5 +19,5 @@
              onclick="HTitle.checkWindowState(event);"
              context="toolbar-context-menu"/>
   </toolbox>
-  
+
 </overlay>

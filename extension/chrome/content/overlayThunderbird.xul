@@ -11,7 +11,7 @@
 <overlay id="htitle"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
-  
+
   <toolbarpalette id="MailToolbarPalette">
     <toolbarbutton id="htitle-close-button"
                    class="toolbarbutton-1 chromeclass-toolbar-additional"
@@ -20,5 +20,5 @@
                    style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
                    oncommand="window.close();"/>
   </toolbarpalette>
-  
+
 </overlay>
