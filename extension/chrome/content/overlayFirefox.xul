@@ -15,13 +15,28 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
+  <popupset id="mainPopupSet">
+    <menupopup id="htitle-close-context-menu">
+      <menuitem label="&fullScreenMinimize.tooltip;" oncommand="window.minimize();"/>
+      <menuitem label="&fullScreenRestore.tooltip;" oncommand="window.restore();"/>
+      <menuitem label="&fullScreenCmd.label;" oncommand="BrowserFullScreen();"/>
+      <menuseparator/>
+      <menuitem label="&fullScreenClose.tooltip;" oncommand="BrowserTryToCloseWindow();"/>
+    </menupopup>
+  </popupset>
+
   <toolbarpalette id="BrowserToolbarPalette">
     <toolbarbutton id="htitle-close-button"
                    class="toolbarbutton-1 chromeclass-toolbar-additional"
                    removable="true"
                    label="&closeWindow.label;" tooltiptext="&fullScreenClose.tooltip;"
                    style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
+                   context="htitle-close-context-menu"
                    oncommand="BrowserTryToCloseWindow();"/>
   </toolbarpalette>
+
+  <hbox id="window-controls">
+    <toolbarbutton id="close-button" context="htitle-close-context-menu"/>
+  </hbox>
 
 </overlay>
