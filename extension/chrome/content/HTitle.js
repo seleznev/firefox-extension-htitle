@@ -53,7 +53,8 @@ var HTitle = {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
             HTitle.loadStyle("windowControls"); // Appling CSS
 
-            var targets_map = [["TabsToolbar", "tabsontop"], 
+            var targets_map = [
+                    ["TabsToolbar", "tabsontop"], 
                     ["nav-bar", "collapsed"],
                     ["toolbar-menubar", "autohide"],
                     ["main-window", "sizemode"]
@@ -92,12 +93,16 @@ var HTitle = {
 
     addToCurrentset: function(node, id) {
         var currentset = node.getAttribute("currentset");
+        if (!currentset)
+            currentset = node.getAttribute("defaultset");
         currentset = currentset + (currentset == "" ? "" : ",") + id;
         node.setAttribute("currentset", currentset);
     },
 
     removeFromCurrentset: function(node, id) {
         var currentset = node.getAttribute("currentset");
+        if (!currentset)
+            currentset = node.getAttribute("defaultset");
         var re = new RegExp("(^|,)" + id + "($|,)");
         currentset = currentset.replace(re, "$2");
         node.setAttribute("currentset", currentset);
@@ -124,7 +129,7 @@ var HTitle = {
 
         var tabsontop = tabsbar.getAttribute("tabsontop");
 
-        if (menubar.getAttribute("autohide") == "false" && window.getAttribute("sizemode") != "fullscreen") {
+        if (menubar.getAttribute("autohide") != "true" && window.getAttribute("sizemode") != "fullscreen") {
             // Moving to the Menu bar
             if (menubar == windowctls.parentNode)
                 return;
