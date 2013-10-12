@@ -43,7 +43,13 @@ var HTitle = {
         if (HTitle.ENABLED)
             HTitle.start();
 
-        if (HTitle.prefs.getBoolPref("show_close_button"))
+        /* Upgrade from previous (< 2.5) versions */
+        if (HTitle.prefs.getPrefType("show_close_button") && HTitle.prefs.getBoolPref("show_close_button")) {
+            HTitle.prefs.setBoolPref("show_close_button", false);
+            HTitle.prefs.setBoolPref("show_window_controls", true);
+        }
+
+        if (HTitle.prefs.getBoolPref("show_window_controls"))
             HTitle.showWindowControls();
 
         HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
@@ -51,6 +57,9 @@ var HTitle = {
 
     showWindowControls: function() {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+            var windowctls = document.getElementById("window-controls");
+            windowctls.setAttribute("htitle", "true");
+            
             HTitle.loadStyle("windowControls"); // Appling CSS
 
             var targets_map = [
@@ -80,6 +89,7 @@ var HTitle = {
                 spring.remove();
 
             var windowctls = document.getElementById("window-controls");
+            windowctls.removeAttribute("htitle");
             windowctls.setAttribute("flex", "1");
             var navbar = document.getElementById("nav-bar");
             HTitle.moveWindowControlsTo(windowctls, navbar);
@@ -341,8 +351,8 @@ var HTitle = {
             return;
 
         switch(data) {
-            case "show_close_button":
-                if (HTitle.prefs.getBoolPref("show_close_button")) {
+            case "show_window_controls":
+                if (HTitle.prefs.getBoolPref("show_window_controls")) {
                     HTitle.log("Enable show close button", "DEBUG");
                     HTitle.updateWindowControlsPosition(null);
                     HTitle.showWindowControls();
@@ -450,7 +460,7 @@ var HTitle = {
 
     shutdown: function() {
         HTitle.prefs.removeObserver("", HTitle);
-        //if (HTitle.prefs.getBoolPref("show_close_button"))
+        //if (HTitle.prefs.getBoolPref("show_window_controls"))
         //    HTitle.hideWindowControls();
     },
 }

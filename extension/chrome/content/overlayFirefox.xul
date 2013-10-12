@@ -36,6 +36,7 @@
   </toolbarpalette>
 
   <hbox id="window-controls">
+    <toolbarbutton id="restore-button" oncommand="if (window.windowState == window.STATE_MAXIMIZED) {window.restore();} else {BrowserFullScreen();}"/>
     <toolbarbutton id="close-button" context="htitle-close-context-menu"/>
   </hbox>
 

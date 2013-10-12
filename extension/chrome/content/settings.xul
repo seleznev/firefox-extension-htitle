@@ -11,7 +11,7 @@
         width="1"
         height="1"
         onload="window.close();">
-  <setting pref="extensions.htitle.show_close_button" type="bool" title="&showclosebutton.label;"/>
+  <setting pref="extensions.htitle.show_window_controls" type="bool" title="&showwindowcontrols.label;"/>
   <setting pref="extensions.htitle.legacy_mode.enable" type="bool" title="&enablelegacymethod.label;"/>
   <setting pref="extensions.htitle.check_gnome_shell" type="bool" title="&checkgnomeshell.label;"/>
 </window>

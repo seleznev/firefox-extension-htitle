@@ -7,24 +7,9 @@
 @-moz-document url("chrome://browser/content/browser.xul") {
 
 #window-controls {
-  display: block !important;
+  display: -moz-box !important;
 }
 #main-window:not([sizemode="maximized"]):not([sizemode="fullscreen"]) #window-controls {
-  display: none !important;
-}
-
-#close-button,
-#restore-button {
-  display: block !important;
-}
-#minimize-button {
-  display: none !important;
-}
-
-#main-window:not([sizemode="maximized"]) #close-button {
-  display: none !important;
-}
-#main-window:not([sizemode="fullscreen"]) #restore-button {
   display: none !important;
 }
 
