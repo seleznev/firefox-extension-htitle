@@ -16,7 +16,7 @@
     <toolbarbutton id="htitle-close-button"
                    class="toolbarbutton-1 chromeclass-toolbar-additional"
                    removable="true"
-                   label="&closewindowbutton.label;" tooltiptext="&closewindowbutton.tooltip;"
+                   label="&closeWindowButton.label;" tooltiptext="&closeWindowButton.tooltip;"
                    style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
                    oncommand="window.close();"/>
   </toolbarpalette>
