@@ -25,3 +25,7 @@ Maximized window:
 Maximized window without panel:
 
 ![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-maximized-window-without-panel.png)
+
+Window controls:
+
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-window-controls.png)
