@@ -5,3 +5,9 @@
 <!ENTITY showWindowControls.label "Show window controls">
 <!ENTITY checkGnomeShell.label    "Work only with GNOME Shell">
 <!ENTITY enableLegacyMethod.label "Use legacy mode">
+
+<!-- Hide Titlebar Modes -->
+<!ENTITY hideMode.label           "Hide titlebar mode">
+<!ENTITY hideModeNewer.label      "Newer">
+<!ENTITY hideModeAuto.label       "Auto">
+<!ENTITY hideModeAlways.label     "Always">

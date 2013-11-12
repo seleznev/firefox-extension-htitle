@@ -5,3 +5,9 @@
 <!ENTITY showWindowControls.label "Показывать кнопки управления окном">
 <!ENTITY checkGnomeShell.label    "Проверять наличие запущенного GNOME Shell">
 <!ENTITY enableLegacyMethod.label "Использовать устаревший метод">
+
+<!-- Hide Titlebar Modes -->
+<!ENTITY hideMode.label           "Режим скрытия панели заголовка">
+<!ENTITY hideModeNewer.label      "Не скрывать">
+<!ENTITY hideModeAuto.label       "Авто">
+<!ENTITY hideModeAlways.label     "Всегда">

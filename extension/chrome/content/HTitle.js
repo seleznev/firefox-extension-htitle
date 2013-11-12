@@ -15,7 +15,7 @@ var HTitle = {
 
     window: null,
 
-    currentMode: "normal",
+    currentMode: "auto",
     previousState: 0,
     previousChangeTime: 0,
 
@@ -59,8 +59,12 @@ var HTitle = {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
             var windowctls = document.getElementById("window-controls");
             windowctls.setAttribute("htitle", "true");
-            
-            HTitle.loadStyle("windowControls"); // Appling CSS
+
+            // Appling CSS
+            if (HTitle.currentMode == "always")
+                HTitle.loadStyle("windowControlsAlways");
+            else
+                HTitle.loadStyle("windowControlsAuto");
 
             var targets_map = [
                     ["TabsToolbar", "tabsontop"], 
@@ -68,7 +72,7 @@ var HTitle = {
                     ["toolbar-menubar", "autohide"],
                     ["main-window", "sizemode"]
                 ];
-            
+
             for (var i = 0; i < targets_map.length; i++) {
                 var tempObserver = new MutationObserver(function(mutations) {
                     mutations.forEach(HTitle.updateWindowControlsPosition);
@@ -82,7 +86,10 @@ var HTitle = {
 
     hideWindowControls: function() {
         if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
-            HTitle.unloadStyle("windowControls");
+            if (HTitle.currentMode == "always")
+                HTitle.unloadStyle("windowControlsAlways");
+            else
+                HTitle.unloadStyle("windowControlsAuto");
 
             var spring = document.getElementById("htitle-menubar-spring");
             if (spring)
@@ -286,9 +293,17 @@ var HTitle = {
                 else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
                     var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
                 }
-                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
-                var args = ["-c", str]
-                result = HTitle._run(bash_path, args, false);
+                
+                if (HTitle.prefs.getIntPref("hide_mode") == 2) {
+                    var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x2, 0x0, 0x0"; done';
+                    var args = ["-c", str]
+                    result = HTitle._run(bash_path, args, false);
+                }
+                else {
+                    var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
+                    var args = ["-c", str]
+                    result = HTitle._run(bash_path, args, false);
+                }
             }
             else {
                 result = -1;
@@ -305,7 +320,10 @@ var HTitle = {
         if (result == 0) {
             HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
             HTitle.window.setAttribute("hidechrome", false);
-            HTitle.currentMode = "normal";
+            if (HTitle.prefs.getIntPref("hide_mode") == 2)
+                HTitle.currentMode = "always";
+            else
+                HTitle.currentMode = "auto";
         }
         else {
             if (result == -1 && !HTitle.defaultModeFailed) {
@@ -319,10 +337,11 @@ var HTitle = {
 
             setTimeout(function(){HTitle.checkWindowState();}, HTitle.TIMEOUT_CHECK);
         }
+        HTitle.window.setAttribute("htitlemode", HTitle.currentMode);
     },
 
     stop: function() {
-        if (HTitle.currentMode == "normal") {
+        if (HTitle.currentMode != "legacy") {
             var bash_path = HTitle._findPathToExec("bash");
             if (bash_path) {
                 if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
@@ -331,9 +350,10 @@ var HTitle = {
                 else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
                     var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
                 }
-                var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
+
+                var str = 'WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x1, 0x0, 0x0"; xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
                 var args = ["-c", str]
-                HTitle._run(bash_path, args, false);
+                result = HTitle._run(bash_path, args, false);
             }
             HTitle.window.removeAttribute("hidetitlebarwhenmaximized");
         }
@@ -341,9 +361,10 @@ var HTitle = {
             window.removeEventListener("sizemodechange", HTitle.onWindowStateChange);
             HTitle.window.setAttribute("hidechrome", false);
         }
-        HTitle.currentMode = "normal";
+        HTitle.currentMode = "stopped";
         HTitle.previousState = 0;
         HTitle.previousChangeTime = 0;
+        HTitle.window.setAttribute("htitlemode", HTitle.currentMode);
     },
 
     observe: function(subject, topic, data) {
@@ -363,9 +384,30 @@ var HTitle = {
                 }
                 break;
             case "legacy_mode.enable":
-                if (HTitle.ENABLED && !HTitle.defaultModeFailed) {
+                if (HTitle.ENABLED && !HTitle.defaultModeFailed && HTitle.currentMode != "stopped") {
+                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                        HTitle.hideWindowControls();
+
                     HTitle.stop();
+                    HTitle.prefs.setIntPref("hide_mode", 1);
                     HTitle.start();
+
+                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                        HTitle.showWindowControls();
+                }
+                break;
+            case "hide_mode":
+                if (HTitle.ENABLED && HTitle.currentMode != "stopped") {
+                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                        HTitle.hideWindowControls();
+
+                    HTitle.stop();
+                    if (HTitle.prefs.getIntPref("hide_mode") != 1)
+                        HTitle.prefs.setBoolPref("legacy_mode.enable", false);
+                    HTitle.start();
+
+                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                        HTitle.showWindowControls();
                 }
                 break;
             case "check_gnome_shell":
