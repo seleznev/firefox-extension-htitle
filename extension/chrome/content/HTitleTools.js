@@ -36,6 +36,10 @@ var HTitleTools = {
         return false;
     },
 
+    getWMClass: function() {
+        return '"' + (this.isThunderbird() ? 'Mail' : 'Navigator') + '" "' + this.appInfo.name + '"';
+    },
+
     /* ::::: Change currentset attribute ::::: */
 
     addToCurrentset: function(node, id) {

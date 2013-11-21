@@ -163,12 +163,7 @@ var HTitle = {
 
             var bash_path = HTitleTools.findPathToExec("bash");
             if (bash_path && HTitleTools.findPathToExec("xwininfo") && HTitleTools.findPathToExec("xprop")) {
-                if (HTitleTools.isFirefox()) {
-                    var wm_class = '\\"Navigator\\" \\"Firefox\\"';
-                }
-                else if (HTitleTools.isThunderbird()) {
-                    var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
-                }
+                var wm_class = HTitleTools.getWMClass().replace(/\"/g, '\\$&');
 
                 if (HTitleTools.prefs.getIntPref("hide_mode") == 2) {
                     var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x2, 0x0, 0x0"; done';
@@ -220,13 +215,7 @@ var HTitle = {
         if (HTitle.currentMode != "legacy") {
             var bash_path = HTitleTools.findPathToExec("bash");
             if (bash_path) {
-                if (HTitleTools.isFirefox()) {
-                    var wm_class = '\\"Navigator\\" \\"Firefox\\"';
-                }
-                else if (HTitleTools.isThunderbird()) {
-                    var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
-                }
-
+                var wm_class = HTitleTools.getWMClass().replace(/\"/g, '\\$&');
                 var str = 'WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x1, 0x0, 0x0"; xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
                 var args = ["-c", str]
                 result = HTitleTools.run(bash_path, args, false);
