@@ -3,13 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var HTitle = {
-    DEBUG: false,
     ENABLED: true,
     TIMEOUT_CHECK: 200, // ms
     TIMEOUT_BETWEEN_CHANGES: 200, // ms
-
-    appInfo: null,
-    prefs: null,
 
     windowControlsObservers: [],
 
@@ -22,49 +18,43 @@ var HTitle = {
     defaultModeFailed: false,
 
     init: function() {
-        HTitle.prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                                 .getService(Components.interfaces.nsIPrefService)
-                                 .getBranch("extensions.htitle.");
+        HTitleTools.init();
+        
+        HTitle.TIMEOUT_CHECK = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
+        HTitle.TIMEOUT_BETWEEN_CHANGES = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
-        HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
-        HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy_mode.timeout_check");
-        HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy_mode.timeout_between_changes");
+        HTitleTools.prefs.addObserver("", HTitle, false);
 
-        HTitle.prefs.addObserver("", HTitle, false);
-
-        if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0) {
+        if (HTitleTools.prefs.getBoolPref("check_gnome_shell") && HTitleTools.checkPresenceGnomeShell() != 0) {
             // Nothing doing if WM is not GNOME Shell.
             HTitle.ENABLED = false;
+            return;
         }
 
-        HTitle.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                                   .getService(Components.interfaces.nsIXULAppInfo);
-
-        if (HTitle.ENABLED)
-            HTitle.start();
+        HTitle.start();
 
         /* Upgrade from previous (< 2.5) versions */
-        if (HTitle.prefs.getPrefType("show_close_button") && HTitle.prefs.getBoolPref("show_close_button")) {
-            HTitle.prefs.setBoolPref("show_close_button", false);
-            HTitle.prefs.setBoolPref("show_window_controls", true);
+        if (HTitleTools.prefs.getPrefType("show_close_button") && HTitleTools.prefs.getBoolPref("show_close_button")) {
+            HTitleTools.prefs.setBoolPref("show_close_button", false);
+            HTitleTools.prefs.setBoolPref("show_window_controls", true);
         }
 
-        if (HTitle.prefs.getBoolPref("show_window_controls"))
+        if (HTitleTools.prefs.getBoolPref("show_window_controls"))
             HTitle.showWindowControls();
 
-        HTitle.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
+        HTitleTools.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
 
     showWindowControls: function() {
-        if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+        if (HTitleTools.isFirefox()) {
             var windowctls = document.getElementById("window-controls");
             windowctls.setAttribute("htitle", "true");
 
             // Appling CSS
             if (HTitle.currentMode == "always")
-                HTitle.loadStyle("windowControlsAlways");
+                HTitleTools.loadStyle("windowControlsAlways");
             else
-                HTitle.loadStyle("windowControlsAuto");
+                HTitleTools.loadStyle("windowControlsAuto");
 
             var targets_map = [
                     ["TabsToolbar", "tabsontop"], 
@@ -80,56 +70,33 @@ var HTitle = {
                 tempObserver.observe(document.getElementById(targets_map[i][0]), { attributes: true, attributeFilter: [targets_map[i][1]] });
                 HTitle.windowControlsObservers.push(tempObserver);
             }
-            HTitle.log("HTitle.windowControlsObservers = " + HTitle.windowControlsObservers.length, "DEBUG");
+            HTitleTools.log("HTitle.windowControlsObservers = " + HTitle.windowControlsObservers.length, "DEBUG");
         }
     },
 
     hideWindowControls: function() {
-        if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
-            if (HTitle.currentMode == "always")
-                HTitle.unloadStyle("windowControlsAlways");
-            else
-                HTitle.unloadStyle("windowControlsAuto");
+        if (!HTitleTools.isFirefox())
+            return;
 
-            var spring = document.getElementById("htitle-menubar-spring");
-            if (spring)
-                spring.remove();
+        if (HTitle.currentMode == "always")
+            HTitleTools.unloadStyle("windowControlsAlways");
+        else
+            HTitleTools.unloadStyle("windowControlsAuto");
 
-            var windowctls = document.getElementById("window-controls");
-            windowctls.removeAttribute("htitle");
-            windowctls.setAttribute("flex", "1");
-            var navbar = document.getElementById("nav-bar");
-            HTitle.moveWindowControlsTo(windowctls, navbar);
+        var spring = document.getElementById("htitle-menubar-spring");
+        if (spring)
+            spring.remove();
 
-            for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
-                HTitle.windowControlsObservers[i].disconnect();
-            }
-            HTitle.windowControlsObservers = [];
+        var windowctls = document.getElementById("window-controls");
+        windowctls.removeAttribute("htitle");
+        windowctls.setAttribute("flex", "1");
+        var navbar = document.getElementById("nav-bar");
+        HTitleTools.moveWindowControlsTo(windowctls, navbar);
+
+        for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
+            HTitle.windowControlsObservers[i].disconnect();
         }
-    },
-
-    addToCurrentset: function(node, id) {
-        var currentset = node.getAttribute("currentset");
-        if (!currentset)
-            currentset = node.getAttribute("defaultset");
-        currentset = currentset + (currentset == "" ? "" : ",") + id;
-        node.setAttribute("currentset", currentset);
-    },
-
-    removeFromCurrentset: function(node, id) {
-        var currentset = node.getAttribute("currentset");
-        if (!currentset)
-            currentset = node.getAttribute("defaultset");
-        var re = new RegExp("(^|,)" + id + "($|,)");
-        currentset = currentset.replace(re, "$2");
-        node.setAttribute("currentset", currentset);
-    },
-
-    moveWindowControlsTo: function(windowctls, target) {
-        HTitle.removeFromCurrentset(windowctls.parentNode, "window-controls");
-        target.appendChild(windowctls);
-        HTitle.addToCurrentset(target, "window-controls");
-        HTitle.log("Close button moved to #" + target.id, "DEBUG");
+        HTitle.windowControlsObservers = [];
     },
 
     updateWindowControlsPosition: function(mutation) {
@@ -165,144 +132,53 @@ var HTitle = {
                 spring.setAttribute("id", "htitle-menubar-spring");
                 spring.setAttribute("removable", "true");
                 spring.setAttribute("flex", "1");
-                HTitle.addToCurrentset(menubar, "htitle-menubar-spring");
+                HTitleTools.addToCurrentset(menubar, "htitle-menubar-spring");
                 menubar.appendChild(spring);
             }
 
             windowctls.removeAttribute("flex");
-            HTitle.moveWindowControlsTo(windowctls, menubar);
+            HTitleTools.moveWindowControlsTo(windowctls, menubar);
         }
         else if (tabsontop != "false" || navbar.collapsed) {
             // Moving to the Tabs toolbar
             if (tabsbar == windowctls.parentNode)
                 return;
             windowctls.removeAttribute("flex");
-            HTitle.moveWindowControlsTo(windowctls, tabsbar);
+            HTitleTools.moveWindowControlsTo(windowctls, tabsbar);
         }
         else {
             // Moving to the Navigation toolbar
             if (navbar == windowctls.parentNode)
                 return;
             windowctls.setAttribute("flex", "1");
-            HTitle.moveWindowControlsTo(windowctls, navbar);
-        }
-    },
-
-    _findPathToExec: function(name) {
-        var file = Components.classes["@mozilla.org/file/local;1"]
-                             .createInstance(Components.interfaces.nsIFile);
-
-        var env = Components.classes["@mozilla.org/process/environment;1"]
-                            .getService(Components.interfaces.nsIEnvironment);
-        var path = env.get("PATH").split(":");
-
-        HTitle.log("PATH = " + path, "DEBUG");
-
-        var path_to_exec = null;
-        for (var i = 0; i < path.length; i++) {
-            var full_path_to_exec = path[i] + "/" + name;
-            file.initWithPath(full_path_to_exec);
-            if (file.exists() && file.isExecutable()) {
-                path_to_exec = full_path_to_exec;
-                HTitle.log("Path to " + name + " is \"" + full_path_to_exec + "\"", "DEBUG");
-                break;
-            }
-            else {
-                HTitle.log("File \"" + full_path_to_exec + "\" doesn't exists", "DEBUG");
-            }
-        }
-
-        return path_to_exec;
-    },
-
-    _run: function(path, args, needWait=true) {
-        var file = Components.classes["@mozilla.org/file/local;1"]
-                             .createInstance(Components.interfaces.nsIFile);
-
-        file.initWithPath(path);
-
-        var process = Components.classes["@mozilla.org/process/util;1"]
-                                .createInstance(Components.interfaces.nsIProcess);
-
-        try {
-            process.init(file);
-            process.run(needWait, args, args.length);
-        }
-        catch (error) {
-            HTitle.log(error.message, "ERROR");
-            return -1;
-        }
-
-        if (needWait) {
-            HTitle.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
-            return process.exitValue;
-        }
-        else
-            return 0;
-    },
-
-    loadStyle: function(name) {
-        var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
-                            .getService(Components.interfaces.nsIStyleSheetService);
-        var io = Components.classes["@mozilla.org/network/io-service;1"]
-                           .getService(Components.interfaces.nsIIOService);
-        var uri = io.newURI("chrome://htitle/skin/" + name + ".css", null, null);
-        if (!sss.sheetRegistered(uri, sss.USER_SHEET))
-            sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
-    },
-
-    unloadStyle: function(name) {
-        var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
-                            .getService(Components.interfaces.nsIStyleSheetService);
-        var io = Components.classes["@mozilla.org/network/io-service;1"]
-                           .getService(Components.interfaces.nsIIOService);
-        var uri = io.newURI("chrome://htitle/skin/" + name + ".css", null, null);
-        if (sss.sheetRegistered(uri, sss.USER_SHEET))
-            sss.unregisterSheet(uri, sss.USER_SHEET);
-    },
-
-    checkPresenceGnomeShell: function() {
-        HTitle.log("Start checking DE", "DEBUG");
-
-        var pidof_path = HTitle._findPathToExec("pidof");
-
-        if (pidof_path) {
-            var exitValue = HTitle._run(pidof_path, ["gnome-shell"]);
-            if (exitValue == 1)
-                return 1;
-            else
-                return 0;
-        }
-        else {
-            HTitle.log("pidof doesn't exist", "ERROR");
-            return 2;
+            HTitleTools.moveWindowControlsTo(windowctls, navbar);
         }
     },
 
     start: function() {
         var result = -2;
 
-        if (!HTitle.prefs.getBoolPref("legacy_mode.enable")) {
-            HTitle.log("Start in normal mode", "DEBUG");
+        if (!HTitleTools.prefs.getBoolPref("legacy_mode.enable")) {
+            HTitleTools.log("Start in normal mode", "DEBUG");
 
-            var bash_path = HTitle._findPathToExec("bash");
-            if (bash_path && HTitle._findPathToExec("xwininfo") && HTitle._findPathToExec("xprop")) {
-                if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+            var bash_path = HTitleTools.findPathToExec("bash");
+            if (bash_path && HTitleTools.findPathToExec("xwininfo") && HTitleTools.findPathToExec("xprop")) {
+                if (HTitleTools.isFirefox()) {
                     var wm_class = '\\"Navigator\\" \\"Firefox\\"';
                 }
-                else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
+                else if (HTitleTools.isThunderbird()) {
                     var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
                 }
-                
-                if (HTitle.prefs.getIntPref("hide_mode") == 2) {
+
+                if (HTitleTools.prefs.getIntPref("hide_mode") == 2) {
                     var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x2, 0x0, 0x0"; done';
                     var args = ["-c", str]
-                    result = HTitle._run(bash_path, args, false);
+                    result = HTitleTools.run(bash_path, args, false);
                 }
                 else {
                     var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
                     var args = ["-c", str]
-                    result = HTitle._run(bash_path, args, false);
+                    result = HTitleTools.run(bash_path, args, false);
                 }
             }
             else {
@@ -310,17 +186,17 @@ var HTitle = {
             }
         }
 
-        if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+        if (HTitleTools.isFirefox()) {
             HTitle.window = document.getElementById("main-window");
         }
-        else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
+        else if (HTitleTools.isThunderbird()) {
             HTitle.window = document.getElementById("messengerWindow");
         }
 
         if (result == 0) {
             HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
             HTitle.window.setAttribute("hidechrome", false);
-            if (HTitle.prefs.getIntPref("hide_mode") == 2)
+            if (HTitleTools.prefs.getIntPref("hide_mode") == 2)
                 HTitle.currentMode = "always";
             else
                 HTitle.currentMode = "auto";
@@ -328,9 +204,9 @@ var HTitle = {
         else {
             if (result == -1 && !HTitle.defaultModeFailed) {
                 HTitle.defaultModeFailed = true;
-                HTitle.prefs.setBoolPref("legacy_mode.enable", true);
+                HTitleTools.prefs.setBoolPref("legacy_mode.enable", true);
             }
-            HTitle.log("Start in legacy mode", "DEBUG");
+            HTitleTools.log("Start in legacy mode", "DEBUG");
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
             HTitle.currentMode = "legacy";
             //HTitle.onWindowStateChange();
@@ -342,18 +218,18 @@ var HTitle = {
 
     stop: function() {
         if (HTitle.currentMode != "legacy") {
-            var bash_path = HTitle._findPathToExec("bash");
+            var bash_path = HTitleTools.findPathToExec("bash");
             if (bash_path) {
-                if (HTitle.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") { // Firefox
+                if (HTitleTools.isFirefox()) {
                     var wm_class = '\\"Navigator\\" \\"Firefox\\"';
                 }
-                else if (HTitle.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") { // Thunderbird
+                else if (HTitleTools.isThunderbird()) {
                     var wm_class = '\\"Mail\\" \\"Thunderbird\\"';
                 }
 
                 var str = 'WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x1, 0x0, 0x0"; xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
                 var args = ["-c", str]
-                result = HTitle._run(bash_path, args, false);
+                result = HTitleTools.run(bash_path, args, false);
             }
             HTitle.window.removeAttribute("hidetitlebarwhenmaximized");
         }
@@ -373,64 +249,64 @@ var HTitle = {
 
         switch(data) {
             case "show_window_controls":
-                if (HTitle.prefs.getBoolPref("show_window_controls")) {
-                    HTitle.log("Enable show close button", "DEBUG");
+                if (HTitleTools.prefs.getBoolPref("show_window_controls")) {
+                    HTitleTools.log("Enable show close button", "DEBUG");
                     HTitle.updateWindowControlsPosition(null);
                     HTitle.showWindowControls();
                 }
                 else {
-                    HTitle.log("Disable show close button", "DEBUG");
+                    HTitleTools.log("Disable show close button", "DEBUG");
                     HTitle.hideWindowControls();
                 }
                 break;
             case "legacy_mode.enable":
                 if (HTitle.ENABLED && !HTitle.defaultModeFailed && HTitle.currentMode != "stopped") {
-                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                    if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitle.hideWindowControls();
 
                     HTitle.stop();
-                    HTitle.prefs.setIntPref("hide_mode", 1);
+                    HTitleTools.prefs.setIntPref("hide_mode", 1);
                     HTitle.start();
 
-                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                    if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitle.showWindowControls();
                 }
                 break;
             case "hide_mode":
                 if (HTitle.ENABLED && HTitle.currentMode != "stopped") {
-                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                    if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitle.hideWindowControls();
 
                     HTitle.stop();
-                    if (HTitle.prefs.getIntPref("hide_mode") != 1)
-                        HTitle.prefs.setBoolPref("legacy_mode.enable", false);
+                    if (HTitleTools.prefs.getIntPref("hide_mode") != 1)
+                        HTitleTools.prefs.setBoolPref("legacy_mode.enable", false);
                     HTitle.start();
 
-                    if (HTitle.prefs.getBoolPref("show_window_controls"))
+                    if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitle.showWindowControls();
                 }
                 break;
             case "check_gnome_shell":
-                if (!HTitle.ENABLED && !HTitle.prefs.getBoolPref("check_gnome_shell")) {
+                if (!HTitle.ENABLED && !HTitleTools.prefs.getBoolPref("check_gnome_shell")) {
                     HTitle.ENABLED = true;
                     HTitle.start();
                 }
-                else if (HTitle.ENABLED && !HTitle.prefs.getBoolPref("check_gnome_shell")) {
+                else if (HTitle.ENABLED && !HTitleTools.prefs.getBoolPref("check_gnome_shell")) {
                     return;
                 }
-                else if (HTitle.prefs.getBoolPref("check_gnome_shell") && HTitle.checkPresenceGnomeShell() != 0 && HTitle.ENABLED) {
+                else if (HTitleTools.prefs.getBoolPref("check_gnome_shell") && HTitleTools.checkPresenceGnomeShell() != 0 && HTitle.ENABLED) {
                     HTitle.ENABLED = false;
                     HTitle.stop();
                 }
                 break;
             case "debug":
-                HTitle.DEBUG = HTitle.prefs.getBoolPref("debug");
+                HTitleTool.DEBUG = HTitleTools.prefs.getBoolPref("debug");
                 break;
             case "legacy_mode.timeout_check":
-                HTitle.TIMEOUT_CHECK = HTitle.prefs.getIntPref("legacy_mode.timeout_check");
+                HTitle.TIMEOUT_CHECK = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
                 break;
             case "legacy_mode.timeout_between_changes":
-                HTitle.TIMEOUT_BETWEEN_CHANGES = HTitle.prefs.getIntPref("legacy_mode.timeout_between_changes");
+                HTitle.TIMEOUT_BETWEEN_CHANGES = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
                 break;
         }
     },
@@ -448,11 +324,7 @@ var HTitle = {
 
         HTitle.logWindowState("onWindowStateChange");
 
-        if (window.windowState == window.STATE_MAXIMIZED)
-            HTitle.window.setAttribute("hidechrome", true);
-        else {
-            HTitle.window.setAttribute("hidechrome", false);
-        }
+        HTitle.window.setAttribute("hidechrome", (window.windowState == window.STATE_MAXIMIZED));
 
         HTitle.previousState = window.windowState;
         HTitle.previousChangeTime = Date.now();
@@ -484,25 +356,12 @@ var HTitle = {
             default: var windowState = window.windowState.toString();
         }
 
-        HTitle.log("Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome"), "DEBUG");
-    },
-
-    log: function(message, level="ERROR") {
-        // TODO: Logging a message with additional information
-        // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsIConsoleService
-
-        if (HTitle.DEBUG == false && level == "DEBUG")
-            return;
-
-        var console = Components.classes["@mozilla.org/consoleservice;1"]
-                                .getService(Components.interfaces.nsIConsoleService);
-
-        console.logStringMessage("[" + Date.now() + "] " + level + " HTitle: " + message);
+        HTitleTools.log("Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome"), "DEBUG");
     },
 
     shutdown: function() {
-        HTitle.prefs.removeObserver("", HTitle);
-        //if (HTitle.prefs.getBoolPref("show_window_controls"))
+        HTitleTools.prefs.removeObserver("", HTitle);
+        //if (HTitleTools.prefs.getBoolPref("show_window_controls"))
         //    HTitle.hideWindowControls();
     },
 }
