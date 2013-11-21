@@ -4,12 +4,22 @@
 
 "use strict";
 
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+
+var EXPORTED_SYMBOLS = ["HTitleTools"];
+
 var HTitleTools = {
     DEBUG: false,
     appInfo: null,
     prefs: null,
-    
+    isInitialized: false,
+
     init: function() {
+        if (this.isInitialized) {
+            this.log("Already initialized", "DEBUG");
+            return;
+        }
+        
         this.prefs = Cc["@mozilla.org/preferences-service;1"]
                        .getService(Ci.nsIPrefService)
                        .getBranch("extensions.htitle.");
@@ -18,6 +28,8 @@ var HTitleTools = {
 
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
                          .getService(Ci.nsIXULAppInfo);
+
+        this.isInitialized = true;
     },
 
     /* ::::: App info functions ::::: */
@@ -189,3 +201,5 @@ var HTitleTools = {
         }
     },
 }
+
+HTitleTools.init();

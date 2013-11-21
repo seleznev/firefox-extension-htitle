@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("chrome://htitle/content/HTitleTools.jsm");
+
 var HTitle = {
     ENABLED: true,
     TIMEOUT_CHECK: 200, // ms
@@ -18,8 +20,6 @@ var HTitle = {
     defaultModeFailed: false,
 
     init: function() {
-        HTitleTools.init();
-        
         HTitle.TIMEOUT_CHECK = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
         HTitle.TIMEOUT_BETWEEN_CHANGES = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
