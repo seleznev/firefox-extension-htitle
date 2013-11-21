@@ -11,6 +11,7 @@
         width="1"
         height="1"
         onload="window.close();">
+
   <setting pref="extensions.htitle.show_window_controls" type="bool" title="&showWindowControls.label;"/>
 
   <setting pref="extensions.htitle.hide_mode" type="radio" title="&hideMode.label;">

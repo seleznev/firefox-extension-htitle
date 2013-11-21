@@ -11,6 +11,18 @@
         width="1"
         height="1"
         onload="window.close();">
+
+  <setting pref="extensions.htitle.hide_mode" type="radio" title="&hideMode.label;">
+    <radiogroup>
+      <vbox>
+        <radio value="0" label="&hideModeNewer.label;" disabled="true"/>
+        <radio value="1" label="&hideModeAuto.label;"/>
+        <radio value="2" label="&hideModeAlways.label;"/>
+      </vbox>
+    </radiogroup>
+  </setting>
+  
   <setting pref="extensions.htitle.legacy_mode.enable" type="bool" title="&enableLegacyMethod.label;"/>
   <setting pref="extensions.htitle.check_gnome_shell" type="bool" title="&checkGnomeShell.label;"/>
+
 </window>
