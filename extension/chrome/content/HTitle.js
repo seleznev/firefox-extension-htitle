@@ -17,8 +17,6 @@ var HTitle = {
     previousState: 0,
     previousChangeTime: 0,
 
-    defaultModeFailed: false,
-
     init: function() {
         HTitle.TIMEOUT_CHECK = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
         HTitle.TIMEOUT_BETWEEN_CHANGES = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
@@ -161,20 +159,19 @@ var HTitle = {
         if (!HTitleTools.prefs.getBoolPref("legacy_mode.enable")) {
             HTitleTools.log("Start in normal mode", "DEBUG");
 
-            var bash_path = HTitleTools.findPathToExec("bash");
-            if (bash_path && HTitleTools.findPathToExec("xwininfo") && HTitleTools.findPathToExec("xprop")) {
+            var utils = HTitleTools.checkUtilsAvailable(["bash", "xwininfo", "xprop"]);
+            if (utils) {
                 var wm_class = HTitleTools.getWMClass().replace(/\"/g, '\\$&');
 
                 if (HTitleTools.prefs.getIntPref("hide_mode") == 2) {
                     var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x2, 0x0, 0x0"; done';
-                    var args = ["-c", str]
-                    result = HTitleTools.run(bash_path, args, false);
                 }
                 else {
                     var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
-                    var args = ["-c", str]
-                    result = HTitleTools.run(bash_path, args, false);
                 }
+
+                var args = ["-c", str];
+                result = HTitleTools.run(utils.bash, args, false);
             }
             else {
                 result = -1;
@@ -197,8 +194,8 @@ var HTitle = {
                 HTitle.currentMode = "auto";
         }
         else {
-            if (result == -1 && !HTitle.defaultModeFailed) {
-                HTitle.defaultModeFailed = true;
+            if (result == -1 && !HTitleTools.defaultModeFailed) {
+                HTitleTools.defaultModeFailed = true;
                 HTitleTools.prefs.setBoolPref("legacy_mode.enable", true);
             }
             HTitleTools.log("Start in legacy mode", "DEBUG");
@@ -213,12 +210,12 @@ var HTitle = {
 
     stop: function() {
         if (HTitle.currentMode != "legacy") {
-            var bash_path = HTitleTools.findPathToExec("bash");
-            if (bash_path) {
+            var utils = HTitleTools.checkUtilsAvailable(["bash"]);
+            if (utils) {
                 var wm_class = HTitleTools.getWMClass().replace(/\"/g, '\\$&');
                 var str = 'WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x1, 0x0, 0x0"; xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
                 var args = ["-c", str]
-                result = HTitleTools.run(bash_path, args, false);
+                result = HTitleTools.run(utils.bash, args, false);
             }
             HTitle.window.removeAttribute("hidetitlebarwhenmaximized");
         }
@@ -249,7 +246,7 @@ var HTitle = {
                 }
                 break;
             case "legacy_mode.enable":
-                if (HTitle.ENABLED && !HTitle.defaultModeFailed && HTitle.currentMode != "stopped") {
+                if (HTitle.ENABLED && !HTitleTools.defaultModeFailed && HTitle.currentMode != "stopped") {
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitle.hideWindowControls();
 

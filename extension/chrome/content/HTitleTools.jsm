@@ -6,6 +6,8 @@
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
+Cu.import("resource://gre/modules/Services.jsm");
+
 var EXPORTED_SYMBOLS = ["HTitleTools"];
 
 var HTitleTools = {
@@ -13,6 +15,8 @@ var HTitleTools = {
     appInfo: null,
     prefs: null,
     isInitialized: false,
+
+    defaultModeFailed: false,
 
     init: function() {
         if (this.isInitialized) {
@@ -28,6 +32,8 @@ var HTitleTools = {
 
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
                          .getService(Ci.nsIXULAppInfo);
+
+        Services.obs.addObserver(this.pref_page_observer, "addon-options-displayed", false);
 
         this.isInitialized = true;
     },
@@ -166,6 +172,35 @@ var HTitleTools = {
         else {
             this.log("pidof doesn't exist", "ERROR");
             return 2;
+        }
+    },
+
+    checkUtilsAvailable: function(utils) {
+        var paths = {};
+        for (var i = 0; i < utils.length; i++) {
+            var path = this.findPathToExec(utils[i]);
+            if (path == null)
+                return null;
+            paths[utils[i]] = path;
+        }
+        return paths;
+    },
+
+    pref_page_observer: {
+        observe: function(aSubject, aTopic, aData) {
+            if (aTopic == "addon-options-displayed" && aData == "{c6448328-31f7-4b12-a2e0-5c39d0290307}") {
+                if (HTitleTools.defaultModeFailed || HTitleTools.checkUtilsAvailable(["bash", "xwininfo", "xprop"]) == null) {
+                    var legacy_mode = aSubject.getElementById("legacy-mode");
+                    legacy_mode.setAttribute("disabled", "true");
+                    legacy_mode.setAttribute("selected", "true");
+
+                    let bundle = Cc["@mozilla.org/intl/stringbundle;1"]
+                                   .getService(Ci.nsIStringBundleService)
+                                   .createBundle("chrome://htitle/locale/settings.properties");
+
+                    legacy_mode.setAttribute("desc", bundle.GetStringFromName("enableLegacyMethod.description"));
+                }
+            }
         }
     },
 
