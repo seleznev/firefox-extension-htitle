@@ -17,7 +17,6 @@
   <setting pref="extensions.htitle.hide_mode" type="radio" title="&hideMode.label;">
     <radiogroup>
       <vbox>
-        <radio value="0" label="&hideModeNewer.label;" disabled="true"/>
         <radio value="1" label="&hideModeAuto.label;"/>
         <radio value="2" label="&hideModeAlways.label;"/>
       </vbox>

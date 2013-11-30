@@ -7,7 +7,7 @@
 <!ENTITY enableLegacyMethod.label "Use legacy mode">
 
 <!-- Hide Titlebar Modes -->
-<!ENTITY hideMode.label           "Hide titlebar mode">
+<!ENTITY hideMode.label           "Hide titlebar">
 <!ENTITY hideModeNewer.label      "Newer">
-<!ENTITY hideModeAuto.label       "Auto">
+<!ENTITY hideModeAuto.label       "When maximized">
 <!ENTITY hideModeAlways.label     "Always">

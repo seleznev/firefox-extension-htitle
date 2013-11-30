@@ -7,7 +7,7 @@
 <!ENTITY enableLegacyMethod.label "Использовать устаревший метод">
 
 <!-- Hide Titlebar Modes -->
-<!ENTITY hideMode.label           "Режим скрытия панели заголовка">
+<!ENTITY hideMode.label           "Скрывать панель заголовка">
 <!ENTITY hideModeNewer.label      "Не скрывать">
-<!ENTITY hideModeAuto.label       "Авто">
+<!ENTITY hideModeAuto.label       "Для распахнутого окна">
 <!ENTITY hideModeAlways.label     "Всегда">
