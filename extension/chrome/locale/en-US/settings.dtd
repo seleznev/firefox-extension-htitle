@@ -8,6 +8,7 @@
 
 <!-- Hide Titlebar Modes -->
 <!ENTITY hideMode.label           "Hide titlebar">
+<!ENTITY hideMode.desc            "It doesn't work with legacy mode.">
 <!ENTITY hideModeNewer.label      "Newer">
 <!ENTITY hideModeAuto.label       "When maximized">
 <!ENTITY hideModeAlways.label     "Always">

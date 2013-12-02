@@ -8,6 +8,7 @@
 
 <!-- Hide Titlebar Modes -->
 <!ENTITY hideMode.label           "Скрывать панель заголовка">
+<!ENTITY hideMode.desc            "Не работает с устаревшим методом.">
 <!ENTITY hideModeNewer.label      "Не скрывать">
 <!ENTITY hideModeAuto.label       "Для распахнутого окна">
 <!ENTITY hideModeAlways.label     "Всегда">

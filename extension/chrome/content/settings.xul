@@ -14,11 +14,11 @@
 
   <setting pref="extensions.htitle.show_window_controls" type="bool" title="&showWindowControls.label;"/>
 
-  <setting pref="extensions.htitle.hide_mode" type="radio" title="&hideMode.label;">
+  <setting pref="extensions.htitle.hide_mode" type="radio" title="&hideMode.label;" desc="&hideMode.desc;">
     <radiogroup>
       <vbox>
-        <radio value="1" label="&hideModeAuto.label;"/>
-        <radio value="2" label="&hideModeAlways.label;"/>
+        <radio value="1" label="&hideModeAuto.label;" id="hide-mode-auto"/>
+        <radio value="2" label="&hideModeAlways.label;" id="hide-mode-always"/>
       </vbox>
     </radiogroup>
   </setting>

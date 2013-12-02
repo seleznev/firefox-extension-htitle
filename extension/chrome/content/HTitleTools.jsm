@@ -107,7 +107,7 @@ var HTitleTools = {
 
             file.initWithPath(full_path_to_exec);
             if (file.exists() && file.isExecutable()) {
-                this.log("Command \"" + name + "\" is found in \"" + path[i] + "\"", "DEBUG");
+                this.log("Command \"" + name + "\" was found in \"" + path[i] + "\"", "DEBUG");
                 return full_path_to_exec;
             }
         }
@@ -205,6 +205,12 @@ var HTitleTools = {
                                    .createBundle("chrome://htitle/locale/settings.properties");
 
                     legacy_mode.setAttribute("desc", bundle.GetStringFromName("enableLegacyMethod.description"));
+
+                    var hide_mode_auto = aSubject.getElementById("hide-mode-auto");
+                    hide_mode_auto.setAttribute("selected", "true");
+
+                    var hide_mode_always = aSubject.getElementById("hide-mode-always");
+                    hide_mode_always.setAttribute("disabled", "true");
                 }
             }
         }
