@@ -174,12 +174,13 @@ var HTitle = {
         }
 
         if (result == 0) {
-            HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
             HTitle.window.setAttribute("hidechrome", false);
             if (HTitleTools.prefs.getIntPref("hide_mode") == 2)
                 HTitle.currentMode = "always";
-            else
+            else {
                 HTitle.currentMode = "auto";
+                HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
+            }
         }
         else {
             if (result == -1 && !HTitleTools.defaultModeFailed) {
