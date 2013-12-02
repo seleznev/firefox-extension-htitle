@@ -15,7 +15,9 @@ var HTitleTools = {
     appInfo: null,
     prefs: null,
 
+    utils: {},
     defaultModeFailed: false,
+
     timeoutCheck: 200, // ms
     timeoutBetweenChanges: 200, // ms
 
@@ -169,10 +171,10 @@ var HTitleTools = {
     checkPresenceGnomeShell: function() {
         this.log("Start checking DE", "DEBUG");
 
-        var pidof_path = this.findPathToExec("pidof");
+        var path = this.checkUtilsAvailable(["pidof"]);
 
-        if (pidof_path) {
-            var exitValue = this.run(pidof_path, ["gnome-shell"]);
+        if (path.pidof) {
+            var exitValue = this.run(path.pidof, ["gnome-shell"]);
             return (exitValue == 1 ? 1 : 0);
         }
         else {
@@ -184,7 +186,14 @@ var HTitleTools = {
     checkUtilsAvailable: function(utils) {
         var paths = {};
         for (var i = 0; i < utils.length; i++) {
-            var path = this.findPathToExec(utils[i]);
+            var path;
+            if (this.utils[utils[i]] === undefined) {
+                path = this.findPathToExec(utils[i]);
+                this.utils[utils[i]] = path;
+            }
+            else {
+                path = this.utils[utils[i]];
+            }
             if (path == null)
                 return null;
             paths[utils[i]] = path;
