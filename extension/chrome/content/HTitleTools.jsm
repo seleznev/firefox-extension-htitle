@@ -14,9 +14,12 @@ var HTitleTools = {
     DEBUG: false,
     appInfo: null,
     prefs: null,
-    isInitialized: false,
 
     defaultModeFailed: false,
+    timeoutCheck: 200, // ms
+    timeoutBetweenChanges: 200, // ms
+
+    isInitialized: false,
 
     init: function() {
         if (this.isInitialized) {
@@ -32,6 +35,9 @@ var HTitleTools = {
 
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
                          .getService(Ci.nsIXULAppInfo);
+
+        this.timeoutCheck = this.prefs.getIntPref("legacy_mode.timeout_check");
+        this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
         Services.obs.addObserver(this.pref_page_observer, "addon-options-displayed", false);
 
@@ -189,7 +195,7 @@ var HTitleTools = {
     pref_page_observer: {
         observe: function(aSubject, aTopic, aData) {
             if (aTopic == "addon-options-displayed" && aData == "{c6448328-31f7-4b12-a2e0-5c39d0290307}") {
-                if (HTitleTools.defaultModeFailed || HTitleTools.checkUtilsAvailable(["bash", "xwininfo", "xprop"]) == null) {
+                if (this.defaultModeFailed || HTitleTools.checkUtilsAvailable(["bash", "xwininfo", "xprop"]) == null) {
                     var legacy_mode = aSubject.getElementById("legacy-mode");
                     legacy_mode.setAttribute("disabled", "true");
                     legacy_mode.setAttribute("selected", "true");

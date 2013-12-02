@@ -6,8 +6,6 @@ Components.utils.import("chrome://htitle/content/HTitleTools.jsm");
 
 var HTitle = {
     ENABLED: true,
-    TIMEOUT_CHECK: 200, // ms
-    TIMEOUT_BETWEEN_CHANGES: 200, // ms
 
     windowControlsObservers: [],
 
@@ -18,9 +16,6 @@ var HTitle = {
     previousChangeTime: 0,
 
     init: function() {
-        HTitle.TIMEOUT_CHECK = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
-        HTitle.TIMEOUT_BETWEEN_CHANGES = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
-
         HTitleTools.prefs.addObserver("", HTitle, false);
 
         if (HTitleTools.prefs.getBoolPref("check_gnome_shell") && HTitleTools.checkPresenceGnomeShell() != 0) {
@@ -28,6 +23,8 @@ var HTitle = {
             HTitle.ENABLED = false;
             return;
         }
+
+        HTitle.window = document.getElementById(HTitleTools.isThunderbird() ? "messengerWindow" : "main-window");
 
         HTitle.start();
 
@@ -39,8 +36,6 @@ var HTitle = {
 
         if (HTitleTools.prefs.getBoolPref("show_window_controls"))
             HTitle.showWindowControls();
-
-        HTitleTools.log("TIMEOUT_CHECK = " + HTitle.TIMEOUT_CHECK + "; TIMEOUT_BETWEEN_CHANGES = " + HTitle.TIMEOUT_BETWEEN_CHANGES, "DEBUG");
     },
 
     showWindowControls: function() {
@@ -178,13 +173,6 @@ var HTitle = {
             }
         }
 
-        if (HTitleTools.isFirefox()) {
-            HTitle.window = document.getElementById("main-window");
-        }
-        else if (HTitleTools.isThunderbird()) {
-            HTitle.window = document.getElementById("messengerWindow");
-        }
-
         if (result == 0) {
             HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
             HTitle.window.setAttribute("hidechrome", false);
@@ -199,11 +187,11 @@ var HTitle = {
                 HTitleTools.prefs.setBoolPref("legacy_mode.enable", true);
             }
             HTitleTools.log("Start in legacy mode", "DEBUG");
+            HTitleTools.log("TIMEOUT_CHECK = " + HTitleTools.timeoutCheck + "; TIMEOUT_BETWEEN_CHANGES = " + HTitleTools.timeoutBetweenChanges, "DEBUG");
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
             HTitle.currentMode = "legacy";
-            //HTitle.onWindowStateChange();
 
-            setTimeout(function(){HTitle.checkWindowState();}, HTitle.TIMEOUT_CHECK);
+            setTimeout(function(){HTitle.checkWindowState();}, HTitleTools.timeoutCheck);
         }
         HTitle.window.setAttribute("htitlemode", HTitle.currentMode);
     },
@@ -289,10 +277,10 @@ var HTitle = {
                 HTitleTool.DEBUG = HTitleTools.prefs.getBoolPref("debug");
                 break;
             case "legacy_mode.timeout_check":
-                HTitle.TIMEOUT_CHECK = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
+                HTitleTools.timeoutCheck = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
                 break;
             case "legacy_mode.timeout_between_changes":
-                HTitle.TIMEOUT_BETWEEN_CHANGES = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
+                HTitleTools.timeoutBetweenChanges = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
                 break;
         }
     },
@@ -302,7 +290,7 @@ var HTitle = {
             return;
         }
 
-        if ((Date.now() - HTitle.previousChangeTime) < HTitle.TIMEOUT_BETWEEN_CHANGES) {
+        if ((Date.now() - HTitle.previousChangeTime) < HTitleTools.timeoutBetweenChanges) {
             if (window.windowState == window.STATE_NORMAL && HTitle.window.getAttribute("hidechrome"))
                  window.maximize();
             return;
