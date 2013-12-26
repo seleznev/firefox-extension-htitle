@@ -7,6 +7,8 @@
 <!DOCTYPE overlay [
 <!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd">
 %browserDTD;
+<!ENTITY % htitleDTD SYSTEM "chrome://htitle/locale/overlay.dtd">
+%htitleDTD;
 ]>
 
 <?xml-stylesheet href="chrome://htitle/skin/overlayFirefox.css" type="text/css"?>
@@ -17,11 +19,14 @@
 
   <popupset id="mainPopupSet">
     <menupopup id="htitle-close-context-menu">
-      <menuitem label="&fullScreenMinimize.tooltip;" oncommand="window.minimize();"/>
-      <menuitem label="&fullScreenRestore.tooltip;" oncommand="window.restore();"/>
+      <menuitem label="&minimize.label;" oncommand="window.minimize();"/>
+      <menuitem id="htitle-menuitem-maximize"
+                label="&maximize.label;" oncommand="window.maximize();"/>
+      <menuitem id="htitle-menuitem-unmaximize"
+                label="&unmaximize.label;" oncommand="window.restore();"/>
       <menuitem label="&fullScreenCmd.label;" oncommand="BrowserFullScreen();"/>
       <menuseparator/>
-      <menuitem label="&fullScreenClose.tooltip;" oncommand="BrowserTryToCloseWindow();"/>
+      <menuitem label="&close.label;" oncommand="BrowserTryToCloseWindow();"/>
     </menupopup>
   </popupset>
 

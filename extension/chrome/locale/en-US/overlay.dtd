@@ -4,3 +4,8 @@
 
 <!ENTITY closeWindowButton.label   "Close Window">
 <!ENTITY closeWindowButton.tooltip "Close">
+
+<!ENTITY minimize.label   "Minimize">
+<!ENTITY maximize.label   "Maximize">
+<!ENTITY unmaximize.label "Unmaximize">
+<!ENTITY close.label      "Close">
