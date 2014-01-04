@@ -9,3 +9,7 @@
 <!ENTITY maximize.label   "Maximize">
 <!ENTITY unmaximize.label "Unmaximize">
 <!ENTITY close.label      "Close">
+
+<!ENTITY opps.label       "Oops...">
+<!ENTITY opps.description "Window decorations is broken. HTitle needs your click to continue.">
+<!ENTITY clickMe.label    "Click me!">

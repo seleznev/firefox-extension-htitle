@@ -21,4 +21,16 @@
                    oncommand="window.close();"/>
   </toolbarpalette>
 
+  <window id="messengerWindow">
+    <hbox id="htitle-overlay-box" insertbefore="navigator-toolbox" onclick="HTitle.checkWindowState();">
+      <vbox id="htitle-message-box">
+        <vbox>
+          <label id="htitle-message-title" value="&opps.label;"/>
+          <label class="htitle-message-desc" value="&opps.description;" crop="end"/>
+          <button label="&clickMe.label;" class="htitle-message-button" oncommand="HTitle.checkWindowState();"/>
+        </vbox>
+      </vbox>
+    </hbox>
+  </window>
+
 </overlay>

@@ -45,4 +45,16 @@
     <toolbarbutton id="close-button" context="htitle-close-context-menu"/>
   </hbox>
 
+  <window id="main-window">
+    <hbox id="htitle-overlay-box" insertbefore="tab-view-deck" onclick="HTitle.checkWindowState();">
+      <vbox id="htitle-message-box">
+        <vbox>
+          <label id="htitle-message-title" value="&opps.label;"/>
+          <label class="htitle-message-desc" value="&opps.description;" crop="end"/>
+          <button label="&clickMe.label;" class="htitle-message-button" oncommand="HTitle.checkWindowState();"/>
+        </vbox>
+      </vbox>
+    </hbox>
+  </window>
+
 </overlay>

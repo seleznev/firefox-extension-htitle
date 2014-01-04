@@ -4,18 +4,12 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/*** Toolbar for restore window ***/
+/*** Box for restore window ***/
 
-#main-window[sizemode="maximized"][hidechrome="true"] #toolbar-htitle {
-  -moz-binding: url(chrome://global/content/bindings/general.xml#windowdragbox);
-}
-
-#main-window[sizemode="normal"][hidechrome="true"] #toolbar-htitle {
-  min-height: 100%;
-}
-
-#main-window:not([hidechrome="true"]) #toolbar-htitle {
-  display: none;
+#main-window[sizemode="normal"][hidechrome="true"] #htitle-overlay-box {
+  opacity: 1;
+  visibility: visible;
+  transition: visibility 0ms, opacity 300ms ease-out;
 }
 
 /*** Padding for tabs bar ***/

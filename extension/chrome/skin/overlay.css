@@ -4,18 +4,59 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/*** Toolbar for restore window ***/
+/*** Box for restore window ***/
 
-#toolbar-htitle {
+#htitle-overlay-box {
   -moz-appearance: none;
-  background: transparent !important;
-  max-height: 1px;
-  min-height: 1px;
-  margin: 0;
-  padding: 0;
+  background: rgba(50, 50, 50, 0.7) !important;
+  height: 100%;
+  opacity: 0;
   position: fixed;
   top: 0;
-  min-width: 100%;
+  visibility: hidden;
+  width: 100%;
+  z-index: 1000;
+}
+
+#htitle-message-box {
+  background: rgba(50, 50, 50, 0.9);
+  position: fixed;
+  left: calc(50% - 550px/2);
+  top: calc(50% - 180px/2);
+}
+
+#htitle-message-box,
+#htitle-message-box > vbox {
+  height: 180px;
+  width: 550px;
+}
+
+#htitle-message-box > vbox {
+  -moz-box-pack: center;
+  padding: 20px;
+}
+
+#htitle-message-title {
+  color: #fff;
+  font-size: 32pt;
+}
+
+.htitle-message-desc {
+  color: #fff;
+  font-size: 12pt;
+  margin-top: 10px;
+  -moz-margin-start: 10px;
+}
+
+.htitle-message-button {
+  -moz-appearance: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0;
+  color: #fff;
+  height: 25px;
+  margin: 15px 10px 0 350px;
+  width: 20px;
 }
 
 /*** Close button ***/

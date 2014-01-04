@@ -9,3 +9,7 @@
 <!ENTITY maximize.label   "Развернуть">
 <!ENTITY unmaximize.label "Восстановить">
 <!ENTITY close.label      "Закрыть">
+
+<!ENTITY opps.label       "?!..">
+<!ENTITY opps.description "HTitle всё сломал. Нужен ваш клик для продолжения.">
+<!ENTITY clickMe.label    "Нажми меня!">
