@@ -10,6 +10,7 @@
   opacity: 1;
   visibility: visible;
   transition: visibility 0ms, opacity 300ms ease-out;
+  transition-delay: 2s;
 }
 
 /*** Padding for tabs bar ***/
