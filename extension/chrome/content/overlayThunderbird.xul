@@ -22,7 +22,7 @@
   </toolbarpalette>
 
   <window id="messengerWindow">
-    <hbox id="htitle-overlay-box" insertbefore="navigator-toolbox" onclick="HTitle.checkWindowState();">
+    <hbox id="htitle-overlay-box" insertbefore="navigator-toolbox">
       <vbox id="htitle-message-box">
         <vbox>
           <label id="htitle-message-title" value="&opps.label;"/>

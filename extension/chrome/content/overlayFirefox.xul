@@ -46,7 +46,7 @@
   </hbox>
 
   <window id="main-window">
-    <hbox id="htitle-overlay-box" insertbefore="tab-view-deck" onclick="HTitle.checkWindowState();">
+    <hbox id="htitle-overlay-box" insertbefore="tab-view-deck">
       <vbox id="htitle-message-box">
         <vbox>
           <label id="htitle-message-title" value="&opps.label;"/>
