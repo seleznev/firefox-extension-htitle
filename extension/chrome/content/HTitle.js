@@ -104,7 +104,7 @@ var HTitle = {
             return;
         }
 
-        var tabsontop = tabsbar.getAttribute("tabsontop");
+        var tabsontop = tabsbar.getAttribute("tabsontop") != "false";
 
         if (menubar.getAttribute("autohide") != "true" && window.getAttribute("sizemode") != "fullscreen") {
             // Moving to the Menu bar
@@ -129,23 +129,22 @@ var HTitle = {
                 menubar.appendChild(spring);
             }
 
-            windowctls.removeAttribute("flex");
             HTitleTools.moveWindowControlsTo(windowctls, menubar);
         }
-        else if (tabsontop != "false" || navbar.collapsed) {
+        else if (tabsontop || navbar.collapsed) {
             // Moving to the Tabs toolbar
             if (tabsbar == windowctls.parentNode)
                 return;
-            windowctls.removeAttribute("flex");
             HTitleTools.moveWindowControlsTo(windowctls, tabsbar);
         }
         else {
             // Moving to the Navigation toolbar
             if (navbar == windowctls.parentNode)
                 return;
-            windowctls.setAttribute("flex", "1");
             HTitleTools.moveWindowControlsTo(windowctls, navbar);
         }
+
+        windowctls.removeAttribute("flex");
     },
 
     start: function() {
