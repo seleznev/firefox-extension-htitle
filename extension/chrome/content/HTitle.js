@@ -39,38 +39,40 @@ var HTitle = {
     },
 
     showWindowControls: function() {
+        var windowctls = document.getElementById("window-controls");
+        windowctls.setAttribute("htitle", "true");
+
+        // Appling CSS
+        if (HTitle.currentMode == "always")
+            HTitleTools.loadStyle("windowControlsAlways");
+        else
+            HTitleTools.loadStyle("windowControlsAuto");
+
         if (HTitleTools.isFirefox()) {
-            var windowctls = document.getElementById("window-controls");
-            windowctls.setAttribute("htitle", "true");
-
-            // Appling CSS
-            if (HTitle.currentMode == "always")
-                HTitleTools.loadStyle("windowControlsAlways");
-            else
-                HTitleTools.loadStyle("windowControlsAuto");
-
             var targets_map = [
                     ["TabsToolbar", "tabsontop"], 
                     ["nav-bar", "collapsed"],
                     ["toolbar-menubar", "autohide"],
                     ["main-window", "sizemode"]
                 ];
-
-            for (var i = 0; i < targets_map.length; i++) {
-                var tempObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(HTitle.updateWindowControlsPosition);
-                });
-                tempObserver.observe(document.getElementById(targets_map[i][0]), { attributes: true, attributeFilter: [targets_map[i][1]] });
-                HTitle.windowControlsObservers.push(tempObserver);
-            }
-            HTitleTools.log("HTitle.windowControlsObservers = " + HTitle.windowControlsObservers.length, "DEBUG");
         }
+        else {
+            var targets_map = [
+                    ["mail-toolbar-menubar2", "autohide"]
+                ];
+        }
+
+        for (var i = 0; i < targets_map.length; i++) {
+            var tempObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(HTitle.updateWindowControlsPosition);
+            });
+            tempObserver.observe(document.getElementById(targets_map[i][0]), { attributes: true, attributeFilter: [targets_map[i][1]] });
+            HTitle.windowControlsObservers.push(tempObserver);
+        }
+        HTitleTools.log("HTitle.windowControlsObservers = " + HTitle.windowControlsObservers.length, "DEBUG");
     },
 
     hideWindowControls: function() {
-        if (!HTitleTools.isFirefox())
-            return;
-
         if (HTitle.currentMode == "always")
             HTitleTools.unloadStyle("windowControlsAlways");
         else
@@ -82,9 +84,12 @@ var HTitle = {
 
         var windowctls = document.getElementById("window-controls");
         windowctls.removeAttribute("htitle");
-        windowctls.setAttribute("flex", "1");
-        var navbar = document.getElementById("nav-bar");
-        HTitleTools.moveWindowControlsTo(windowctls, navbar);
+        //windowctls.setAttribute("flex", "1");
+
+        if (HTitleTools.isFirefox()) {
+            var navbar = document.getElementById("nav-bar");
+            HTitleTools.moveWindowControlsTo(windowctls, navbar);
+        }
 
         for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
             HTitle.windowControlsObservers[i].disconnect();
@@ -95,16 +100,29 @@ var HTitle = {
     updateWindowControlsPosition: function(mutation) {
         var windowctls = document.getElementById("window-controls");
 
-        var window = document.getElementById("main-window");
-        var menubar = document.getElementById("toolbar-menubar");
-        var navbar = document.getElementById("nav-bar");
-        var tabsbar = document.getElementById("TabsToolbar");
+        if (HTitleTools.isFirefox()) {
+            var window = document.getElementById("main-window");
+            var menubar = document.getElementById("toolbar-menubar");
+            var navbar = document.getElementById("nav-bar");
+            var tabsbar = document.getElementById("TabsToolbar");
 
-        if (!windowctls || !menubar || !navbar || !tabsbar) {
-            return;
+            if (!windowctls || !menubar || !navbar || !tabsbar) {
+                return;
+            }
+
+            var tabsontop = tabsbar.getAttribute("tabsontop") != "false";
         }
+        else {
+            var window = document.getElementById("messengerWindow");
+            var menubar = document.getElementById("mail-toolbar-menubar2");
+            var tabsbar = document.getElementById("tabs-toolbar");
 
-        var tabsontop = tabsbar.getAttribute("tabsontop") != "false";
+            if (!windowctls || !menubar || !tabsbar) {
+                return;
+            }
+
+            var tabsontop = true;
+        }
 
         if (menubar.getAttribute("autohide") != "true" && window.getAttribute("sizemode") != "fullscreen") {
             // Moving to the Menu bar
@@ -131,7 +149,7 @@ var HTitle = {
 
             HTitleTools.moveWindowControlsTo(windowctls, menubar);
         }
-        else if (tabsontop || navbar.collapsed) {
+        else if (tabsontop || navbar.collapsed || HTitleTools.isThunderbird()) {
             // Moving to the Tabs toolbar
             if (tabsbar == windowctls.parentNode)
                 return;

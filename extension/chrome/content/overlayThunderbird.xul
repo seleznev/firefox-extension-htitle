@@ -6,11 +6,28 @@
 
 <!DOCTYPE overlay SYSTEM "chrome://htitle/locale/overlay.dtd">
 
-<?xml-stylesheet href="chrome://htitle/skin/overlayThunderbird.css" type="text/css"?>
-
 <overlay id="htitle"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
+
+<toolbar id="tabs-toolbar">
+  <hbox id="window-controls"
+        hidden="true"
+        skipintoolbarset="true"
+        ordinal="1000"
+        pack="end"
+        insertafter="alltabs-button">
+    <toolbarbutton id="minimize-button"
+                   style="list-style-image: url(chrome://global/skin/icons/Minimize.gif)"
+                   oncommand="window.minimize();"/>
+    <toolbarbutton id="restore-button"
+                   style="list-style-image: url(chrome://global/skin/icons/Restore.gif)"
+                   oncommand="if (window.windowState == window.STATE_MAXIMIZED) {window.restore();} else {window.maximize();}"/>
+    <toolbarbutton id="close-button"
+                   style="list-style-image: url(chrome://global/skin/icons/Close.gif)"
+                   oncommand="window.close();"/>
+  </hbox>
+</toolbar>
 
   <window id="messengerWindow">
     <hbox id="htitle-overlay-box" insertbefore="navigator-toolbox">

@@ -1,5 +1,6 @@
 content   htitle               chrome/content/
-skin      htitle  classic/1.0  chrome/skin/
+skin      htitle  classic/1.0  chrome/skin/firefox/
+skin      htitle  classic/1.0  chrome/skin/thunderbird/  application={3550f703-e582-4d05-9a08-453d09bdfdc6}
 
 locale    htitle  en-US        chrome/locale/en-US/
 locale    htitle  ru           chrome/locale/ru/
@@ -11,5 +12,3 @@ overlay chrome://browser/content/browser.xul chrome://htitle/content/overlayFire
 # Thunderbird
 overlay chrome://messenger/content/messenger.xul chrome://htitle/content/overlay.xul application={3550f703-e582-4d05-9a08-453d09bdfdc6}
 overlay chrome://messenger/content/mailWindowOverlay.xul chrome://htitle/content/overlayThunderbird.xul application={3550f703-e582-4d05-9a08-453d09bdfdc6}
-
-override chrome://htitle/content/settings.xul chrome://htitle/content/settingsThunderbird.xul application={3550f703-e582-4d05-9a08-453d09bdfdc6}

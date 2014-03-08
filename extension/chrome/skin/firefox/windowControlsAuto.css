@@ -9,6 +9,7 @@
 #window-controls {
   display: -moz-box !important;
 }
+
 #main-window:not([sizemode="maximized"]):not([sizemode="fullscreen"]) #window-controls {
   display: none !important;
 }
