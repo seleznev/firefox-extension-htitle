@@ -12,15 +12,6 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <toolbarpalette id="MailToolbarPalette">
-    <toolbarbutton id="htitle-close-button"
-                   class="toolbarbutton-1 chromeclass-toolbar-additional"
-                   removable="true"
-                   label="&closeWindowButton.label;" tooltiptext="&closeWindowButton.tooltip;"
-                   style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
-                   oncommand="window.close();"/>
-  </toolbarpalette>
-
   <window id="messengerWindow">
     <hbox id="htitle-overlay-box" insertbefore="navigator-toolbox">
       <vbox id="htitle-message-box">

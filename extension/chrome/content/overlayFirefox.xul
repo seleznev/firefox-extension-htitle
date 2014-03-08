@@ -30,16 +30,6 @@
     </menupopup>
   </popupset>
 
-  <toolbarpalette id="BrowserToolbarPalette">
-    <toolbarbutton id="htitle-close-button"
-                   class="toolbarbutton-1 chromeclass-toolbar-additional"
-                   removable="true"
-                   label="&closeWindow.label;" tooltiptext="&fullScreenClose.tooltip;"
-                   style="list-style-image: url(moz-icon://stock/gtk-close?size=menu)"
-                   context="htitle-close-context-menu"
-                   oncommand="BrowserTryToCloseWindow();"/>
-  </toolbarpalette>
-
   <hbox id="window-controls">
     <toolbarbutton id="restore-button" oncommand="switch (window.windowState) {case window.STATE_MAXIMIZED: window.restore(); break; case window.STATE_NORMAL: window.maximize(); break; default: BrowserFullScreen();}"/>
     <toolbarbutton id="close-button" context="htitle-close-context-menu"/>

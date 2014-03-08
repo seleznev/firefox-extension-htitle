@@ -13,12 +13,6 @@
   transition-delay: 2s;
 }
 
-/*** Close button ***/
-
-#htitle-close-button {
-  min-width: 35px;
-}
-
 /*** Padding for tabs bar ***/
 
 #messengerWindow[hidetitlebarwhenmaximized="true"] #mail-toolbar-menubar2[autohide="true"] ~ #tabs-toolbar,
