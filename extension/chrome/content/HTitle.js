@@ -50,7 +50,8 @@ var HTitle = {
 
         if (HTitleTools.isFirefox()) {
             var targets_map = [
-                    ["TabsToolbar", "tabsontop"], 
+                    ["TabsToolbar", "tabsontop"],
+                    ["TabsToolbar", "tabsonbottom"],
                     ["nav-bar", "collapsed"],
                     ["toolbar-menubar", "autohide"],
                     ["main-window", "sizemode"]
@@ -110,7 +111,7 @@ var HTitle = {
                 return;
             }
 
-            var tabsontop = tabsbar.getAttribute("tabsontop") != "false";
+            var tabsontop = tabsbar.getAttribute("tabsontop") != "false" && tabsbar.getAttribute("tabsonbottom") != "true";
         }
         else {
             var window = document.getElementById("messengerWindow");
