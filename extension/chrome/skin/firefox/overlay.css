@@ -70,16 +70,16 @@
 
 /*** Padding for tabs bar ***/
 
-#main-window[hidetitlebarwhenmaximized="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]),
-#main-window[htitlemode="always"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]),
-#main-window[hidechrome="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]) {
+#main-window[hidetitlebarwhenmaximized="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]),
+#main-window[htitlemode="always"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]),
+#main-window[hidechrome="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]) {
   padding-top: 2px;
 }
 
 /*** ***/
 
 #toolbar-menubar:not([autohide="true"]),
-#TabsToolbar:not([tabsontop="false"]),
+#TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]),
 #nav-bar[tabsontop="false"] {
   -moz-binding: url(chrome://global/content/bindings/toolbar.xml#toolbar-drag);
 }
