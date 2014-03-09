@@ -70,18 +70,17 @@
 
 /*** Padding for tabs bar ***/
 
-#main-window[hidetitlebarwhenmaximized="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]),
-#main-window[htitlemode="always"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]),
-#main-window[hidechrome="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]) {
+#main-window[hidetitlebarwhenmaximized="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]),
+#main-window[htitlemode="always"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]),
+#main-window[hidechrome="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]) {
   padding-top: 2px;
 }
 
 /*** ***/
 
 #toolbar-menubar:not([autohide="true"]),
-#TabsToolbar:not([tabsontop="false"]):not([tabsonbottom="true"]),
-#nav-bar[tabsontop="false"],
-#nav-bar[tabsonbottom="true"] {
+#TabsToolbar:not([tabsontop="false"]),
+#nav-bar[tabsontop="false"] {
   -moz-binding: url(chrome://global/content/bindings/toolbar.xml#toolbar-drag);
 }
 
