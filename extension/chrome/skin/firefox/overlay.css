@@ -1,19 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%
+%define FIREFOX
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/*** Box for restore window ***/
-
-%include ../shared/oops-box.css.inc
-
-#main-window[sizemode="normal"][hidechrome="true"] #htitle-overlay-box {
-  opacity: 1;
-  visibility: visible;
-  transition: visibility 0ms, opacity 300ms ease-out;
-  transition-delay: 2s;
-}
+%include ../shared/oops-box.inc.css
 
 /*** Padding for tabs bar ***/
 
@@ -32,6 +25,7 @@
 }
 
 /*** Popup menu ***/
+
 #main-window[sizemode="normal"] #htitle-menuitem-unmaximize,
 #main-window[sizemode="maximized"] #htitle-menuitem-maximize,
 #main-window[sizemode="fullscreen"] #htitle-menuitem-unmaximize,

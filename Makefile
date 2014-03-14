@@ -7,9 +7,9 @@ XPI = "firefox-extension-htitle.xpi"
 DIRS = $(shell find extension/ -type d)
 DIRS := $(filter-out extension/chrome/skin/shared, $(DIRS))
 
-INCLUDES = $(shell find extension/ -type f -name '*.css.inc')
+INCLUDES = $(shell find extension/ -type f -name '*.inc.css')
 
-FILES = $(shell find extension/ -type f ! -name '*.css.inc')
+FILES = $(shell find extension/ -type f ! -name '*.inc.css')
 
 TARGET_DIRS = $(patsubst extension/%, .build/%, $(DIRS))
 TARGET_FILES = $(patsubst extension/%, .build/%, $(FILES))

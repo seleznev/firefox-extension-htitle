@@ -3,6 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %endif
+%
+%filter substitution
+%
+%ifdef FIREFOX
+%define mainWindow #main-window
+%elifdef THUNDERBIRD
+%define mainWindow #messengerWindow
+%endif
+%
+/*** Box for restore window ***/
 
 #htitle-overlay-box {
   -moz-appearance: none;
@@ -57,4 +67,11 @@
   height: 25px;
   margin: 15px 10px 0 350px;
   width: 20px;
+}
+
+@mainWindow@[sizemode="normal"][hidechrome="true"] #htitle-overlay-box {
+  opacity: 1;
+  visibility: visible;
+  transition: visibility 0ms, opacity 300ms ease-out;
+  transition-delay: 2s;
 }
