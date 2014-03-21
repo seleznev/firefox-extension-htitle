@@ -15,6 +15,8 @@ var HTitleTools = {
     appInfo: null,
     prefs: null,
 
+    windowControlsLayout: null,
+
     utils: {},
     defaultModeFailed: false,
 
@@ -42,6 +44,8 @@ var HTitleTools = {
         this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
         Services.obs.addObserver(this.pref_page_observer, "addon-options-displayed", false);
+
+        HTitleTools.windowControlsLayout = HTitleTools.getWindowControlsLayout();
 
         this.isInitialized = true;
     },
@@ -181,6 +185,32 @@ var HTitleTools = {
             this.log("pidof doesn't exist", "ERROR");
             return 2;
         }
+    },
+
+    getWindowControlsLayout: function() {
+        var buttons = {
+            minimize: false,
+            maximize: false,
+            close: true,
+        } // It's default for GNOME 3. "true" == show button
+
+        if (!this.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
+            return buttons;
+
+        var utils = HTitleTools.checkUtilsAvailable(["bash", "gsettings"]);
+        if (utils) {
+            // I can't get stdout from nsIProcess
+            for (var n in buttons) {
+                var cmd = "gsettings get org.gnome.shell.overrides button-layout | grep '" + n + "'";
+                var args = ["-c", cmd];
+                buttons[n] = HTitleTools.run(utils.bash, args) == 0 ? true : false;
+            }
+        }
+        else {
+            this.log("gsettings doesn't exist", "WARNING");
+        }
+
+        return buttons;
     },
 
     checkUtilsAvailable: function(utils) {

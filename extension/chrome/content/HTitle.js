@@ -34,8 +34,24 @@ var HTitle = {
             HTitleTools.prefs.setBoolPref("show_window_controls", true);
         }
 
+        if (HTitleTools.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
+            HTitle.setWindowControlsLayoutAttribute();
+
         if (HTitleTools.prefs.getBoolPref("show_window_controls"))
             HTitle.showWindowControls();
+    },
+
+    setWindowControlsLayoutAttribute: function() {
+        var value = ""
+        for (var i in HTitleTools.windowControlsLayout) {
+            if (HTitleTools.windowControlsLayout[i]) {
+                value = value + (value.length ? "," : "") + i;
+            }
+        }
+        var windowctls = document.getElementById("window-controls");
+        if (windowctls) {
+            windowctls.setAttribute("htitle-button-layout", value);
+        }
     },
 
     showWindowControls: function() {
