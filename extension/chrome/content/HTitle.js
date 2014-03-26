@@ -157,7 +157,7 @@ var HTitle = {
             if (need_spring) {
                 var spring = document.createElement("toolbarspring");
                 spring.setAttribute("id", "htitle-menubar-spring");
-                spring.setAttribute("removable", "true");
+                spring.setAttribute("removable", HTitleTools.isAustralisUI() ? "false" : "true");
                 spring.setAttribute("flex", "1");
                 HTitleTools.addToCurrentset(menubar, "htitle-menubar-spring");
                 menubar.appendChild(spring);
