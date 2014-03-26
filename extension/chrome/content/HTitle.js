@@ -66,11 +66,16 @@ var HTitle = {
 
         if (HTitleTools.isFirefox()) {
             var targets_map = [
-                    ["TabsToolbar", "tabsontop"], 
-                    ["nav-bar", "collapsed"],
+                    ["TabsToolbar", "tabsontop"],
                     ["toolbar-menubar", "autohide"],
                     ["main-window", "sizemode"]
                 ];
+            if (HTitleTools.isAustralisUI()) {
+                targets_map.push(["nav-bar", "default-tabs-position"]);
+            }
+            else {
+                targets_map.push(["nav-bar", "collapsed"]);
+            }
         }
         else {
             var targets_map = [
@@ -126,7 +131,12 @@ var HTitle = {
                 return;
             }
 
-            var tabsontop = tabsbar.getAttribute("tabsontop") != "false";
+            if (tabsbar.getAttribute("tabsontop") === "") {
+                var tabsontop = navbar.getAttribute("default-tabs-position") != "bottom";
+            }
+            else {
+                var tabsontop = tabsbar.getAttribute("tabsontop") != "false";
+            }
         }
         else {
             var window = document.getElementById("messengerWindow");
