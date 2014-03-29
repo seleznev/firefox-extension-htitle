@@ -92,6 +92,8 @@ var HTitle = {
             HTitle.windowControlsObservers.push(tempObserver);
         }
         HTitleTools.log("HTitle.windowControlsObservers = " + HTitle.windowControlsObservers.length, "DEBUG");
+
+        HTitle.updateWindowControlsPosition();
     },
 
     hideWindowControls: function() {
