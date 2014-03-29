@@ -65,10 +65,11 @@ var HTitle = {
             HTitleTools.loadStyle("windowControlsAuto");
 
         if (HTitleTools.isFirefox()) {
+            window.addEventListener("sizemodechange", HTitle.updateWindowControlsPosition);
+
             var targets_map = [
                     ["TabsToolbar", "tabsontop"],
-                    ["toolbar-menubar", "autohide"],
-                    ["main-window", "sizemode"]
+                    ["toolbar-menubar", "autohide"]
                 ];
             if (HTitleTools.isAustralisUI()) {
                 targets_map.push(["nav-bar", "default-tabs-position"]);
@@ -108,6 +109,8 @@ var HTitle = {
         //windowctls.setAttribute("flex", "1");
 
         if (HTitleTools.isFirefox()) {
+            window.removeEventListener("sizemodechange", HTitle.updateWindowControlsPosition);
+
             var navbar = document.getElementById("nav-bar");
             HTitleTools.moveWindowControlsTo(windowctls, navbar);
         }
@@ -118,11 +121,10 @@ var HTitle = {
         HTitle.windowControlsObservers = [];
     },
 
-    updateWindowControlsPosition: function(mutation) {
+    updateWindowControlsPosition: function() {
         var windowctls = document.getElementById("window-controls");
 
         if (HTitleTools.isFirefox()) {
-            var window = document.getElementById("main-window");
             var menubar = document.getElementById("toolbar-menubar");
             var navbar = document.getElementById("nav-bar");
             var tabsbar = document.getElementById("TabsToolbar");
@@ -139,7 +141,6 @@ var HTitle = {
             }
         }
         else {
-            var window = document.getElementById("messengerWindow");
             var menubar = document.getElementById("mail-toolbar-menubar2");
             var tabsbar = document.getElementById("tabs-toolbar");
 
@@ -150,7 +151,7 @@ var HTitle = {
             var tabsontop = true;
         }
 
-        if (menubar.getAttribute("autohide") != "true" && window.getAttribute("sizemode") != "fullscreen") {
+        if (menubar.getAttribute("autohide") != "true" && window.windowState != window.STATE_FULLSCREEN) {
             // Moving to the Menu bar
             if (menubar == windowctls.parentNode)
                 return;
