@@ -208,17 +208,19 @@ var HTitleTools = {
         if (!this.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
             return buttons;
 
-        var utils = HTitleTools.checkUtilsAvailable(["bash", "gsettings"]);
-        if (utils) {
-            // I can't get stdout from nsIProcess
-            for (var n in buttons) {
-                var cmd = "gsettings get org.gnome.shell.overrides button-layout | grep '" + n + "'";
-                var args = ["-c", cmd];
-                buttons[n] = HTitleTools.run(utils.bash, args) == 0 ? true : false;
-            }
+        try {
+            var gsettings = Cc["@mozilla.org/gsettings-service;1"]
+                              .getService(Ci.nsIGSettingsService)
+                              .getCollectionForSchema("org.gnome.shell.overrides");
+            var button_layout = gsettings.getString("button-layout");
+            this.log("org.gnome.shell.overrides.button-layout = '" + button_layout + "'", "DEBUG");
+        } catch(e) {
+            this.log("GSettings isn't available", "WARNING");
+            return buttons;
         }
-        else {
-            this.log("gsettings doesn't exist", "WARNING");
+
+        for (var n in buttons) {
+            buttons[n] = button_layout.indexOf(n) != -1 ? true : false;
         }
 
         return buttons;
