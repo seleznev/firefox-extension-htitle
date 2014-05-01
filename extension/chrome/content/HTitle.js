@@ -42,15 +42,9 @@ var HTitle = {
     },
 
     setWindowControlsLayoutAttribute: function() {
-        var value = ""
-        for (var i in HTitleTools.windowControlsLayout) {
-            if (HTitleTools.windowControlsLayout[i]) {
-                value = value + (value.length ? "," : "") + i;
-            }
-        }
         var windowctls = document.getElementById("window-controls");
         if (windowctls) {
-            windowctls.setAttribute("htitle-button-layout", value);
+            windowctls.setAttribute("htitle-button-layout", HTitleTools.windowControlsLayout);
         }
     },
 

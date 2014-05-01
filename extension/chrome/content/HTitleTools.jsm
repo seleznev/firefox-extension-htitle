@@ -199,31 +199,26 @@ var HTitleTools = {
     },
 
     getWindowControlsLayout: function() {
-        var buttons = {
-            minimize: false,
-            maximize: false,
-            close: true,
-        } // It's default for GNOME 3. "true" == show button
+        var layout = ":close"; // It's default for GNOME 3
 
         if (!this.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
-            return buttons;
+            return layout;
 
         try {
-            var gsettings = Cc["@mozilla.org/gsettings-service;1"]
+            let gsettings = Cc["@mozilla.org/gsettings-service;1"]
                               .getService(Ci.nsIGSettingsService)
                               .getCollectionForSchema("org.gnome.shell.overrides");
-            var button_layout = gsettings.getString("button-layout");
+            let button_layout = gsettings.getString("button-layout");
+            if (/^([a-zA-Z0-9:,]*)$/.test(button_layout)) {
+                layout = button_layout;
+            }
             this.log("org.gnome.shell.overrides.button-layout = '" + button_layout + "'", "DEBUG");
         } catch(e) {
             this.log("GSettings isn't available", "WARNING");
-            return buttons;
+            return layout;
         }
 
-        for (var n in buttons) {
-            buttons[n] = button_layout.indexOf(n) != -1 ? true : false;
-        }
-
-        return buttons;
+        return layout;
     },
 
     checkUtilsAvailable: function(utils) {
