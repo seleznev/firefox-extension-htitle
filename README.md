@@ -10,7 +10,7 @@ Please visit extension's page on [addons.mozilla.org](https://addons.mozilla.org
 
 2. If extension doesn't work (it's normally for DE which differ from GNOME 3) please try enable "legacy" mode in settings (on about:addons page).
 
-3. If you use GNOME 3.10 please look on [Adwaita-FF theme for Metacity](https://github.com/uukr/Adwaita-FF) (by @uukr).
+3. Check [Headerbar for Firefox](https://github.com/chpii/Headerbar) tutorial for further Firefox integration with GNOME.
 
 ## Screenshots
 
