@@ -28,12 +28,6 @@ var HTitle = {
 
         HTitle.start();
 
-        /* Upgrade from previous (< 2.5) versions */
-        if (HTitleTools.prefs.getPrefType("show_close_button") && HTitleTools.prefs.getBoolPref("show_close_button")) {
-            HTitleTools.prefs.setBoolPref("show_close_button", false);
-            HTitleTools.prefs.setBoolPref("show_window_controls", true);
-        }
-
         if (HTitleTools.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
             HTitle.setWindowControlsLayoutAttribute();
 
