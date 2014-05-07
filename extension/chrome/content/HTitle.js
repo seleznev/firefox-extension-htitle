@@ -187,24 +187,8 @@ var HTitle = {
 
         if (!HTitleTools.prefs.getBoolPref("legacy_mode.enable")) {
             HTitleTools.log("Start in normal mode", "DEBUG");
-
-            var utils = HTitleTools.checkUtilsAvailable(["bash", "xwininfo", "xprop"]);
-            if (utils) {
-                var wm_class = HTitleTools.getWMClass().replace(/\"/g, '\\$&');
-
-                if (HTitleTools.prefs.getIntPref("hide_mode") == 2) {
-                    var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x2, 0x0, 0x0"; done';
-                }
-                else {
-                    var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
-                }
-
-                var args = ["-c", str];
-                result = HTitleTools.run(utils.bash, args, false);
-            }
-            else {
-                result = -1;
-            }
+            let mode = HTitleTools.prefs.getIntPref("hide_mode") == 2 ? "always" : "auto";
+            result = HTitleTools.setWindowProperty(mode);
         }
 
         if (result == 0) {
@@ -233,13 +217,7 @@ var HTitle = {
 
     stop: function() {
         if (HTitle.currentMode != "legacy") {
-            var utils = HTitleTools.checkUtilsAvailable(["bash"]);
-            if (utils) {
-                var wm_class = HTitleTools.getWMClass().replace(/\"/g, '\\$&');
-                var str = 'WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x1, 0x0, 0x0"; xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done';
-                var args = ["-c", str]
-                result = HTitleTools.run(utils.bash, args, false);
-            }
+            result = HTitleTools.removeWindowProperty();
             HTitle.window.removeAttribute("hidetitlebarwhenmaximized");
         }
         else if (HTitle.currentMode == "legacy") {

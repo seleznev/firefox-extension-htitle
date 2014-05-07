@@ -10,6 +10,30 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = ["HTitleTools"];
 
+function execute(path, args, needWait=true) {
+    var file = Cc["@mozilla.org/file/local;1"]
+                 .createInstance(Ci.nsIFile);
+    file.initWithPath(path);
+
+    var process = Cc["@mozilla.org/process/util;1"]
+                    .createInstance(Ci.nsIProcess);
+    try {
+        process.init(file);
+        process.run(needWait, args, args.length);
+    }
+    catch (error) {
+        HTitleTools.log(error.message, "ERROR");
+        return -1;
+    }
+
+    if (needWait) {
+        HTitleTools.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
+        return process.exitValue;
+    }
+    else
+        return 0;
+}
+
 var HTitleTools = {
     DEBUG: false,
     appInfo: null,
@@ -135,30 +159,30 @@ var HTitleTools = {
         return null;
     },
 
-    run: function(path, args, needWait=true) {
-        var file = Cc["@mozilla.org/file/local;1"]
-                     .createInstance(Ci.nsIFile);
-
-        file.initWithPath(path);
-
-        var process = Cc["@mozilla.org/process/util;1"]
-                        .createInstance(Ci.nsIProcess);
-
-        try {
-            process.init(file);
-            process.run(needWait, args, args.length);
-        }
-        catch (error) {
-            this.log(error.message, "ERROR");
+    setWindowProperty: function(mode) {
+        var utils = this.checkUtilsAvailable(["bash", "xwininfo", "xprop"]);
+        if (!utils) {
             return -1;
         }
-
-        if (needWait) {
-            this.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
-            return process.exitValue;
+        var wm_class = this.getWMClass().replace(/\"/g, '\\$&');
+        if (mode == "always") {
+            var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x2, 0x0, 0x0"; done';
         }
-        else
-            return 0;
+        else {
+            var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
+        }
+        var args = ["-c", str];
+        return execute(utils.bash, args, false);
+    },
+
+    removeWindowProperty: function() {
+        var utils = this.checkUtilsAvailable(["bash", "xwininfo", "xprop"]);
+        if (!utils) {
+            return -1;
+        }
+        var wm_class = this.getWMClass().replace(/\"/g, '\\$&');
+        var args = ["-c", 'WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x1, 0x0, 0x0"; xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done'];
+        return execute(utils.bash, args, false);
     },
 
     /* ::::: CSS stylesheets ::::: */
@@ -189,7 +213,7 @@ var HTitleTools = {
         var path = this.checkUtilsAvailable(["pidof"]);
 
         if (path.pidof) {
-            var exitValue = this.run(path.pidof, ["gnome-shell"]);
+            var exitValue = execute(path.pidof, ["gnome-shell"]);
             return (exitValue == 1 ? 1 : 0);
         }
         else {
