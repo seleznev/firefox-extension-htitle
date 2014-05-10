@@ -4,12 +4,16 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://htitle/skin/overlay.css" type="text/css"?>
-
 <overlay id="htitle"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/x-javascript" src="chrome://htitle/content/HTitle.js"/>
+  <script type="application/x-javascript" src="chrome://htitle/content/HTitleWindowControls.js"/>
+
+  <hbox id="window-controls">
+    <toolbarbutton id="restore-button" oncommand="switch (window.windowState) {case window.STATE_MAXIMIZED: window.restore(); break; case window.STATE_NORMAL: window.maximize(); break; default: BrowserFullScreen();}"/>
+    <toolbarbutton id="close-button" context="htitle-close-context-menu"/>
+  </hbox>
 
 </overlay>

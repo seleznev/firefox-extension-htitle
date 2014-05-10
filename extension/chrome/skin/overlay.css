@@ -1,0 +1,19 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/*** Padding for tabs bar ***/
+
+#toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]) {
+  padding-top: 2px;
+}
+
+/*** ***/
+
+#main-window:not([customizing]) #toolbar-menubar:not([autohide="true"]),
+#main-window:not([customizing]) #TabsToolbar:not([tabsontop="false"]),
+#main-window:not([customizing]) #nav-bar[tabsontop="false"] {
+  -moz-binding: url(chrome://browser/content/customizableui/toolbar.xml#toolbar-drag);
+}

@@ -1,15 +1,14 @@
 content   htitle               chrome/content/
-skin      htitle  classic/1.0  chrome/skin/firefox/
-skin      htitle  classic/1.0  chrome/skin/firefox-28/   appversion<29a1
-skin      htitle  classic/1.0  chrome/skin/thunderbird/  application={3550f703-e582-4d05-9a08-453d09bdfdc6}
+skin      htitle  classic/1.0  chrome/skin/
 
-locale    htitle  en-US        chrome/locale/en-US/
-locale    htitle  ru           chrome/locale/ru/
+interfaces components/nsIHTitleWindow.xpt
 
-# Firefox
-overlay chrome://browser/content/browser.xul chrome://htitle/content/overlay.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
-overlay chrome://browser/content/browser.xul chrome://htitle/content/overlayFirefox.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+binary-component components/nsHTitleWindow-fx29-x86_64.so abi=Linux_x86_64-gcc3 platformversion<30
+binary-component components/nsHTitleWindow-fx30-x86_64.so abi=Linux_x86_64-gcc3 platformversion>=30
 
-# Thunderbird
-overlay chrome://messenger/content/messenger.xul chrome://htitle/content/overlay.xul application={3550f703-e582-4d05-9a08-453d09bdfdc6}
-overlay chrome://messenger/content/mailWindowOverlay.xul chrome://htitle/content/overlayThunderbird.xul application={3550f703-e582-4d05-9a08-453d09bdfdc6}
+contract @seleznev.github.com/htitle-window;1 {2d641949-5f4b-426f-b969-37779a976ea3}
+
+overlay chrome://browser/content/browser.xul chrome://htitle/content/overlay.xul
+
+style chrome://browser/content/browser.xul chrome://htitle/skin/overlay.css
+style chrome://browser/content/browser.xul chrome://htitle/skin/windowControls.css
