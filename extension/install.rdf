@@ -16,9 +16,16 @@
     <em:optionsType>2</em:optionsType>
 
     <em:localized>
-      <Description em:locale="ru-RU">
+      <Description em:locale="ru">
         <em:name>HTitle</em:name>
         <em:description>Скрывает заголовок у развернутого на весь экран окна (в стиле приложений GNOME 3).</em:description>
+      </Description>
+    </em:localized>
+
+    <em:localized>
+      <Description em:locale="uk">
+        <em:name>HTitle</em:name>
+        <em:description>Прибирає заголовок у розгорнутого на весь екран вікна (в стилі програм GNOME 3).</em:description>
       </Description>
     </em:localized>
 

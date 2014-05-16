@@ -1,0 +1,14 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY showWindowControls.label "Показувати кнопки управління вікном">
+<!ENTITY checkGnomeShell.label    "Працювати тільки з GNOME Shell">
+<!ENTITY enableLegacyMethod.label "Використовувати застарілий метод">
+
+<!-- Hide Titlebar Modes -->
+<!ENTITY hideMode.label           "Сховати панель заголовку">
+<!ENTITY hideMode.desc            "Не працює з застарілим методом">
+<!ENTITY hideModeNewer.label      "Не ховати">
+<!ENTITY hideModeAuto.label       "Для розгорнутого вікна">
+<!ENTITY hideModeAlways.label     "Завжди">
