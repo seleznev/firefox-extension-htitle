@@ -5,6 +5,7 @@ skin      htitle  classic/1.0  chrome/skin/thunderbird/  application={3550f703-e
 
 locale    htitle  en-US        chrome/locale/en-US/
 locale    htitle  ru           chrome/locale/ru/
+locale    htitle  uk           chrome/locale/uk/
 
 # Firefox
 overlay chrome://browser/content/browser.xul chrome://htitle/content/overlay.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
