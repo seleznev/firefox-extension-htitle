@@ -1,0 +1,14 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY showWindowControls.label "Przyciski kontroli okna">
+<!ENTITY checkGnomeShell.label    "Działanie tylko w GNOME Shell">
+<!ENTITY enableLegacyMethod.label "Tryb przestarzały">
+
+<!-- Hide Titlebar Modes -->
+<!ENTITY hideMode.label           "Ukrywanie paska tytułowego">
+<!ENTITY hideMode.desc            "Nie działa w trybie przestarzałym.">
+<!ENTITY hideModeNewer.label      "Nigdy">
+<!ENTITY hideModeAuto.label       "Podczas zmaksymalizowania">
+<!ENTITY hideModeAlways.label     "Zawsze">
