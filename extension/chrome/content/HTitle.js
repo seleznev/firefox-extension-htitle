@@ -166,7 +166,7 @@ var HTitle = {
 
             HTitleTools.moveWindowControlsTo(windowctls, menubar);
         }
-        else if (tabsontop || navbar.collapsed || HTitleTools.isThunderbird()) {
+        else if ((tabsontop && !tabsbar.collapsed) || navbar.collapsed || HTitleTools.isThunderbird()) {
             // Moving to the Tabs toolbar
             if (tabsbar == windowctls.parentNode)
                 return;
