@@ -56,8 +56,8 @@ var HTitle = {
             window.addEventListener("sizemodechange", HTitle.updateWindowControlsPosition);
 
             var targets_map = [
+                    ["toolbar-menubar", "autohide"],
                     ["TabsToolbar", "tabsontop"],
-                    ["toolbar-menubar", "autohide"]
                 ];
             if (HTitleTools.isAustralisUI()) {
                 targets_map.push(["nav-bar", "default-tabs-position"]);
@@ -68,7 +68,8 @@ var HTitle = {
         }
         else {
             var targets_map = [
-                    ["mail-toolbar-menubar2", "autohide"]
+                    ["mail-toolbar-menubar2", "autohide"],
+                    ["tabs-toolbar", "collapsed"],
                 ];
         }
 
@@ -113,32 +114,32 @@ var HTitle = {
 
     updateWindowControlsPosition: function() {
         var windowctls = document.getElementById("window-controls");
+        if (!windowctls)
+            return;
 
         if (HTitleTools.isFirefox()) {
             var menubar = document.getElementById("toolbar-menubar");
-            var navbar = document.getElementById("nav-bar");
             var tabsbar = document.getElementById("TabsToolbar");
-
-            if (!windowctls || !menubar || !navbar || !tabsbar) {
-                return;
-            }
-
-            if (tabsbar.getAttribute("tabsontop") === "") {
-                var tabsontop = navbar.getAttribute("default-tabs-position") != "bottom";
-            }
-            else {
-                var tabsontop = tabsbar.getAttribute("tabsontop") != "false";
-            }
+            var mainbar = document.getElementById("nav-bar");
         }
         else {
             var menubar = document.getElementById("mail-toolbar-menubar2");
             var tabsbar = document.getElementById("tabs-toolbar");
+            var mainbar = document.getElementById("mail-bar3");
+        }
+        if (!menubar || !tabsbar || !mainbar) {
+            return;
+        }
 
-            if (!windowctls || !menubar || !tabsbar) {
-                return;
+        /* Get tabsontop value */
+        var tabsontop = true; // Default
+        if (HTitleTools.isFirefox()) {
+            if (tabsbar.getAttribute("tabsontop") === "") {
+                tabsontop = mainbar.getAttribute("default-tabs-position") != "bottom";
             }
-
-            var tabsontop = true;
+            else {
+                tabsontop = tabsbar.getAttribute("tabsontop") != "false";
+            }
         }
 
         if (menubar.getAttribute("autohide") != "true" && window.windowState != window.STATE_FULLSCREEN) {
@@ -166,17 +167,17 @@ var HTitle = {
 
             HTitleTools.moveWindowControlsTo(windowctls, menubar);
         }
-        else if ((tabsontop && !tabsbar.collapsed) || navbar.collapsed || HTitleTools.isThunderbird()) {
+        else if ((tabsontop && !tabsbar.collapsed) || mainbar.collapsed) {
             // Moving to the Tabs toolbar
             if (tabsbar == windowctls.parentNode)
                 return;
             HTitleTools.moveWindowControlsTo(windowctls, tabsbar);
         }
         else {
-            // Moving to the Navigation toolbar
-            if (navbar == windowctls.parentNode)
+            // Moving to the Navigation/Mail toolbar
+            if (mainbar == windowctls.parentNode)
                 return;
-            HTitleTools.moveWindowControlsTo(windowctls, navbar);
+            HTitleTools.moveWindowControlsTo(windowctls, mainbar);
         }
 
         windowctls.removeAttribute("flex");
