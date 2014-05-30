@@ -318,6 +318,18 @@ var HTitle = {
         HTitle.previousChangeTime = Date.now();
     },
 
+    onClickToolbar: function(e, window) {
+        HTitleTools.log("Detected middle click under #" + e.target.id, "DEBUG");
+        var e = e || window.event;
+        if ("object" === typeof e) {
+            let targets = ["nav-bar", "nav-bar-customization-target",
+                           "window-controls", "minimize-button", "restore-button", "close-button"];
+            if (e.button == 1 && targets.indexOf(e.target.id) != -1) {
+                HTitleTools.lowerWindow(window);
+            }
+        }
+    },
+
     checkWindowState: function() {
         if (window.windowState == window.STATE_NORMAL) {
             HTitle.logWindowState("checkWindowState");

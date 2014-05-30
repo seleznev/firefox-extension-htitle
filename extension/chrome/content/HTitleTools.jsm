@@ -7,6 +7,7 @@
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/ctypes.jsm");
 
 var EXPORTED_SYMBOLS = ["HTitleTools"];
 
@@ -261,6 +262,29 @@ var HTitleTools = {
             paths[utils[i]] = path;
         }
         return paths;
+    },
+
+    lowerWindow: function(window) {
+        var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                                .getInterface(Ci.nsIWebNavigation)
+                                .QueryInterface(Ci.nsIDocShellTreeItem)
+                                .treeOwner
+                                .QueryInterface(Ci.nsIInterfaceRequestor)
+                                .nsIBaseWindow;
+        var native_handle = base_window.nativeHandle;
+        var gdk_lib = ctypes.open("libgdk-x11-2.0.so");
+        var GdkWindow = ctypes.StructType("GdkWindow");
+        var gdk_window_get_toplevel = gdk_lib.declare("gdk_window_get_toplevel",
+                                                      ctypes.default_abi,
+                                                      GdkWindow.ptr,
+                                                      GdkWindow.ptr);
+        var gdk_window_lower = gdk_lib.declare("gdk_window_lower",
+                                                ctypes.default_abi,
+                                                ctypes.void_t,
+                                                GdkWindow.ptr);
+        var gdk_window = new GdkWindow.ptr(ctypes.UInt64(native_handle));
+        gdk_window = gdk_window_get_toplevel(gdk_window);
+        gdk_window_lower(gdk_window);
     },
 
     pref_page_observer: {

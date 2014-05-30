@@ -28,6 +28,9 @@
     </menupopup>
   </popupset>
 
+  <toolbar id="nav-bar"
+           onclick="HTitle.onClickToolbar(event, window);"/>
+
   <hbox id="window-controls">
     <toolbarbutton id="restore-button" oncommand="switch (window.windowState) {case window.STATE_MAXIMIZED: window.restore(); break; case window.STATE_NORMAL: window.maximize(); break; default: BrowserFullScreen();}"/>
     <toolbarbutton id="close-button" context="htitle-close-context-menu"/>
