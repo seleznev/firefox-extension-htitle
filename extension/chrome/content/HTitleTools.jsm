@@ -42,6 +42,7 @@ var HTitleTools = {
     prefs: null,
 
     windowControlsLayout: null,
+    titlebarActions: null,
 
     utils: {},
     defaultModeFailed: false,
@@ -75,6 +76,7 @@ var HTitleTools = {
         Services.obs.addObserver(this.pref_page_observer, "addon-options-displayed", false);
 
         HTitleTools.windowControlsLayout = HTitleTools.getWindowControlsLayout();
+        HTitleTools.titlebarActions = HTitleTools.getTitlebarActions();
 
         this.isInitialized = true;
     },
@@ -244,6 +246,34 @@ var HTitleTools = {
         }
 
         return layout;
+    },
+
+    getTitlebarActions: function() {
+        var actions = {double: "toggle-maximize",
+                       middle: "lower",
+                       right:  "menu"}; // It's default for GNOME 3
+
+        if (!this.prefs.getBoolPref("titlebar.get_actions_by_gsettings"))
+            return actions;
+
+        try {
+            let gsettings = Cc["@mozilla.org/gsettings-service;1"]
+                              .getService(Ci.nsIGSettingsService)
+                              .getCollectionForSchema("org.gnome.desktop.wm.preferences");
+
+            actions.double = gsettings.getString("action-double-click-titlebar");
+            actions.middle = gsettings.getString("action-middle-click-titlebar");
+            actions.right = gsettings.getString("action-right-click-titlebar");
+
+            this.log("org.gnome.desktop.wm.preferences.action-double-click-titlebar = '" + actions.double + "'", "DEBUG");
+            this.log("org.gnome.desktop.wm.preferences.action-middle-click-titlebar = '" + actions.middle + "'", "DEBUG");
+            this.log("org.gnome.desktop.wm.preferences.action-right-click-titlebar = '" + actions.right + "'", "DEBUG");
+        } catch(e) {
+            this.log("GSettings isn't available", "WARNING");
+            return actions;
+        }
+
+        return actions;
     },
 
     checkUtilsAvailable: function(utils) {

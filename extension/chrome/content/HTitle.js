@@ -321,11 +321,23 @@ var HTitle = {
     onClickToolbar: function(e, window) {
         HTitleTools.log("Detected middle click under #" + e.target.id, "DEBUG");
         var e = e || window.event;
-        if ("object" === typeof e) {
-            let targets = ["nav-bar", "nav-bar-customization-target",
-                           "window-controls", "minimize-button", "restore-button", "close-button"];
-            if (e.button == 1 && targets.indexOf(e.target.id) != -1) {
-                HTitleTools.lowerWindow(window);
+        if ("object" !== typeof e) {
+            return;
+        }
+        let targets = ["nav-bar", "nav-bar-customization-target",
+                       "window-controls", "minimize-button", "restore-button", "close-button"];
+        if (targets.indexOf(e.target.id) != -1) {
+            switch(e.button) {
+                case 1:
+                    switch(HTitleTools.titlebarActions.middle) {
+                        case "lower":
+                            HTitleTools.lowerWindow(window);
+                            break;
+                        case "minimize":
+                            window.minimize();
+                            break;
+                    }
+                    break;
             }
         }
     },
