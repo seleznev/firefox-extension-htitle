@@ -7,8 +7,6 @@ Components.utils.import("chrome://htitle/content/HTitleTools.jsm");
 var HTitle = {
     ENABLED: true,
 
-    windowControlsObservers: [],
-
     window: null,
 
     currentMode: "auto",
@@ -32,145 +30,10 @@ var HTitle = {
         HTitle.start();
 
         if (HTitleTools.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
-            HTitle.setWindowControlsLayoutAttribute();
+            HTitleWindowControls.setLayoutAttribute();
 
         if (HTitleTools.prefs.getBoolPref("show_window_controls"))
-            HTitle.showWindowControls();
-    },
-
-    setWindowControlsLayoutAttribute: function() {
-        var windowctls = document.getElementById("window-controls");
-        if (windowctls) {
-            windowctls.setAttribute("htitlebuttonlayout", HTitleTools.windowControlsLayout);
-        }
-    },
-
-    showWindowControls: function() {
-        var windowctls = document.getElementById("window-controls");
-        windowctls.setAttribute("htitle", "true");
-        HTitleTools.loadStyle("windowControls"); // Appling CSS
-
-        if (HTitleTools.isFirefox()) {
-            window.addEventListener("sizemodechange", HTitle.updateWindowControlsPosition);
-
-            var targets_map = [
-                    ["toolbar-menubar", "autohide"],
-                    ["TabsToolbar", "tabsontop"],
-                    ["nav-bar", "default-tabs-position"],
-                ];
-        }
-        else {
-            var targets_map = [
-                    ["mail-toolbar-menubar2", "autohide"],
-                    ["tabs-toolbar", "collapsed"],
-                ];
-        }
-
-        for (var i = 0; i < targets_map.length; i++) {
-            var tempObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(HTitle.updateWindowControlsPosition);
-            });
-            tempObserver.observe(document.getElementById(targets_map[i][0]), { attributes: true, attributeFilter: [targets_map[i][1]] });
-            HTitle.windowControlsObservers.push(tempObserver);
-        }
-        HTitleTools.log("HTitle.windowControlsObservers = " + HTitle.windowControlsObservers.length, "DEBUG");
-
-        HTitle.updateWindowControlsPosition();
-    },
-
-    hideWindowControls: function() {
-        HTitleTools.unloadStyle("windowControls");
-
-        var spring = document.getElementById("htitle-menubar-spring");
-        if (spring)
-            spring.remove();
-
-        var windowctls = document.getElementById("window-controls");
-        windowctls.removeAttribute("htitle");
-        //windowctls.setAttribute("flex", "1");
-
-        if (HTitleTools.isFirefox()) {
-            window.removeEventListener("sizemodechange", HTitle.updateWindowControlsPosition);
-
-            var navbar = document.getElementById("nav-bar");
-            HTitleTools.moveWindowControlsTo(windowctls, navbar);
-        }
-
-        for (var i = 0; i < HTitle.windowControlsObservers.length; i++) {
-            HTitle.windowControlsObservers[i].disconnect();
-        }
-        HTitle.windowControlsObservers = [];
-    },
-
-    updateWindowControlsPosition: function() {
-        var windowctls = document.getElementById("window-controls");
-        if (!windowctls)
-            return;
-
-        if (HTitleTools.isFirefox()) {
-            var menubar = document.getElementById("toolbar-menubar");
-            var tabsbar = document.getElementById("TabsToolbar");
-            var mainbar = document.getElementById("nav-bar");
-        }
-        else {
-            var menubar = document.getElementById("mail-toolbar-menubar2");
-            var tabsbar = document.getElementById("tabs-toolbar");
-            var mainbar = document.getElementById("mail-bar3");
-        }
-        if (!menubar || !tabsbar || !mainbar) {
-            return;
-        }
-
-        /* Get tabsontop value */
-        var tabsontop = true; // Default
-        if (HTitleTools.isFirefox()) {
-            if (tabsbar.getAttribute("tabsontop") === "") {
-                tabsontop = mainbar.getAttribute("default-tabs-position") != "bottom";
-            }
-            else {
-                tabsontop = tabsbar.getAttribute("tabsontop") != "false";
-            }
-        }
-
-        if (menubar.getAttribute("autohide") != "true" && window.windowState != window.STATE_FULLSCREEN) {
-            // Moving to the Menu bar
-            if (menubar == windowctls.parentNode)
-                return;
-
-            var need_spring = true;
-            var nodes = menubar.childNodes;
-            for (var i = 0; i < nodes.length; i++) {
-                if (parseInt(nodes[i].getAttribute("flex"), 10) >= 1) {
-                    need_spring = false;
-                    break;
-                }
-            }
-
-            if (need_spring) {
-                var spring = document.createElement("toolbarspring");
-                spring.setAttribute("id", "htitle-menubar-spring");
-                spring.setAttribute("removable", "false");
-                spring.setAttribute("flex", "1");
-                HTitleTools.addToCurrentset(menubar, "htitle-menubar-spring");
-                menubar.appendChild(spring);
-            }
-
-            HTitleTools.moveWindowControlsTo(windowctls, menubar);
-        }
-        else if ((tabsontop && !tabsbar.collapsed) || mainbar.collapsed) {
-            // Moving to the Tabs toolbar
-            if (tabsbar == windowctls.parentNode)
-                return;
-            HTitleTools.moveWindowControlsTo(windowctls, tabsbar);
-        }
-        else {
-            // Moving to the Navigation/Mail toolbar
-            if (mainbar == windowctls.parentNode)
-                return;
-            HTitleTools.moveWindowControlsTo(windowctls, mainbar);
-        }
-
-        windowctls.removeAttribute("flex");
+            HTitleWindowControls.show();
     },
 
     start: function() {
@@ -230,31 +93,31 @@ var HTitle = {
             case "show_window_controls":
                 if (HTitleTools.prefs.getBoolPref("show_window_controls")) {
                     HTitleTools.log("Enable show close button", "DEBUG");
-                    HTitle.updateWindowControlsPosition(null);
-                    HTitle.showWindowControls();
+                    HTitleWindowControls.updatePosition(null);
+                    HTitleWindowControls.show();
                 }
                 else {
                     HTitleTools.log("Disable show close button", "DEBUG");
-                    HTitle.hideWindowControls();
+                    HTitleWindowControls.hide();
                 }
                 break;
             case "legacy_mode.enable":
                 if (HTitle.ENABLED && !HTitleTools.defaultMethodFailed && !HTitle.isStopped) {
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
-                        HTitle.hideWindowControls();
+                        HTitleWindowControls.hide();
 
                     HTitle.stop();
                     HTitleTools.prefs.setIntPref("hide_mode", 1);
                     HTitle.start();
 
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
-                        HTitle.showWindowControls();
+                        HTitleWindowControls.show();
                 }
                 break;
             case "hide_mode":
                 if (HTitle.ENABLED && !HTitle.isStopped) {
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
-                        HTitle.hideWindowControls();
+                        HTitleWindowControls.hide();
 
                     HTitle.stop();
                     if (HTitleTools.prefs.getIntPref("hide_mode") != 1)
@@ -262,7 +125,7 @@ var HTitle = {
                     HTitle.start();
 
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
-                        HTitle.showWindowControls();
+                        HTitleWindowControls.show();
                 }
                 break;
             case "check_gnome_shell":
@@ -364,7 +227,7 @@ var HTitle = {
     shutdown: function() {
         HTitleTools.prefs.removeObserver("", HTitle);
         //if (HTitleTools.prefs.getBoolPref("show_window_controls"))
-        //    HTitle.hideWindowControls();
+        //    HTitleWindowControls.hide();
     },
 }
 

@@ -111,13 +111,6 @@ var HTitleTools = {
         node.setAttribute("currentset", currentset);
     },
 
-    moveWindowControlsTo: function(windowctls, target) {
-        this.removeFromCurrentset(windowctls.parentNode, windowctls.id);
-        target.appendChild(windowctls);
-        this.addToCurrentset(target, windowctls.id);
-        this.log("Close button moved to #" + target.id, "DEBUG");
-    },
-
     /* ::::: Use external utilities ::::: */
 
     findPathToExec: function(name) {
