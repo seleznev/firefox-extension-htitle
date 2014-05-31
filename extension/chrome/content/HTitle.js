@@ -58,6 +58,7 @@ var HTitle = {
             var targets_map = [
                     ["toolbar-menubar", "autohide"],
                     ["TabsToolbar", "tabsontop"],
+                    ["TabsToolbar", "collapsed"],
                 ];
             if (HTitleTools.isAustralisUI()) {
                 targets_map.push(["nav-bar", "default-tabs-position"]);
