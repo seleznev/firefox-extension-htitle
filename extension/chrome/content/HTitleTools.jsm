@@ -41,7 +41,6 @@ function execute(path, args, needWait=true) {
 var HTitleTools = {
     DEBUG: false,
     appInfo: null,
-    versionComparator: null,
     prefs: null,
 
     windowControlsLayout: null,
@@ -70,9 +69,6 @@ var HTitleTools = {
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
                          .getService(Ci.nsIXULAppInfo);
 
-        this.versionComparator = Cc["@mozilla.org/xpcom/version-comparator;1"]
-                                   .getService(Ci.nsIVersionComparator);
-
         this.timeoutCheck = this.prefs.getIntPref("legacy_mode.timeout_check");
         this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
@@ -96,13 +92,6 @@ var HTitleTools = {
     isThunderbird: function() {
         if (this.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
             return true;
-        }
-        return false;
-    },
-
-    isAustralisUI: function() {
-        if (this.isFirefox) {
-            return this.versionComparator.compare(this.appInfo.version, "29.0a1") >= 0;
         }
         return false;
     },

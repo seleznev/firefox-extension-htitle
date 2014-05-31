@@ -56,13 +56,8 @@ var HTitle = {
             var targets_map = [
                     ["toolbar-menubar", "autohide"],
                     ["TabsToolbar", "tabsontop"],
+                    ["nav-bar", "default-tabs-position"],
                 ];
-            if (HTitleTools.isAustralisUI()) {
-                targets_map.push(["nav-bar", "default-tabs-position"]);
-            }
-            else {
-                targets_map.push(["nav-bar", "collapsed"]);
-            }
         }
         else {
             var targets_map = [
@@ -154,7 +149,7 @@ var HTitle = {
             if (need_spring) {
                 var spring = document.createElement("toolbarspring");
                 spring.setAttribute("id", "htitle-menubar-spring");
-                spring.setAttribute("removable", HTitleTools.isAustralisUI() ? "false" : "true");
+                spring.setAttribute("removable", "false");
                 spring.setAttribute("flex", "1");
                 HTitleTools.addToCurrentset(menubar, "htitle-menubar-spring");
                 menubar.appendChild(spring);
