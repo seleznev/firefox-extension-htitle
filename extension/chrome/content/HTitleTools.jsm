@@ -9,6 +9,9 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/ctypes.jsm");
 
+Cu.import("chrome://htitle/content/X11.jsm");
+Cu.import("chrome://htitle/content/Gdk.jsm");
+
 var EXPORTED_SYMBOLS = ["HTitleTools"];
 
 function execute(path, args, needWait=true) {
@@ -162,30 +165,60 @@ var HTitleTools = {
         return null;
     },
 
-    setWindowProperty: function(mode) {
-        var utils = this.checkUtilsAvailable(["bash", "xwininfo", "xprop"]);
-        if (!utils) {
-            return -1;
-        }
-        var wm_class = this.getWMClass().replace(/\"/g, '\\$&');
-        if (mode == "always") {
-            var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x2, 0x0, 0x0"; done';
-        }
-        else {
-            var str = 'WINDOWS=""; i="0"; while [ "$WINDOWS" == "" ] && [ $i -lt 1200 ]; do sleep 0.05; WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); i=$[$i+1]; done; for ID in $WINDOWS; do xprop -id $ID -f _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 32c -set _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED 1; done';
-        }
-        var args = ["-c", str];
-        return execute(utils.bash, args, false);
+    getNativeWindow: function(window) {
+        var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                                .getInterface(Ci.nsIWebNavigation)
+                                .QueryInterface(Ci.nsIDocShellTreeItem)
+                                .treeOwner
+                                .QueryInterface(Ci.nsIInterfaceRequestor)
+                                .nsIBaseWindow;
+        var native_handle = base_window.nativeHandle;
+
+        var gdk_window = new Gdk.GdkWindow.ptr(ctypes.UInt64(native_handle));
+        gdk_window = Gdk.Window.get_toplevel(gdk_window);
+
+        var gdk_display = Gdk.Display.get_default();
+        var x11_display = GdkX11.X11Display.get_xdisplay(gdk_display);
+        var x11_window = Gdk.gdk_x11_drawable_get_xid(ctypes.cast(gdk_window, Gdk.GdkDrawable.ptr));
+
+        return [gdk_window, x11_window, gdk_display, x11_display];
     },
 
-    removeWindowProperty: function() {
-        var utils = this.checkUtilsAvailable(["bash", "xwininfo", "xprop"]);
-        if (!utils) {
+    setWindowProperty: function(window, mode) {
+        if (X11 === null || Gdk === null) {
             return -1;
         }
-        var wm_class = this.getWMClass().replace(/\"/g, '\\$&');
-        var args = ["-c", 'WINDOWS=$(xwininfo -tree -root | grep "(' + wm_class + ')" | sed "s/[ ]*//" | grep -o "0x[0-9a-f]*"); for ID in $WINDOWS; do xprop -id $ID -f _MOTIF_WM_HINTS 32c -set _MOTIF_WM_HINTS "0x2, 0x0, 0x1, 0x0, 0x0"; xprop -id $ID -remove _GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED; done'];
-        return execute(utils.bash, args, false);
+        var [gdk_window, x11_window, gdk_display, x11_display] = this.getNativeWindow(window);
+        //Gdk.Window.hide(gdk_window);
+        if (mode == "always") {
+            Gdk.Window.set_decorations(gdk_window, Gdk.GDK_DECOR_BORDER);
+        }
+        else {
+            let x11_property = GdkX11.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
+            // let t = new Uint8Array([1]);
+            // let x11_data = ctypes.uint8_t.ptr(t);
+            let t = new Uint32Array([1]);
+            let x11_data = ctypes.uint32_t.ptr(t);
+            X11.XChangeProperty(x11_display, x11_window, x11_property, X11.XA_CARDINAL, 32, X11.PropModeReplace, x11_data, 1);
+        }
+        return 0;
+    },
+
+    removeWindowProperty: function(window, mode) {
+        if (X11 === null || Gdk === null) {
+            return -1;
+        }
+        var [gdk_window, x11_window, gdk_display, x11_display] = this.getNativeWindow(window);
+        //Gdk.Window.hide(gdk_window);
+        if (mode == "always") {
+            Gdk.Window.set_decorations(gdk_window, Gdk.GDK_DECOR_ALL);
+        }
+        else {
+            let x11_property = GdkX11.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
+            X11.XDeleteProperty(x11_display, x11_window, x11_property);
+        }
+        //Gdk.Window.show(gdk_window);
+        return 0;
     },
 
     /* ::::: CSS stylesheets ::::: */
@@ -302,25 +335,15 @@ var HTitleTools = {
                                 .QueryInterface(Ci.nsIInterfaceRequestor)
                                 .nsIBaseWindow;
         var native_handle = base_window.nativeHandle;
-        var gdk_lib = ctypes.open("libgdk-x11-2.0.so");
-        var GdkWindow = ctypes.StructType("GdkWindow");
-        var gdk_window_get_toplevel = gdk_lib.declare("gdk_window_get_toplevel",
-                                                      ctypes.default_abi,
-                                                      GdkWindow.ptr,
-                                                      GdkWindow.ptr);
-        var gdk_window_lower = gdk_lib.declare("gdk_window_lower",
-                                                ctypes.default_abi,
-                                                ctypes.void_t,
-                                                GdkWindow.ptr);
-        var gdk_window = new GdkWindow.ptr(ctypes.UInt64(native_handle));
-        gdk_window = gdk_window_get_toplevel(gdk_window);
-        gdk_window_lower(gdk_window);
+        var gdk_window = new Gdk.GdkWindow.ptr(ctypes.UInt64(native_handle));
+        gdk_window = Gdk.Window.get_toplevel(gdk_window);
+        Gdk.Window.lower(gdk_window);
     },
 
     pref_page_observer: {
         observe: function(aSubject, aTopic, aData) {
             if (aTopic == "addon-options-displayed" && aData == "{c6448328-31f7-4b12-a2e0-5c39d0290307}") {
-                if (this.defaultModeFailed || HTitleTools.checkUtilsAvailable(["bash", "xwininfo", "xprop"]) == null) {
+                if (this.defaultModeFailed || X11 === null || Gdk === null) {
                     var legacy_mode = aSubject.getElementById("legacy-mode");
                     legacy_mode.setAttribute("disabled", "true");
                     legacy_mode.setAttribute("selected", "true");

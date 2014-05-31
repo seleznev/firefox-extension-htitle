@@ -11,7 +11,7 @@ var HTitle = {
 
     window: null,
 
-    currentMode: "auto",
+    currentMode: null,
     previousState: 0,
     previousChangeTime: 0,
 
@@ -189,7 +189,14 @@ var HTitle = {
         if (!HTitleTools.prefs.getBoolPref("legacy_mode.enable")) {
             HTitleTools.log("Start in normal mode", "DEBUG");
             let mode = HTitleTools.prefs.getIntPref("hide_mode") == 2 ? "always" : "auto";
-            result = HTitleTools.setWindowProperty(mode);
+            result = HTitleTools.setWindowProperty(window, mode);
+            if (HTitle.currentMode == null && mode == "always" && result == 0) {
+                /* FIXME */
+                var timeouts = [100, 2*100, 3*100, 4*100, 10*100];
+                for (let i = 0; i < timeouts.length; i++) {
+                    setTimeout(function(){HTitleTools.setWindowProperty(window, mode);}, timeouts[i]);
+                }
+            }
         }
 
         if (result == 0) {
@@ -218,7 +225,7 @@ var HTitle = {
 
     stop: function() {
         if (HTitle.currentMode != "legacy") {
-            result = HTitleTools.removeWindowProperty();
+            HTitleTools.removeWindowProperty(window, HTitle.currentMode);
             HTitle.window.removeAttribute("hidetitlebarwhenmaximized");
         }
         else if (HTitle.currentMode == "legacy") {
