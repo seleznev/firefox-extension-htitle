@@ -10,9 +10,7 @@
 
 /*** Padding for tabs bar ***/
 
-#main-window[hidetitlebarwhenmaximized="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]),
-#main-window[htitlemode="always"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]),
-#main-window[hidechrome="true"] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]) {
+#main-window[htitlemode] #toolbar-menubar[autohide="true"] ~ #TabsToolbar:not([tabsontop="false"]) {
   padding-top: 2px;
 }
 

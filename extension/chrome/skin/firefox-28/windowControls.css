@@ -10,4 +10,8 @@
   display: -moz-box;
 }
 
+#main-window[htitlemode="auto"]:not([sizemode="maximized"]):not([sizemode="fullscreen"]) #window-controls {
+  display: none;
+}
+
 }

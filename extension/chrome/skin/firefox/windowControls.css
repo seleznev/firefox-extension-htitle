@@ -7,11 +7,11 @@
 @-moz-document url("chrome://browser/content/browser.xul") {
 
 #window-controls {
-  display: -moz-box !important;
+  display: -moz-box;
 }
 
-#main-window[sizemode="normal"] #window-controls[htitle="true"] > #close-button {
-  display: -moz-box !important;
+#main-window[htitlemode="auto"]:not([sizemode="maximized"]):not([sizemode="fullscreen"]) #window-controls {
+  display: none;
 }
 
 }

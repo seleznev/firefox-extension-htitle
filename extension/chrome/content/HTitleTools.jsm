@@ -48,7 +48,7 @@ var HTitleTools = {
     titlebarActions: null,
 
     utils: {},
-    defaultModeFailed: false,
+    defaultMethodFailed: false,
 
     timeoutCheck: 200, // ms
     timeoutBetweenChanges: 200, // ms
@@ -343,7 +343,7 @@ var HTitleTools = {
     pref_page_observer: {
         observe: function(aSubject, aTopic, aData) {
             if (aTopic == "addon-options-displayed" && aData == "{c6448328-31f7-4b12-a2e0-5c39d0290307}") {
-                if (this.defaultModeFailed || X11 === null || Gdk === null) {
+                if (this.defaultMethodFailed || X11 === null || Gdk === null) {
                     var legacy_mode = aSubject.getElementById("legacy-mode");
                     legacy_mode.setAttribute("disabled", "true");
                     legacy_mode.setAttribute("selected", "true");

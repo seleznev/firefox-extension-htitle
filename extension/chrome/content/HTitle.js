@@ -11,7 +11,10 @@ var HTitle = {
 
     window: null,
 
-    currentMode: null,
+    currentMode: "auto",
+    currentMethod: "xlib",
+    isFirstStart: true,
+    isStopped: true,
     previousState: 0,
     previousChangeTime: 0,
 
@@ -38,19 +41,14 @@ var HTitle = {
     setWindowControlsLayoutAttribute: function() {
         var windowctls = document.getElementById("window-controls");
         if (windowctls) {
-            windowctls.setAttribute("htitle-button-layout", HTitleTools.windowControlsLayout);
+            windowctls.setAttribute("htitlebuttonlayout", HTitleTools.windowControlsLayout);
         }
     },
 
     showWindowControls: function() {
         var windowctls = document.getElementById("window-controls");
         windowctls.setAttribute("htitle", "true");
-
-        // Appling CSS
-        if (HTitle.currentMode == "always")
-            HTitleTools.loadStyle("windowControlsAlways");
-        else
-            HTitleTools.loadStyle("windowControlsAuto");
+        HTitleTools.loadStyle("windowControls"); // Appling CSS
 
         if (HTitleTools.isFirefox()) {
             window.addEventListener("sizemodechange", HTitle.updateWindowControlsPosition);
@@ -86,10 +84,7 @@ var HTitle = {
     },
 
     hideWindowControls: function() {
-        if (HTitle.currentMode == "always")
-            HTitleTools.unloadStyle("windowControlsAlways");
-        else
-            HTitleTools.unloadStyle("windowControlsAuto");
+        HTitleTools.unloadStyle("windowControls");
 
         var spring = document.getElementById("htitle-menubar-spring");
         if (spring)
@@ -184,58 +179,52 @@ var HTitle = {
     },
 
     start: function() {
-        var result = -2;
+        HTitle.currentMode = (HTitleTools.prefs.getIntPref("hide_mode") == 2) ? "always" : "auto";
+        HTitle.currentMethod = (HTitleTools.prefs.getBoolPref("legacy_mode.enable")) ? "hidechrome" : "xlib";
 
-        if (!HTitleTools.prefs.getBoolPref("legacy_mode.enable")) {
+        if (HTitle.currentMethod == "xlib") {
             HTitleTools.log("Start in normal mode", "DEBUG");
-            let mode = HTitleTools.prefs.getIntPref("hide_mode") == 2 ? "always" : "auto";
-            result = HTitleTools.setWindowProperty(window, mode);
-            if (HTitle.currentMode == null && mode == "always" && result == 0) {
-                /* FIXME */
+            var result = HTitleTools.setWindowProperty(window, HTitle.currentMode);
+            if (HTitle.isFirstStart && HTitle.currentMode == "always" && result == 0) {
                 var timeouts = [100, 2*100, 3*100, 4*100, 10*100];
                 for (let i = 0; i < timeouts.length; i++) {
-                    setTimeout(function(){HTitleTools.setWindowProperty(window, mode);}, timeouts[i]);
+                    setTimeout(function(){HTitleTools.setWindowProperty(window, HTitle.currentMode);}, timeouts[i]);
                 }
+            }
+            if (result == -1 && !HTitleTools.defaultMethodFailed) {
+                HTitleTools.defaultMethodFailed = true;
+                HTitle.currentMethod = "hidechrome";
+                HTitleTools.prefs.setBoolPref("legacy_mode.enable", true);
             }
         }
 
-        if (result == 0) {
-            HTitle.window.setAttribute("hidechrome", false);
-            if (HTitleTools.prefs.getIntPref("hide_mode") == 2)
-                HTitle.currentMode = "always";
-            else {
-                HTitle.currentMode = "auto";
-                HTitle.window.setAttribute("hidetitlebarwhenmaximized", true);
-            }
-        }
-        else {
-            if (result == -1 && !HTitleTools.defaultModeFailed) {
-                HTitleTools.defaultModeFailed = true;
-                HTitleTools.prefs.setBoolPref("legacy_mode.enable", true);
-            }
+        if (HTitle.currentMethod == "hidechrome") {
             HTitleTools.log("Start in legacy mode", "DEBUG");
             HTitleTools.log("TIMEOUT_CHECK = " + HTitleTools.timeoutCheck + "; TIMEOUT_BETWEEN_CHANGES = " + HTitleTools.timeoutBetweenChanges, "DEBUG");
             window.addEventListener("sizemodechange", HTitle.onWindowStateChange);
-            HTitle.currentMode = "legacy";
-
             setTimeout(function(){HTitle.checkWindowState();}, HTitleTools.timeoutCheck);
         }
+
         HTitle.window.setAttribute("htitlemode", HTitle.currentMode);
+        HTitle.window.setAttribute("htitlemethod", HTitle.currentMethod);
+        HTitle.isFirstStart = false;
+        HTitle.isStopped = false;
     },
 
     stop: function() {
-        if (HTitle.currentMode != "legacy") {
+        if (HTitle.currentMethod == "xlib") {
             HTitleTools.removeWindowProperty(window, HTitle.currentMode);
-            HTitle.window.removeAttribute("hidetitlebarwhenmaximized");
         }
-        else if (HTitle.currentMode == "legacy") {
+        else {
             window.removeEventListener("sizemodechange", HTitle.onWindowStateChange);
             HTitle.window.setAttribute("hidechrome", false);
+            HTitle.previousState = 0;
+            HTitle.previousChangeTime = 0;
         }
-        HTitle.currentMode = "stopped";
-        HTitle.previousState = 0;
-        HTitle.previousChangeTime = 0;
-        HTitle.window.setAttribute("htitlemode", HTitle.currentMode);
+
+        HTitle.window.removeAttribute("htitlemode");
+        HTitle.window.removeAttribute("htitlemethod");
+        HTitle.isStopped = true;
     },
 
     observe: function(subject, topic, data) {
@@ -255,7 +244,7 @@ var HTitle = {
                 }
                 break;
             case "legacy_mode.enable":
-                if (HTitle.ENABLED && !HTitleTools.defaultModeFailed && HTitle.currentMode != "stopped") {
+                if (HTitle.ENABLED && !HTitleTools.defaultMethodFailed && !HTitle.isStopped) {
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitle.hideWindowControls();
 
@@ -268,7 +257,7 @@ var HTitle = {
                 }
                 break;
             case "hide_mode":
-                if (HTitle.ENABLED && HTitle.currentMode != "stopped") {
+                if (HTitle.ENABLED && !HTitle.isStopped) {
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitle.hideWindowControls();
 
