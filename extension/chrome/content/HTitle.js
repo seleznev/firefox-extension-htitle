@@ -335,7 +335,7 @@ var HTitle = {
     },
 
     logWindowState: function(from) {
-        if (HTitle.DEBUG == false)
+        if (HTitleTools.DEBUG == false)
             return
 
         switch (window.windowState) {
