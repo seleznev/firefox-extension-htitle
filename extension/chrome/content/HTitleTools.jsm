@@ -14,28 +14,30 @@ Cu.import("chrome://htitle/content/Gdk.jsm");
 
 var EXPORTED_SYMBOLS = ["HTitleTools"];
 
-function execute(path, args, needWait=true) {
-    var file = Cc["@mozilla.org/file/local;1"]
-                 .createInstance(Ci.nsIFile);
-    file.initWithPath(path);
+var HTitleToolsPrivate = {
+    execute: function(path, args, needWait=true) {
+        var file = Cc["@mozilla.org/file/local;1"]
+                     .createInstance(Ci.nsIFile);
+        file.initWithPath(path);
 
-    var process = Cc["@mozilla.org/process/util;1"]
-                    .createInstance(Ci.nsIProcess);
-    try {
-        process.init(file);
-        process.run(needWait, args, args.length);
-    }
-    catch (error) {
-        HTitleTools.log(error.message, "ERROR");
-        return -1;
-    }
+        var process = Cc["@mozilla.org/process/util;1"]
+                        .createInstance(Ci.nsIProcess);
+        try {
+            process.init(file);
+            process.run(needWait, args, args.length);
+        }
+        catch (error) {
+            HTitleTools.log(error.message, "ERROR");
+            return -1;
+        }
 
-    if (needWait) {
-        HTitleTools.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
-        return process.exitValue;
+        if (needWait) {
+            HTitleTools.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
+            return process.exitValue;
+        }
+        else
+            return 0;
     }
-    else
-        return 0;
 }
 
 var HTitleTools = {
@@ -83,21 +85,11 @@ var HTitleTools = {
     /* ::::: App info functions ::::: */
 
     isFirefox: function() {
-        if (this.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
-            return true;
-        }
-        return false;
+        return (this.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}");
     },
 
     isThunderbird: function() {
-        if (this.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
-            return true;
-        }
-        return false;
-    },
-
-    getWMClass: function() {
-        return '"' + (this.isThunderbird() ? 'Mail' : 'Navigator') + '" "' + this.appInfo.name + '"';
+        return (this.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}");
     },
 
     /* ::::: Change currentset attribute ::::: */
@@ -153,6 +145,41 @@ var HTitleTools = {
 
         return null;
     },
+
+    checkUtilsAvailable: function(utils) {
+        var paths = {};
+        for (var i = 0; i < utils.length; i++) {
+            var path;
+            if (this.utils[utils[i]] === undefined) {
+                path = this.findPathToExec(utils[i]);
+                this.utils[utils[i]] = path;
+            }
+            else {
+                path = this.utils[utils[i]];
+            }
+            if (path == null)
+                return null;
+            paths[utils[i]] = path;
+        }
+        return paths;
+    },
+
+    checkPresenceGnomeShell: function() {
+        this.log("Start checking DE", "DEBUG");
+
+        var path = this.checkUtilsAvailable(["pidof"]);
+
+        if (path.pidof) {
+            var exitValue = HTitleToolsPrivate.execute(path.pidof, ["gnome-shell"]);
+            return (exitValue == 1 ? 1 : 0);
+        }
+        else {
+            this.log("pidof doesn't exist", "ERROR");
+            return 2;
+        }
+    },
+
+    /* ::::: Native window ::::: */
 
     getNativeWindow: function(window) {
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -210,6 +237,19 @@ var HTitleTools = {
         return 0;
     },
 
+    lowerWindow: function(window) {
+        var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                                .getInterface(Ci.nsIWebNavigation)
+                                .QueryInterface(Ci.nsIDocShellTreeItem)
+                                .treeOwner
+                                .QueryInterface(Ci.nsIInterfaceRequestor)
+                                .nsIBaseWindow;
+        var native_handle = base_window.nativeHandle;
+        var gdk_window = new Gdk.GdkWindow.ptr(ctypes.UInt64(native_handle));
+        gdk_window = Gdk.Window.get_toplevel(gdk_window);
+        Gdk.Window.lower(gdk_window);
+    },
+
     /* ::::: CSS stylesheets ::::: */
 
     loadStyle: function(name) {
@@ -232,20 +272,7 @@ var HTitleTools = {
             sss.unregisterSheet(uri, sss.USER_SHEET);
     },
 
-    checkPresenceGnomeShell: function() {
-        this.log("Start checking DE", "DEBUG");
-
-        var path = this.checkUtilsAvailable(["pidof"]);
-
-        if (path.pidof) {
-            var exitValue = execute(path.pidof, ["gnome-shell"]);
-            return (exitValue == 1 ? 1 : 0);
-        }
-        else {
-            this.log("pidof doesn't exist", "ERROR");
-            return 2;
-        }
-    },
+    /* ::::: Preferences ::::: */
 
     getWindowControlsLayout: function() {
         var layout = ":close"; // It's default for GNOME 3
@@ -296,37 +323,6 @@ var HTitleTools = {
         }
 
         return actions;
-    },
-
-    checkUtilsAvailable: function(utils) {
-        var paths = {};
-        for (var i = 0; i < utils.length; i++) {
-            var path;
-            if (this.utils[utils[i]] === undefined) {
-                path = this.findPathToExec(utils[i]);
-                this.utils[utils[i]] = path;
-            }
-            else {
-                path = this.utils[utils[i]];
-            }
-            if (path == null)
-                return null;
-            paths[utils[i]] = path;
-        }
-        return paths;
-    },
-
-    lowerWindow: function(window) {
-        var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
-                                .getInterface(Ci.nsIWebNavigation)
-                                .QueryInterface(Ci.nsIDocShellTreeItem)
-                                .treeOwner
-                                .QueryInterface(Ci.nsIInterfaceRequestor)
-                                .nsIBaseWindow;
-        var native_handle = base_window.nativeHandle;
-        var gdk_window = new Gdk.GdkWindow.ptr(ctypes.UInt64(native_handle));
-        gdk_window = Gdk.Window.get_toplevel(gdk_window);
-        Gdk.Window.lower(gdk_window);
     },
 
     pref_page_observer: {
