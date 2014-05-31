@@ -325,14 +325,12 @@ var HTitle = {
         HTitle.previousChangeTime = Date.now();
     },
 
-    onClickToolbar: function(e, window) {
-        HTitleTools.log("Detected middle click under #" + e.target.id, "DEBUG");
+    onClickTitlebar: function(e, window) {
         var e = e || window.event;
         if ("object" !== typeof e) {
             return;
         }
-        let targets = ["nav-bar", "nav-bar-customization-target",
-                       "window-controls", "minimize-button", "restore-button", "close-button"];
+        var targets = ["window-controls", "minimize-button", "restore-button", "close-button"];
         if (targets.indexOf(e.target.id) != -1) {
             switch(e.button) {
                 case 1:
@@ -347,6 +345,7 @@ var HTitle = {
                     break;
             }
         }
+        HTitleTools.log("Detected click under #" + e.target.id, "DEBUG");
     },
 
     checkWindowState: function() {
