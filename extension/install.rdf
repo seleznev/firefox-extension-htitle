@@ -12,7 +12,7 @@
     <em:homepageURL>https://github.com/seleznev/firefox-extension-htitle</em:homepageURL>
     <em:creator>Alexander Seleznev</em:creator>
 
-    <em:optionsURL>chrome://htitle/content/settings.xul</em:optionsURL>
+    <em:optionsURL>chrome://htitle/content/options.xul</em:optionsURL>
     <em:optionsType>2</em:optionsType>
 
     <em:localized>

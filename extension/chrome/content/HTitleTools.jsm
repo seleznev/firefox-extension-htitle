@@ -335,7 +335,7 @@ var HTitleTools = {
 
                     let bundle = Cc["@mozilla.org/intl/stringbundle;1"]
                                    .getService(Ci.nsIStringBundleService)
-                                   .createBundle("chrome://htitle/locale/settings.properties");
+                                   .createBundle("chrome://htitle/locale/options.properties");
 
                     legacy_mode.setAttribute("desc", bundle.GetStringFromName("enableLegacyMethod.description"));
 
