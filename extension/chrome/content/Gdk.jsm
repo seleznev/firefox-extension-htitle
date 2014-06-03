@@ -15,9 +15,14 @@ function init() {
     var Gdk = {};
     var GdkX11 = {};
     try {
-        Gdk.library = ctypes.open("libgdk-x11-2.0.so");
+        Gdk.library = ctypes.open("libgdk-x11-2.0.so.0");
     } catch(e) {
-        return [null, null];
+        // libgdk-x11-2.0.so.0 isn't available, try libgdk-x11-2.0.so instead
+        try {
+            Gdk.library = ctypes.open("libgdk-x11-2.0.so");
+        } catch(e) {
+            return [null, null];
+        }
     }
 
     /* ::::: Constants ::::: */

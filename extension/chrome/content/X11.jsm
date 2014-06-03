@@ -13,9 +13,14 @@ var EXPORTED_SYMBOLS = ["X11"];
 function init() {
     var X11 = {};
     try {
-        X11.library = ctypes.open("libX11.so");
+        X11.library = ctypes.open("libX11.so.6");
     } catch(e) {
-        return null;
+        // libX11.so.6 isn't available, try libX11.so instead
+        try {
+            X11.library = ctypes.open("libX11.so");
+        } catch(e) {
+            return null;
+        }
     }
 
     /* ::::: Constants ::::: */
