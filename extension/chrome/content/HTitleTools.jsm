@@ -6,9 +6,9 @@
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/ctypes.jsm");
 
+Cu.import("chrome://htitle/content/PrefPageObserver.jsm");
 Cu.import("chrome://htitle/content/X11.jsm");
 Cu.import("chrome://htitle/content/Gdk.jsm");
 
@@ -102,8 +102,6 @@ var HTitleTools = {
 
         this.timeoutCheck = this.prefs.getIntPref("legacy_mode.timeout_check");
         this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
-
-        Services.obs.addObserver(this.pref_page_observer, "addon-options-displayed", false);
 
         HTitleTools.windowControlsLayout = HTitleTools.getWindowControlsLayout();
         HTitleTools.titlebarActions = HTitleTools.getTitlebarActions();
@@ -345,30 +343,6 @@ var HTitleTools = {
         }
 
         return actions;
-    },
-
-    pref_page_observer: {
-        observe: function(aSubject, aTopic, aData) {
-            if (aTopic == "addon-options-displayed" && aData == "{c6448328-31f7-4b12-a2e0-5c39d0290307}") {
-                if (this.defaultMethodFailed || X11 === null || Gdk === null) {
-                    var legacy_mode = aSubject.getElementById("legacy-mode");
-                    legacy_mode.setAttribute("disabled", "true");
-                    legacy_mode.setAttribute("selected", "true");
-
-                    let bundle = Cc["@mozilla.org/intl/stringbundle;1"]
-                                   .getService(Ci.nsIStringBundleService)
-                                   .createBundle("chrome://htitle/locale/options.properties");
-
-                    legacy_mode.setAttribute("desc", bundle.GetStringFromName("enableLegacyMethod.description"));
-
-                    var hide_mode_auto = aSubject.getElementById("hide-mode-auto");
-                    hide_mode_auto.setAttribute("selected", "true");
-
-                    var hide_mode_always = aSubject.getElementById("hide-mode-always");
-                    hide_mode_always.setAttribute("disabled", "true");
-                }
-            }
-        }
     },
 
     /* ::::: Logging ::::: */
