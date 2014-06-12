@@ -81,32 +81,21 @@ var HTitleTools = {
     timeoutCheck: 200, // ms
     timeoutBetweenChanges: 200, // ms
 
-    isInitialized: false,
-
     init: function() {
-        if (this.isInitialized) {
-            this.log("Already initialized", "DEBUG");
-            return;
-        }
-        
-        this.prefs = Cc["@mozilla.org/preferences-service;1"]
-                       .getService(Ci.nsIPrefService)
-                       .getBranch("extensions.htitle.");
-
-        this.DEBUG = this.prefs.getBoolPref("debug");
-
-        HTitlePrefObserver.register();
-
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
                          .getService(Ci.nsIXULAppInfo);
 
+        this.prefs = Cc["@mozilla.org/preferences-service;1"]
+                       .getService(Ci.nsIPrefService)
+                       .getBranch("extensions.htitle.");
+        HTitlePrefObserver.register();
+
+        this.DEBUG = this.prefs.getBoolPref("debug");
         this.timeoutCheck = this.prefs.getIntPref("legacy_mode.timeout_check");
         this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
-        HTitleTools.windowControlsLayout = HTitleTools.getWindowControlsLayout();
-        HTitleTools.titlebarActions = HTitleTools.getTitlebarActions();
-
-        this.isInitialized = true;
+        this.windowControlsLayout = this.getWindowControlsLayout();
+        this.titlebarActions = this.getTitlebarActions();
     },
 
     /* ::::: App info functions ::::: */
