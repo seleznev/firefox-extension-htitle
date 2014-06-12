@@ -141,15 +141,6 @@ var HTitle = {
                     HTitle.stop();
                 }
                 break;
-            case "debug":
-                HTitleTool.DEBUG = HTitleTools.prefs.getBoolPref("debug");
-                break;
-            case "legacy_mode.timeout_check":
-                HTitleTools.timeoutCheck = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
-                break;
-            case "legacy_mode.timeout_between_changes":
-                HTitleTools.timeoutBetweenChanges = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
-                break;
         }
     },
 

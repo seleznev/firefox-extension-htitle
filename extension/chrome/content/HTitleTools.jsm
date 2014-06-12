@@ -14,6 +14,33 @@ Cu.import("chrome://htitle/content/Gdk.jsm");
 
 var EXPORTED_SYMBOLS = ["HTitleTools"];
 
+var HTitlePrefObserver = {
+    register: function() {
+        HTitleTools.prefs.addObserver("", this, false);
+    },
+
+    unregister: function() {
+        HTitleTools.prefs.removeObserver("", this);
+    },
+
+    observe: function(subject, topic, data) {
+        if (topic != "nsPref:changed")
+            return;
+
+        switch(data) {
+            case "debug":
+                HTitleTools.DEBUG = HTitleTools.prefs.getBoolPref("debug");
+                break;
+            case "legacy_mode.timeout_check":
+                HTitleTools.timeoutCheck = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
+                break;
+            case "legacy_mode.timeout_between_changes":
+                HTitleTools.timeoutBetweenChanges = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
+                break;
+        }
+    }
+}
+
 var HTitleToolsPrivate = {
     execute: function(path, args, needWait=true) {
         var file = Cc["@mozilla.org/file/local;1"]
@@ -67,6 +94,8 @@ var HTitleTools = {
                        .getBranch("extensions.htitle.");
 
         this.DEBUG = this.prefs.getBoolPref("debug");
+
+        HTitlePrefObserver.register();
 
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
                          .getService(Ci.nsIXULAppInfo);
