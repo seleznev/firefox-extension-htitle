@@ -16,16 +16,16 @@ Please visit extension's page on [addons.mozilla.org](https://addons.mozilla.org
 
 Normal window:
 
-![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-normal-window.png)
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/normal-window.png)
 
 Maximized window:
 
-![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-maximized-window.png)
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/maximized-window.png)
 
 Maximized window without panel:
 
-![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-maximized-window-without-panel.png)
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/maximized-window-without-panel.png)
 
 Window controls:
 
-![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/screenshot-window-controls.png)
+![Screenshot](https://raw.github.com/seleznev/firefox-extension-htitle/master/screenshots/window-controls.png)
