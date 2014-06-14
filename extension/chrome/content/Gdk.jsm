@@ -8,19 +8,23 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/ctypes.jsm");
 
-var EXPORTED_SYMBOLS = ["Gdk3"];
+var EXPORTED_SYMBOLS = ["Gdk"];
 
-function Gdk3(X11) {
+function load_library(name, a) {
     try {
-        this.library = ctypes.open("libgdk-3.so.0");
+        return ctypes.open(name + "." + a);
     } catch(e) {
-        // libgdk-3.so.0 isn't available, try libgdk-3.so instead
+        // *.so.0 isn't available, try *.so instead
         try {
-            this.library = ctypes.open("libgdk-3.so");
+            return ctypes.open(name);
         } catch(e) {
-            throw "libgdk-3.so isn't available";
+            throw name + " isn't available";
         }
     }
+}
+
+function Gdk(version=2, X11) {
+    this.library = load_library((version == 3) ? "libgdk-3.so" : "libgdk-x11-2.0.so", "0");
 
     /* ::::: Constants ::::: */
 
@@ -37,6 +41,8 @@ function Gdk3(X11) {
 
     this.GdkWindow = ctypes.StructType("GdkWindow");
     this.GdkDisplay = ctypes.StructType("GdkDisplay");
+    if (version != 3)
+        this.GdkDrawable = ctypes.StructType("GdkDrawable");
 
     // gobject
     this.gchar = ctypes.char;
@@ -83,17 +89,27 @@ function Gdk3(X11) {
                                                     ctypes.default_abi,
                                                     this.GdkDisplay.ptr);
 
-    this.X11Window.set_hide_titlebar_when_maximized = this.library.declare("gdk_x11_window_set_hide_titlebar_when_maximized",
-                                                                           ctypes.default_abi,
-                                                                           ctypes.void_t,
-                                                                           this.GdkWindow.ptr,
-                                                                           this.gboolean);
+    if (version == 3) {
+        this.X11Window.set_hide_titlebar_when_maximized = this.library.declare("gdk_x11_window_set_hide_titlebar_when_maximized",
+                                                                               ctypes.default_abi,
+                                                                               ctypes.void_t,
+                                                                               this.GdkWindow.ptr,
+                                                                               this.gboolean);
+    }
 
     if (X11) {
-        this.X11Window.get_xid = this.library.declare("gdk_x11_window_get_xid",
-                                                      ctypes.default_abi,
-                                                      X11.XID,
-                                                      this.GdkWindow.ptr);
+        if (version == 3) {
+            this.X11Window.get_xid = this.library.declare("gdk_x11_window_get_xid",
+                                                          ctypes.default_abi,
+                                                          X11.XID,
+                                                          this.GdkWindow.ptr);
+        }
+        else {
+            this.X11Window.get_xid = this.library.declare("gdk_x11_drawable_get_xid",
+                                                          ctypes.default_abi,
+                                                          X11.XID,
+                                                          this.GdkDrawable.ptr);
+        }
 
         this.X11Display.get_xdisplay = this.library.declare("gdk_x11_display_get_xdisplay",
                                                             ctypes.default_abi,

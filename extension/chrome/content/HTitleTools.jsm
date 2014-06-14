@@ -194,7 +194,7 @@ var HTitleTools = {
 
     changeWindowProperty: function(window, mode, action) {
         var X11 = Libs.open("X11");
-        var Gdk = Libs.open("Gdk"+this.GDK_VERSION, X11);
+        var Gdk = Libs.open("Gdk", this.GDK_VERSION, X11);
 
         /* Get native window */
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -210,11 +210,11 @@ var HTitleTools = {
 
         var gdk_display = Gdk.Display.get_default();
         var x11_display = Gdk.X11Display.get_xdisplay(gdk_display);
-        if (this.GDK_VERSION == 2) {
-            var x11_window = Gdk.X11Window.get_xid(ctypes.cast(gdk_window, Gdk.GdkDrawable.ptr));
+        if (this.GDK_VERSION == 3) {
+            var x11_window = Gdk.X11Window.get_xid(gdk_window);
         }
         else {
-            var x11_window = Gdk.X11Window.get_xid(gdk_window);
+            var x11_window = Gdk.X11Window.get_xid(ctypes.cast(gdk_window, Gdk.GdkDrawable.ptr));
         }
 
         //Gdk.Window.hide(gdk_window);
@@ -222,7 +222,10 @@ var HTitleTools = {
             Gdk.Window.set_decorations(gdk_window, (action == "set") ? Gdk.GDK_DECOR_BORDER : Gdk.GDK_DECOR_ALL);
         }
         else {
-            if (this.GDK_VERSION == 2) {
+            if (this.GDK_VERSION == 3) {
+                Gdk.X11Window.set_hide_titlebar_when_maximized(gdk_window, (action == "set"));
+            }
+            else {
                 let x11_property = Gdk.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
                 if (action == "set") {
                     // let t = new Uint8Array([1]);
@@ -234,9 +237,6 @@ var HTitleTools = {
                 else {
                     X11.XDeleteProperty(x11_display, x11_window, x11_property);
                 }
-            }
-            else {
-                Gdk.X11Window.set_hide_titlebar_when_maximized(gdk_window, (action == "set"));
             }
         }
         //Gdk.Window.show(gdk_window);
@@ -264,7 +264,7 @@ var HTitleTools = {
     },
 
     lowerWindow: function(window) {
-        var Gdk = Libs.open("Gdk"+this.GDK_VERSION, X11);
+        var Gdk = Libs.open("Gdk", this.GDK_VERSION, X11);
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIDocShellTreeItem)

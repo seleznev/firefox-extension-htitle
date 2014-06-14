@@ -7,15 +7,14 @@
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("chrome://htitle/content/X11.jsm");
-Cu.import("chrome://htitle/content/Gdk2.jsm");
-Cu.import("chrome://htitle/content/Gdk3.jsm");
+Cu.import("chrome://htitle/content/Gdk.jsm");
 
 var EXPORTED_SYMBOLS = ["Libs"];
 
 var Libs = {
     open: function(lib_name) {
         // Example:
-        //   var Gdk = Libs.open("Gdk2", X11);
+        //   var Gdk = Libs.open("Gdk", 2, X11);
 
         if (!lib_name)
             throw "Libraries is not specified";
@@ -26,11 +25,8 @@ var Libs = {
             case "X11":
                 var x11 = new X11;
                 return x11;
-            case "Gdk2":
-                var gdk = new Gdk2(args[0]);
-                return gdk;
-            case "Gdk3":
-                var gdk = new Gdk3(args[0]);
+            case "Gdk":
+                var gdk = new Gdk(args[0], args[1]); // version, X11
                 return gdk;
         }
     },
