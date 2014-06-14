@@ -7,98 +7,99 @@
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/ctypes.jsm");
-Cu.import("chrome://htitle/content/X11.jsm");
 
-var EXPORTED_SYMBOLS = ["Gdk", "GdkX11"];
+var EXPORTED_SYMBOLS = ["Gdk"];
 
-function init() {
-    var Gdk = {};
-    var GdkX11 = {};
+function Gdk(X11) {
     try {
-        Gdk.library = ctypes.open("libgdk-x11-2.0.so.0");
+        this.library = ctypes.open("libgdk-x11-2.0.so.0");
     } catch(e) {
         // libgdk-x11-2.0.so.0 isn't available, try libgdk-x11-2.0.so instead
         try {
-            Gdk.library = ctypes.open("libgdk-x11-2.0.so");
+            this.library = ctypes.open("libgdk-x11-2.0.so");
         } catch(e) {
-            return [null, null];
+            throw "libgdk-x11-2.0.so isn't available";
         }
     }
 
     /* ::::: Constants ::::: */
 
-    Gdk.GdkWMDecoration = ctypes.int; // enum
-    Gdk.GDK_DECOR_ALL      = 1 << 0;
-    Gdk.GDK_DECOR_BORDER   = 1 << 1;
-    Gdk.GDK_DECOR_RESIZEH  = 1 << 2;
-    Gdk.GDK_DECOR_TITLE    = 1 << 3;
-    Gdk.GDK_DECOR_MENU     = 1 << 4;
-    Gdk.GDK_DECOR_MINIMIZE = 1 << 5;
-    Gdk.GDK_DECOR_MAXIMIZE = 1 << 6;
+    this.GdkWMDecoration = ctypes.int; // enum
+    this.GDK_DECOR_ALL      = 1 << 0;
+    this.GDK_DECOR_BORDER   = 1 << 1;
+    this.GDK_DECOR_RESIZEH  = 1 << 2;
+    this.GDK_DECOR_TITLE    = 1 << 3;
+    this.GDK_DECOR_MENU     = 1 << 4;
+    this.GDK_DECOR_MINIMIZE = 1 << 5;
+    this.GDK_DECOR_MAXIMIZE = 1 << 6;
 
     /* ::::: Types ::::: */
 
-    Gdk.GdkWindow = ctypes.StructType("GdkWindow");
-    Gdk.GdkDisplay = ctypes.StructType("GdkDisplay");
-    Gdk.GdkDrawable = ctypes.StructType("GdkDrawable");
+    this.GdkWindow = ctypes.StructType("GdkWindow");
+    this.GdkDisplay = ctypes.StructType("GdkDisplay");
+    this.GdkDrawable = ctypes.StructType("GdkDrawable");
 
-    Gdk.gchar = ctypes.char;
+    this.gchar = ctypes.char;
 
     /* ::::: Functions ::::: */
 
-    Gdk.Window = {};
-    Gdk.Display = {};
-    GdkX11.X11Display = {};
+    this.Window = {};
+    this.Display = {};
+    if (X11) {
+        this.X11Display = {};
+    }
 
-    Gdk.Window.get_toplevel = Gdk.library.declare("gdk_window_get_toplevel",
-                                                  ctypes.default_abi,
-                                                  Gdk.GdkWindow.ptr,
-                                                  Gdk.GdkWindow.ptr);
+    this.Window.get_toplevel = this.library.declare("gdk_window_get_toplevel",
+                                                    ctypes.default_abi,
+                                                    this.GdkWindow.ptr,
+                                                    this.GdkWindow.ptr);
 
-    Gdk.Window.set_decorations = Gdk.library.declare("gdk_window_set_decorations",
-                                                     ctypes.default_abi,
-                                                     ctypes.void_t,
-                                                     Gdk.GdkWindow.ptr,
-                                                     Gdk.GdkWMDecoration);
+    this.Window.set_decorations = this.library.declare("gdk_window_set_decorations",
+                                                       ctypes.default_abi,
+                                                       ctypes.void_t,
+                                                       this.GdkWindow.ptr,
+                                                       this.GdkWMDecoration);
 
-    Gdk.Window.lower = Gdk.library.declare("gdk_window_lower",
-                                           ctypes.default_abi,
-                                           ctypes.void_t,
-                                           Gdk.GdkWindow.ptr);
+    this.Window.lower = this.library.declare("gdk_window_lower",
+                                             ctypes.default_abi,
+                                             ctypes.void_t,
+                                             this.GdkWindow.ptr);
 
     /*
-    Gdk.Window.hide = Gdk.library.declare("gdk_window_hide",
-                                          ctypes.default_abi,
-                                          ctypes.void_t,
-                                          Gdk.GdkWindow.ptr);
+    this.Window.hide = this.library.declare("gdk_window_hide",
+                                            ctypes.default_abi,
+                                            ctypes.void_t,
+                                            this.GdkWindow.ptr);
 
-    Gdk.Window.show = Gdk.library.declare("gdk_window_show",
-                                          ctypes.default_abi,
-                                          ctypes.void_t,
-                                          Gdk.GdkWindow.ptr);
+    this.Window.show = this.library.declare("gdk_window_show",
+                                            ctypes.default_abi,
+                                            ctypes.void_t,
+                                            this.GdkWindow.ptr);
     */
 
-    Gdk.Display.get_default = Gdk.library.declare("gdk_display_get_default",
-                                                  ctypes.default_abi,
-                                                  Gdk.GdkDisplay.ptr);
+    this.Display.get_default = this.library.declare("gdk_display_get_default",
+                                                    ctypes.default_abi,
+                                                    this.GdkDisplay.ptr);
 
-    Gdk.gdk_x11_drawable_get_xid = Gdk.library.declare("gdk_x11_drawable_get_xid", // FIXME
-                                                       ctypes.default_abi,
-                                                       X11.XID,
-                                                       Gdk.GdkDrawable.ptr);
+    if (X11) {
+        this.gdk_x11_drawable_get_xid = this.library.declare("gdk_x11_drawable_get_xid", // FIXME
+                                                             ctypes.default_abi,
+                                                             X11.XID,
+                                                             this.GdkDrawable.ptr);
 
-    GdkX11.X11Display.get_xdisplay = Gdk.library.declare("gdk_x11_display_get_xdisplay",
-                                                         ctypes.default_abi,
-                                                         X11.Display.ptr,
-                                                         Gdk.GdkDisplay.ptr);
+        this.X11Display.get_xdisplay = this.library.declare("gdk_x11_display_get_xdisplay",
+                                                            ctypes.default_abi,
+                                                            X11.Display.ptr,
+                                                            this.GdkDisplay.ptr);
 
-    GdkX11.x11_get_xatom_by_name_for_display = Gdk.library.declare("gdk_x11_get_xatom_by_name_for_display",
-                                                                    ctypes.default_abi,
-                                                                    X11.Atom,
-                                                                    Gdk.GdkDisplay.ptr,
-                                                                    Gdk.gchar.ptr);
-    return [Gdk, GdkX11];
+        this.x11_get_xatom_by_name_for_display = this.library.declare("gdk_x11_get_xatom_by_name_for_display",
+                                                                      ctypes.default_abi,
+                                                                      X11.Atom,
+                                                                      this.GdkDisplay.ptr,
+                                                                      this.gchar.ptr);
+    }
+
+    this.close = function() {
+        this.library.close();
+    }
 }
-
-var [Gdk, GdkX11] = init();
-

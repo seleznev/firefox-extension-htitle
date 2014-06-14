@@ -9,8 +9,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/ctypes.jsm");
 
 Cu.import("chrome://htitle/content/PrefPageObserver.jsm");
-Cu.import("chrome://htitle/content/X11.jsm");
-Cu.import("chrome://htitle/content/Gdk.jsm");
+Cu.import("chrome://htitle/content/Libs.jsm");
 
 var EXPORTED_SYMBOLS = ["HTitleTools"];
 
@@ -190,7 +189,11 @@ var HTitleTools = {
 
     /* ::::: Native window ::::: */
 
-    getNativeWindow: function(window) {
+    changeWindowProperty: function(window, mode, action) {
+        var X11 = Libs.open("X11");
+        var Gdk = Libs.open("Gdk", X11);
+
+        /* Get native window */
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIDocShellTreeItem)
@@ -203,50 +206,52 @@ var HTitleTools = {
         gdk_window = Gdk.Window.get_toplevel(gdk_window);
 
         var gdk_display = Gdk.Display.get_default();
-        var x11_display = GdkX11.X11Display.get_xdisplay(gdk_display);
+        var x11_display = Gdk.X11Display.get_xdisplay(gdk_display);
         var x11_window = Gdk.gdk_x11_drawable_get_xid(ctypes.cast(gdk_window, Gdk.GdkDrawable.ptr));
 
-        return [gdk_window, x11_window, gdk_display, x11_display];
+        //Gdk.Window.hide(gdk_window);
+        if (mode == "always") {
+            Gdk.Window.set_decorations(gdk_window, (action == "set") ? Gdk.GDK_DECOR_BORDER : Gdk.GDK_DECOR_ALL);
+        }
+        else {
+            let x11_property = Gdk.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
+            if (action == "set") {
+                // let t = new Uint8Array([1]);
+                // let x11_data = ctypes.uint8_t.ptr(t);
+                let t = new Uint32Array([1]);
+                let x11_data = ctypes.uint32_t.ptr(t);
+                X11.XChangeProperty(x11_display, x11_window, x11_property, X11.XA_CARDINAL, 32, X11.PropModeReplace, x11_data, 1);
+            }
+            else {
+                X11.XDeleteProperty(x11_display, x11_window, x11_property);
+            }
+        }
+        //Gdk.Window.show(gdk_window);
+
+        Libs.close(Gdk);
+        Libs.close(X11);
     },
 
     setWindowProperty: function(window, mode) {
-        if (X11 === null || Gdk === null) {
+        try {
+            this.changeWindowProperty(window, mode, "set");
+        } catch (e) {
             return -1;
-        }
-        var [gdk_window, x11_window, gdk_display, x11_display] = this.getNativeWindow(window);
-        //Gdk.Window.hide(gdk_window);
-        if (mode == "always") {
-            Gdk.Window.set_decorations(gdk_window, Gdk.GDK_DECOR_BORDER);
-        }
-        else {
-            let x11_property = GdkX11.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
-            // let t = new Uint8Array([1]);
-            // let x11_data = ctypes.uint8_t.ptr(t);
-            let t = new Uint32Array([1]);
-            let x11_data = ctypes.uint32_t.ptr(t);
-            X11.XChangeProperty(x11_display, x11_window, x11_property, X11.XA_CARDINAL, 32, X11.PropModeReplace, x11_data, 1);
         }
         return 0;
     },
 
     removeWindowProperty: function(window, mode) {
-        if (X11 === null || Gdk === null) {
+        try {
+            this.changeWindowProperty(window, mode, "remove");
+        } catch (e) {
             return -1;
         }
-        var [gdk_window, x11_window, gdk_display, x11_display] = this.getNativeWindow(window);
-        //Gdk.Window.hide(gdk_window);
-        if (mode == "always") {
-            Gdk.Window.set_decorations(gdk_window, Gdk.GDK_DECOR_ALL);
-        }
-        else {
-            let x11_property = GdkX11.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
-            X11.XDeleteProperty(x11_display, x11_window, x11_property);
-        }
-        //Gdk.Window.show(gdk_window);
         return 0;
     },
 
     lowerWindow: function(window) {
+        var Gdk = Libs.open("Gdk");
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIDocShellTreeItem)
@@ -257,6 +262,7 @@ var HTitleTools = {
         var gdk_window = new Gdk.GdkWindow.ptr(ctypes.UInt64(native_handle));
         gdk_window = Gdk.Window.get_toplevel(gdk_window);
         Gdk.Window.lower(gdk_window);
+        Libs.close(Gdk);
     },
 
     /* ::::: CSS stylesheets ::::: */

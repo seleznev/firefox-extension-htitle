@@ -10,52 +10,53 @@ Cu.import("resource://gre/modules/ctypes.jsm");
 
 var EXPORTED_SYMBOLS = ["X11"];
 
-function init() {
-    var X11 = {};
+function X11() {
+    this.library = null;
     try {
-        X11.library = ctypes.open("libX11.so.6");
+        this.library = ctypes.open("libX11.so.6");
     } catch(e) {
         // libX11.so.6 isn't available, try libX11.so instead
         try {
             X11.library = ctypes.open("libX11.so");
         } catch(e) {
-            return null;
+            throw "libX11.so isn't available";
         }
     }
 
     /* ::::: Constants ::::: */
 
-    X11.XA_CARDINAL = 6;
-    X11.PropModeReplace = 0;
+    this.XA_CARDINAL = 6;
+    this.PropModeReplace = 0;
 
     /* ::::: Types ::::: */
 
-    X11.Display = ctypes.StructType("Display");
-    X11.Atom = ctypes.unsigned_long;
-    X11.Window = ctypes.unsigned_long;
-    X11.XID = ctypes.unsigned_long;
+    this.Display = ctypes.StructType("Display");
+    this.Atom = ctypes.unsigned_long;
+    this.Window = ctypes.unsigned_long;
+    this.XID = ctypes.unsigned_long;
 
     /* ::::: Functions ::::: */
 
-    X11.XChangeProperty = X11.library.declare("XChangeProperty",
-                                              ctypes.default_abi,
-                                              ctypes.void_t,
-                                              X11.Display.ptr,
-                                              X11.Window,
-                                              X11.Atom,
-                                              X11.Atom,
-                                              ctypes.int,
-                                              ctypes.int,
-                                              ctypes.uint32_t.ptr,
-                                              ctypes.int);
+    this.XChangeProperty = this.library.declare("XChangeProperty",
+                                                ctypes.default_abi,
+                                                ctypes.void_t,
+                                                this.Display.ptr,
+                                                this.Window,
+                                                this.Atom,
+                                                this.Atom,
+                                                ctypes.int,
+                                                ctypes.int,
+                                                ctypes.uint32_t.ptr,
+                                                ctypes.int);
 
-    X11.XDeleteProperty = X11.library.declare("XDeleteProperty",
-                                              ctypes.default_abi,
-                                              ctypes.void_t,
-                                              X11.Display.ptr,
-                                              X11.Window,
-                                              X11.Atom);
-    return X11;
+    this.XDeleteProperty = this.library.declare("XDeleteProperty",
+                                                ctypes.default_abi,
+                                                ctypes.void_t,
+                                                this.Display.ptr,
+                                                this.Window,
+                                                this.Atom);
+
+    this.close = function() {
+        this.library.close();
+    }
 }
-
-var X11 = init();

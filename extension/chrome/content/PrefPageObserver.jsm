@@ -10,8 +10,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-Cu.import("chrome://htitle/content/X11.jsm");
-Cu.import("chrome://htitle/content/Gdk.jsm");
+Cu.import("chrome://htitle/content/Libs.jsm");
 
 var EXPORTED_SYMBOLS = ["PrefPageObserver"];
 
@@ -26,7 +25,17 @@ var PrefPageObserver = {
 
     observe: function(aSubject, aTopic, aData) {
         if (aTopic == "addon-options-displayed" && aData == HTITLE_ID) {
-            if (this.defaultMethodFailed || X11 === null || Gdk === null) {
+            var default_method_failed = false;
+            try {
+                var X11 = Libs.open("X11");
+                var Gdk = Libs.open("Gdk", X11);
+                Libs.close(Gdk);
+                Libs.close(X11);
+            } catch (e) {
+                default_method_failed = true;
+            }
+
+            if (default_method_failed) {
                 var legacy_mode = aSubject.getElementById("legacy-mode");
                 legacy_mode.setAttribute("disabled", "true");
                 legacy_mode.setAttribute("selected", "true");
