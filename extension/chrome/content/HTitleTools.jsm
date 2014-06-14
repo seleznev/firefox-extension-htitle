@@ -264,7 +264,7 @@ var HTitleTools = {
     },
 
     lowerWindow: function(window) {
-        var Gdk = Libs.open("Gdk", this.GDK_VERSION, X11);
+        var Gdk = Libs.open("Gdk", this.GDK_VERSION);
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIDocShellTreeItem)
