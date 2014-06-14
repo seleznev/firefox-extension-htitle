@@ -191,7 +191,7 @@ var HTitleTools = {
 
     changeWindowProperty: function(window, mode, action) {
         var X11 = Libs.open("X11");
-        var Gdk = Libs.open("Gdk", X11);
+        var Gdk = Libs.open("Gdk2", X11);
 
         /* Get native window */
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -251,7 +251,7 @@ var HTitleTools = {
     },
 
     lowerWindow: function(window) {
-        var Gdk = Libs.open("Gdk");
+        var Gdk = Libs.open("Gdk2");
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIDocShellTreeItem)

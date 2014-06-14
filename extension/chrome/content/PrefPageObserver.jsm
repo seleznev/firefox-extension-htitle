@@ -28,7 +28,7 @@ var PrefPageObserver = {
             var default_method_failed = false;
             try {
                 var X11 = Libs.open("X11");
-                var Gdk = Libs.open("Gdk", X11);
+                var Gdk = Libs.open("Gdk2", X11);
                 Libs.close(Gdk);
                 Libs.close(X11);
             } catch (e) {

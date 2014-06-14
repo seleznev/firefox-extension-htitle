@@ -8,9 +8,9 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/ctypes.jsm");
 
-var EXPORTED_SYMBOLS = ["Gdk"];
+var EXPORTED_SYMBOLS = ["Gdk2"];
 
-function Gdk(X11) {
+function Gdk2(X11) {
     try {
         this.library = ctypes.open("libgdk-x11-2.0.so.0");
     } catch(e) {
