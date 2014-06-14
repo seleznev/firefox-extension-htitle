@@ -8,6 +8,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("chrome://htitle/content/X11.jsm");
 Cu.import("chrome://htitle/content/Gdk2.jsm");
+Cu.import("chrome://htitle/content/Gdk3.jsm");
 
 var EXPORTED_SYMBOLS = ["Libs"];
 
@@ -27,6 +28,9 @@ var Libs = {
                 return x11;
             case "Gdk2":
                 var gdk = new Gdk2(args[0]);
+                return gdk;
+            case "Gdk3":
+                var gdk = new Gdk3(args[0]);
                 return gdk;
         }
     },

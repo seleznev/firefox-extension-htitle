@@ -8,17 +8,17 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/ctypes.jsm");
 
-var EXPORTED_SYMBOLS = ["Gdk2"];
+var EXPORTED_SYMBOLS = ["Gdk3"];
 
-function Gdk2(X11) {
+function Gdk3(X11) {
     try {
-        this.library = ctypes.open("libgdk-x11-2.0.so.0");
+        this.library = ctypes.open("libgdk-3.so.0");
     } catch(e) {
-        // libgdk-x11-2.0.so.0 isn't available, try libgdk-x11-2.0.so instead
+        // libgdk-3.so.0 isn't available, try libgdk-3.so instead
         try {
-            this.library = ctypes.open("libgdk-x11-2.0.so");
+            this.library = ctypes.open("libgdk-3.so");
         } catch(e) {
-            throw "libgdk-x11-2.0.so isn't available";
+            throw "libgdk-3.so isn't available";
         }
     }
 
@@ -37,10 +37,10 @@ function Gdk2(X11) {
 
     this.GdkWindow = ctypes.StructType("GdkWindow");
     this.GdkDisplay = ctypes.StructType("GdkDisplay");
-    this.GdkDrawable = ctypes.StructType("GdkDrawable");
 
     // gobject
     this.gchar = ctypes.char;
+    this.gboolean = ctypes.int;
 
     /* ::::: Functions ::::: */
 
@@ -83,11 +83,17 @@ function Gdk2(X11) {
                                                     ctypes.default_abi,
                                                     this.GdkDisplay.ptr);
 
+    this.X11Window.set_hide_titlebar_when_maximized = this.library.declare("gdk_x11_window_set_hide_titlebar_when_maximized",
+                                                                           ctypes.default_abi,
+                                                                           ctypes.void_t,
+                                                                           this.GdkWindow.ptr,
+                                                                           this.gboolean);
+
     if (X11) {
-        this.X11Window.get_xid = this.library.declare("gdk_x11_drawable_get_xid",
+        this.X11Window.get_xid = this.library.declare("gdk_x11_window_get_xid",
                                                       ctypes.default_abi,
                                                       X11.XID,
-                                                      this.GdkDrawable.ptr);
+                                                      this.GdkWindow.ptr);
 
         this.X11Display.get_xdisplay = this.library.declare("gdk_x11_display_get_xdisplay",
                                                             ctypes.default_abi,

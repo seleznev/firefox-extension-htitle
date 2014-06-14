@@ -80,6 +80,8 @@ var HTitleTools = {
     timeoutCheck: 200, // ms
     timeoutBetweenChanges: 200, // ms
 
+    GDK_VERSION: 2,
+
     init: function() {
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
                          .getService(Ci.nsIXULAppInfo);
@@ -90,6 +92,7 @@ var HTitleTools = {
         HTitlePrefObserver.register();
 
         this.DEBUG = this.prefs.getBoolPref("debug");
+        this.GDK_VERSION = (this.prefs.getCharPref("toolkit") == "gtk3") ? 3 : 2;
         this.timeoutCheck = this.prefs.getIntPref("legacy_mode.timeout_check");
         this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
@@ -191,7 +194,7 @@ var HTitleTools = {
 
     changeWindowProperty: function(window, mode, action) {
         var X11 = Libs.open("X11");
-        var Gdk = Libs.open("Gdk2", X11);
+        var Gdk = Libs.open("Gdk"+this.GDK_VERSION, X11);
 
         /* Get native window */
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -207,23 +210,33 @@ var HTitleTools = {
 
         var gdk_display = Gdk.Display.get_default();
         var x11_display = Gdk.X11Display.get_xdisplay(gdk_display);
-        var x11_window = Gdk.gdk_x11_drawable_get_xid(ctypes.cast(gdk_window, Gdk.GdkDrawable.ptr));
+        if (this.GDK_VERSION == 2) {
+            var x11_window = Gdk.X11Window.get_xid(ctypes.cast(gdk_window, Gdk.GdkDrawable.ptr));
+        }
+        else {
+            var x11_window = Gdk.X11Window.get_xid(gdk_window);
+        }
 
         //Gdk.Window.hide(gdk_window);
         if (mode == "always") {
             Gdk.Window.set_decorations(gdk_window, (action == "set") ? Gdk.GDK_DECOR_BORDER : Gdk.GDK_DECOR_ALL);
         }
         else {
-            let x11_property = Gdk.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
-            if (action == "set") {
-                // let t = new Uint8Array([1]);
-                // let x11_data = ctypes.uint8_t.ptr(t);
-                let t = new Uint32Array([1]);
-                let x11_data = ctypes.uint32_t.ptr(t);
-                X11.XChangeProperty(x11_display, x11_window, x11_property, X11.XA_CARDINAL, 32, X11.PropModeReplace, x11_data, 1);
+            if (this.GDK_VERSION == 2) {
+                let x11_property = Gdk.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
+                if (action == "set") {
+                    // let t = new Uint8Array([1]);
+                    // let x11_data = ctypes.uint8_t.ptr(t);
+                    let t = new Uint32Array([1]);
+                    let x11_data = ctypes.uint32_t.ptr(t);
+                    X11.XChangeProperty(x11_display, x11_window, x11_property, X11.XA_CARDINAL, 32, X11.PropModeReplace, x11_data, 1);
+                }
+                else {
+                    X11.XDeleteProperty(x11_display, x11_window, x11_property);
+                }
             }
             else {
-                X11.XDeleteProperty(x11_display, x11_window, x11_property);
+                Gdk.X11Window.set_hide_titlebar_when_maximized(gdk_window, (action == "set"));
             }
         }
         //Gdk.Window.show(gdk_window);
@@ -251,7 +264,7 @@ var HTitleTools = {
     },
 
     lowerWindow: function(window) {
-        var Gdk = Libs.open("Gdk2");
+        var Gdk = Libs.open("Gdk"+this.GDK_VERSION, X11);
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIDocShellTreeItem)
