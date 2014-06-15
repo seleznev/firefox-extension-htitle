@@ -12,15 +12,15 @@ Cu.import("chrome://htitle/content/HTitleShare.jsm");
 Cu.import("chrome://htitle/content/PrefPageObserver.jsm");
 Cu.import("chrome://htitle/content/Libs.jsm");
 
-var EXPORTED_SYMBOLS = ["HTitleTools"];
+var EXPORTED_SYMBOLS = ["HTitleUtils"];
 
 var HTitlePrefObserver = {
     register: function() {
-        HTitleTools.prefs.addObserver("", this, false);
+        HTitleUtils.prefs.addObserver("", this, false);
     },
 
     unregister: function() {
-        HTitleTools.prefs.removeObserver("", this);
+        HTitleUtils.prefs.removeObserver("", this);
     },
 
     observe: function(subject, topic, data) {
@@ -29,19 +29,19 @@ var HTitlePrefObserver = {
 
         switch(data) {
             case "debug":
-                HTitleShare.debug = HTitleTools.prefs.getBoolPref("debug");
+                HTitleShare.debug = HTitleUtils.prefs.getBoolPref("debug");
                 break;
             case "legacy_mode.timeout_check":
-                HTitleTools.timeoutCheck = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
+                HTitleUtils.timeoutCheck = HTitleUtils.prefs.getIntPref("legacy_mode.timeout_check");
                 break;
             case "legacy_mode.timeout_between_changes":
-                HTitleTools.timeoutBetweenChanges = HTitleTools.prefs.getIntPref("legacy_mode.timeout_between_changes");
+                HTitleUtils.timeoutBetweenChanges = HTitleUtils.prefs.getIntPref("legacy_mode.timeout_between_changes");
                 break;
         }
     }
 }
 
-var HTitleToolsPrivate = {
+var HTitleUtilsPrivate = {
     execute: function(path, args, needWait=true) {
         var file = Cc["@mozilla.org/file/local;1"]
                      .createInstance(Ci.nsIFile);
@@ -54,12 +54,12 @@ var HTitleToolsPrivate = {
             process.run(needWait, args, args.length);
         }
         catch (error) {
-            HTitleTools.log(error.message, "ERROR");
+            HTitleUtils.log(error.message, "ERROR");
             return -1;
         }
 
         if (needWait) {
-            HTitleTools.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
+            HTitleUtils.log("Exit value of " + path + " is \"" + process.exitValue + "\"", "DEBUG");
             return process.exitValue;
         }
         else
@@ -67,7 +67,7 @@ var HTitleToolsPrivate = {
     }
 }
 
-var HTitleTools = {
+var HTitleUtils = {
     appInfo: null,
     prefs: null,
 
@@ -178,7 +178,7 @@ var HTitleTools = {
         var path = this.checkUtilsAvailable(["pidof"]);
 
         if (path.pidof) {
-            var exitValue = HTitleToolsPrivate.execute(path.pidof, ["gnome-shell"]);
+            var exitValue = HTitleUtilsPrivate.execute(path.pidof, ["gnome-shell"]);
             return (exitValue == 1 ? 1 : 0);
         }
         else {
@@ -383,4 +383,4 @@ var HTitleTools = {
     },
 }
 
-HTitleTools.init();
+HTitleUtils.init();

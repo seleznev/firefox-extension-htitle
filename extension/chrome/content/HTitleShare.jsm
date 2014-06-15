@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Module for sharing variables between HTitle.js, HTitleTools.jsm
+/* Module for sharing variables between HTitle.js, HTitleUtils.jsm
  * and PrefPageObserver.jsm */
 
 "use strict";

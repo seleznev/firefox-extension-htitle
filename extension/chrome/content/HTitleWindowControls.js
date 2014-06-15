@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("chrome://htitle/content/HTitleTools.jsm");
+Components.utils.import("chrome://htitle/content/HTitleUtils.jsm");
 
 var HTitleWindowControls = {
     observers: [],
@@ -10,16 +10,16 @@ var HTitleWindowControls = {
     setLayoutAttribute: function() {
         var windowctls = document.getElementById("window-controls");
         if (windowctls) {
-            windowctls.setAttribute("htitlebuttonlayout", HTitleTools.windowControlsLayout);
+            windowctls.setAttribute("htitlebuttonlayout", HTitleUtils.windowControlsLayout);
         }
     },
 
     show: function() {
         var windowctls = document.getElementById("window-controls");
         windowctls.setAttribute("htitle", "true");
-        HTitleTools.loadStyle("windowControls"); // Appling CSS
+        HTitleUtils.loadStyle("windowControls"); // Appling CSS
 
-        if (HTitleTools.isFirefox()) {
+        if (HTitleUtils.isFirefox()) {
             window.addEventListener("sizemodechange", HTitleWindowControls.updatePosition);
 
             var targets_map = [
@@ -42,13 +42,13 @@ var HTitleWindowControls = {
             tempObserver.observe(document.getElementById(targets_map[i][0]), { attributes: true, attributeFilter: [targets_map[i][1]] });
             HTitleWindowControls.observers.push(tempObserver);
         }
-        HTitleTools.log("HTitleWindowControls.Observers = " + HTitleWindowControls.observers.length, "DEBUG");
+        HTitleUtils.log("HTitleWindowControls.Observers = " + HTitleWindowControls.observers.length, "DEBUG");
 
         HTitleWindowControls.updatePosition();
     },
 
     hide: function() {
-        HTitleTools.unloadStyle("windowControls");
+        HTitleUtils.unloadStyle("windowControls");
 
         var spring = document.getElementById("htitle-menubar-spring");
         if (spring)
@@ -58,7 +58,7 @@ var HTitleWindowControls = {
         windowctls.removeAttribute("htitle");
         //windowctls.setAttribute("flex", "1");
 
-        if (HTitleTools.isFirefox()) {
+        if (HTitleUtils.isFirefox()) {
             window.removeEventListener("sizemodechange", HTitleWindowControls.updatePosition);
 
             let navbar = document.getElementById("nav-bar");
@@ -76,7 +76,7 @@ var HTitleWindowControls = {
         if (!windowctls)
             return;
 
-        if (HTitleTools.isFirefox()) {
+        if (HTitleUtils.isFirefox()) {
             var menubar = document.getElementById("toolbar-menubar");
             var tabsbar = document.getElementById("TabsToolbar");
             var mainbar = document.getElementById("nav-bar");
@@ -92,7 +92,7 @@ var HTitleWindowControls = {
 
         /* Get tabsontop value */
         var tabsontop = true; // Default
-        if (HTitleTools.isFirefox()) {
+        if (HTitleUtils.isFirefox()) {
             if (tabsbar.getAttribute("tabsontop") === "") {
                 tabsontop = mainbar.getAttribute("default-tabs-position") != "bottom";
             }
@@ -120,7 +120,7 @@ var HTitleWindowControls = {
                 spring.setAttribute("id", "htitle-menubar-spring");
                 spring.setAttribute("removable", "false");
                 spring.setAttribute("flex", "1");
-                HTitleTools.addToCurrentset(menubar, "htitle-menubar-spring");
+                HTitleUtils.addToCurrentset(menubar, "htitle-menubar-spring");
                 menubar.appendChild(spring);
             }
 
@@ -143,9 +143,9 @@ var HTitleWindowControls = {
     },
 
     moveTo: function(windowctls, target) {
-        HTitleTools.removeFromCurrentset(windowctls.parentNode, windowctls.id);
+        HTitleUtils.removeFromCurrentset(windowctls.parentNode, windowctls.id);
         target.appendChild(windowctls);
-        HTitleTools.addToCurrentset(target, windowctls.id);
-        HTitleTools.log("Window controls moved to #" + target.id, "DEBUG");
+        HTitleUtils.addToCurrentset(target, windowctls.id);
+        HTitleUtils.log("Window controls moved to #" + target.id, "DEBUG");
     },
 }
