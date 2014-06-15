@@ -25,7 +25,7 @@ var PrefPageObserver = {
     },
 
     observe: function(subject, topic, data) {
-        if (aTopic == "addon-options-displayed" && aData == HTITLE_ID) {
+        if (topic == "addon-options-displayed" && data == HTITLE_ID) {
             if (!HTitleShare.defaultMethodFailed) {
                 try {
                     var X11 = Libs.open("X11");
@@ -38,7 +38,7 @@ var PrefPageObserver = {
             }
 
             if (HTitleShare.defaultMethodFailed) {
-                var legacy_mode = aSubject.getElementById("legacy-mode");
+                var legacy_mode = subject.getElementById("legacy-mode");
                 legacy_mode.setAttribute("disabled", "true");
                 legacy_mode.setAttribute("selected", "true");
 
@@ -48,10 +48,10 @@ var PrefPageObserver = {
 
                 legacy_mode.setAttribute("desc", bundle.GetStringFromName("enableLegacyMethod.description"));
 
-                var hide_mode_auto = aSubject.getElementById("hide-mode-auto");
+                var hide_mode_auto = subject.getElementById("hide-mode-auto");
                 hide_mode_auto.setAttribute("selected", "true");
 
-                var hide_mode_always = aSubject.getElementById("hide-mode-always");
+                var hide_mode_always = subject.getElementById("hide-mode-always");
                 hide_mode_always.setAttribute("disabled", "true");
             }
         }
