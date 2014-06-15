@@ -8,6 +8,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/ctypes.jsm");
 
+Cu.import("chrome://htitle/content/HTitleShare.jsm");
 Cu.import("chrome://htitle/content/PrefPageObserver.jsm");
 Cu.import("chrome://htitle/content/Libs.jsm");
 
@@ -28,7 +29,7 @@ var HTitlePrefObserver = {
 
         switch(data) {
             case "debug":
-                HTitleTools.DEBUG = HTitleTools.prefs.getBoolPref("debug");
+                HTitleShare.debug = HTitleTools.prefs.getBoolPref("debug");
                 break;
             case "legacy_mode.timeout_check":
                 HTitleTools.timeoutCheck = HTitleTools.prefs.getIntPref("legacy_mode.timeout_check");
@@ -67,7 +68,6 @@ var HTitleToolsPrivate = {
 }
 
 var HTitleTools = {
-    DEBUG: false,
     appInfo: null,
     prefs: null,
 
@@ -75,12 +75,9 @@ var HTitleTools = {
     titlebarActions: null,
 
     utils: {},
-    defaultMethodFailed: false,
 
     timeoutCheck: 200, // ms
     timeoutBetweenChanges: 200, // ms
-
-    GDK_VERSION: 2,
 
     init: function() {
         this.appInfo = Cc["@mozilla.org/xre/app-info;1"]
@@ -91,8 +88,8 @@ var HTitleTools = {
                        .getBranch("extensions.htitle.");
         HTitlePrefObserver.register();
 
-        this.DEBUG = this.prefs.getBoolPref("debug");
-        this.GDK_VERSION = (this.prefs.getCharPref("toolkit") == "gtk3") ? 3 : 2;
+        HTitleShare.debug = this.prefs.getBoolPref("debug");
+        HTitleShare.gtkVersion = (this.prefs.getCharPref("toolkit") == "gtk3") ? 3 : 2;
         this.timeoutCheck = this.prefs.getIntPref("legacy_mode.timeout_check");
         this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
@@ -194,7 +191,7 @@ var HTitleTools = {
 
     changeWindowProperty: function(window, mode, action) {
         var X11 = Libs.open("X11");
-        var Gdk = Libs.open("Gdk", this.GDK_VERSION, X11);
+        var Gdk = Libs.open("Gdk", HTitleShare.gtkVersion, X11);
 
         /* Get native window */
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -210,7 +207,7 @@ var HTitleTools = {
 
         var gdk_display = Gdk.Display.get_default();
         var x11_display = Gdk.X11Display.get_xdisplay(gdk_display);
-        if (this.GDK_VERSION == 3) {
+        if (HTitleShare.gtkVersion == 3) {
             var x11_window = Gdk.X11Window.get_xid(gdk_window);
         }
         else {
@@ -222,7 +219,7 @@ var HTitleTools = {
             Gdk.Window.set_decorations(gdk_window, (action == "set") ? Gdk.GDK_DECOR_BORDER : Gdk.GDK_DECOR_ALL);
         }
         else {
-            if (this.GDK_VERSION == 3) {
+            if (HTitleShare.gtkVersion == 3) {
                 Gdk.X11Window.set_hide_titlebar_when_maximized(gdk_window, (action == "set"));
             }
             else {
@@ -264,7 +261,7 @@ var HTitleTools = {
     },
 
     lowerWindow: function(window) {
-        var Gdk = Libs.open("Gdk", this.GDK_VERSION);
+        var Gdk = Libs.open("Gdk", HTitleShare.gtkVersion);
         var base_window = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIDocShellTreeItem)
@@ -356,7 +353,7 @@ var HTitleTools = {
     /* ::::: Logging ::::: */
 
     log: function(message, level="ERROR") {
-        if (this.DEBUG == false && level == "DEBUG")
+        if (HTitleShare.debug == false && level == "DEBUG")
             return;
 
         var console = Cc["@mozilla.org/consoleservice;1"]

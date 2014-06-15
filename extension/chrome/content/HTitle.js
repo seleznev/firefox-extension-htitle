@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("chrome://htitle/content/HTitleShare.jsm");
 Components.utils.import("chrome://htitle/content/HTitleTools.jsm");
 
 var HTitle = {
@@ -49,8 +50,8 @@ var HTitle = {
                     setTimeout(function(){HTitleTools.setWindowProperty(window, HTitle.currentMode);}, timeouts[i]);
                 }
             }
-            if (result == -1 && !HTitleTools.defaultMethodFailed) {
-                HTitleTools.defaultMethodFailed = true;
+            if (result == -1 && !HTitleShare.defaultMethodFailed) {
+                HTitleShare.defaultMethodFailed = true;
                 HTitle.currentMethod = "hidechrome";
                 HTitleTools.prefs.setBoolPref("legacy_mode.enable", true);
             }
@@ -102,7 +103,7 @@ var HTitle = {
                 }
                 break;
             case "legacy_mode.enable":
-                if (HTitle.ENABLED && !HTitleTools.defaultMethodFailed && !HTitle.isStopped) {
+                if (HTitle.ENABLED && !HTitleShare.defaultMethodFailed && !HTitle.isStopped) {
                     if (HTitleTools.prefs.getBoolPref("show_window_controls"))
                         HTitleWindowControls.hide();
 

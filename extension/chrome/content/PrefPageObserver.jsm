@@ -10,6 +10,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/Services.jsm");
 
+Cu.import("chrome://htitle/content/HTitleShare.jsm");
 Cu.import("chrome://htitle/content/Libs.jsm");
 
 var EXPORTED_SYMBOLS = ["PrefPageObserver"];
@@ -23,19 +24,20 @@ var PrefPageObserver = {
         Services.obs.removeObserver(this, "addon-options-displayed");
     },
 
-    observe: function(aSubject, aTopic, aData) {
+    observe: function(subject, topic, data) {
         if (aTopic == "addon-options-displayed" && aData == HTITLE_ID) {
-            var default_method_failed = false;
-            try {
-                var X11 = Libs.open("X11");
-                var Gdk = Libs.open("Gdk", 2, X11); // FIXME
-                Libs.close(Gdk);
-                Libs.close(X11);
-            } catch (e) {
-                default_method_failed = true;
+            if (!HTitleShare.defaultMethodFailed) {
+                try {
+                    var X11 = Libs.open("X11");
+                    var Gdk = Libs.open("Gdk", HTitleShare.gtkVersion, X11);
+                    Libs.close(Gdk);
+                    Libs.close(X11);
+                } catch (e) {
+                    HTitleShare.defaultMethodFailed = true;
+                }
             }
 
-            if (default_method_failed) {
+            if (HTitleShare.defaultMethodFailed) {
                 var legacy_mode = aSubject.getElementById("legacy-mode");
                 legacy_mode.setAttribute("disabled", "true");
                 legacy_mode.setAttribute("selected", "true");
