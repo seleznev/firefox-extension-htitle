@@ -23,7 +23,7 @@ function load_library(name, a) {
     }
 }
 
-function Gdk(version=2, X11) {
+function Gdk(version=2, X11=null) {
     this.library = load_library((version == 3) ? "libgdk-3.so" : "libgdk-x11-2.0.so", "0");
 
     /* ::::: Constants ::::: */

@@ -129,16 +129,16 @@ var HTitleUtils = {
     /* ::::: Toolkit version ::::: */
 
     getGtkVersion: function() {
-        if (this.prefs.getPrefType("toolkit") == this.prefs.PREF_STRING) {
-            return (this.prefs.getCharPref("toolkit") == "gtk3") ? 3 : 2;
+        var widget_toolkit;
+        if (this.prefs.getPrefType("widget_toolkit") == this.prefs.PREF_STRING) {
+            widget_toolkit = this.prefs.getCharPref("widget_toolkit");
         }
-
-        // FIXME: It's bad way to discover toolkit version
-        var req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                    .createInstance(Ci.nsIXMLHttpRequest);
-        req.open("GET", "chrome://global/content/buildconfig.html", false); // async = false
-        req.send();
-        return (req.response.match(/--enable-default-toolkit=cairo-gtk3/g)) ? 3 : 2;
+        else {
+            var xul_runtime = Cc["@mozilla.org/xre/app-info;1"]
+                                .getService(Ci.nsIXULRuntime);
+            widget_toolkit = xul_runtime.widgetToolkit;
+        }
+        return (widget_toolkit == "gtk3") ? 3 : 2;
     },
 
     /* ::::: Use external utilities ::::: */
