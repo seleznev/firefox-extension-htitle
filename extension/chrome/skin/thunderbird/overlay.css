@@ -17,9 +17,7 @@
 
 /*** Padding for tabs bar ***/
 
-#messengerWindow[hidetitlebarwhenmaximized="true"] #mail-toolbar-menubar2[autohide="true"] ~ #tabs-toolbar,
-#messengerWindow[htitlemode="always"] #mail-toolbar-menubar2[autohide="true"] ~ #tabs-toolbar,
-#messengerWindow[hidechrome="true"] #mail-toolbar-menubar2[autohide="true"] ~ #tabs-toolbar {
+#messengerWindow[htitlemode] #mail-toolbar-menubar2[autohide="true"] ~ #tabs-toolbar {
   padding-top: 2px !important;
 }
 

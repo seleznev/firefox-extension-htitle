@@ -4,13 +4,13 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-@-moz-document url("chrome://browser/content/browser.xul") {
+@-moz-document url("chrome://messenger/content/messenger.xul") {
 
 #window-controls {
   display: -moz-box !important;
 }
 
-#main-window:not([sizemode="maximized"]):not([sizemode="fullscreen"]) #window-controls {
+#messengerWindow[htitlemode="auto"]:not([sizemode="maximized"]) #window-controls {
   display: none !important;
 }
 

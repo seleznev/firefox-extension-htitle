@@ -16,7 +16,8 @@
         skipintoolbarset="true"
         ordinal="1000"
         pack="end"
-        insertafter="alltabs-button">
+        insertafter="alltabs-button"
+        onclick="HTitle.onClickTitlebar(event, window);">
     <toolbarbutton id="minimize-button"
                    style="list-style-image: url(chrome://global/skin/icons/Minimize.gif)"
                    oncommand="window.minimize();"/>
