@@ -44,7 +44,8 @@ var HTitle = {
         if (HTitle.currentMethod == "xlib") {
             HTitleUtils.log("Start in normal mode", "DEBUG");
             var result = HTitleUtils.setWindowProperty(window, HTitle.currentMode);
-            if (HTitle.isFirstStart && HTitle.currentMode == "always" && result == 0) {
+            if (HTitle.isFirstStart && (HTitle.currentMode == "always" || HTitleShare.gtkVersion == 3) && result == 0) {
+                // Really bad hack
                 var timeouts = [100, 2*100, 3*100, 4*100, 10*100];
                 for (let i = 0; i < timeouts.length; i++) {
                     setTimeout(function(){HTitleUtils.setWindowProperty(window, HTitle.currentMode);}, timeouts[i]);

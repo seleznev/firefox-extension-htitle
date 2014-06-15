@@ -89,10 +89,10 @@ var HTitleUtils = {
         HTitlePrefObserver.register();
 
         HTitleShare.debug = this.prefs.getBoolPref("debug");
-        HTitleShare.gtkVersion = (this.prefs.getCharPref("toolkit") == "gtk3") ? 3 : 2;
         this.timeoutCheck = this.prefs.getIntPref("legacy_mode.timeout_check");
         this.timeoutBetweenChanges = this.prefs.getIntPref("legacy_mode.timeout_between_changes");
 
+        HTitleShare.gtkVersion = this.getGtkVersion();
         this.windowControlsLayout = this.getWindowControlsLayout();
         this.titlebarActions = this.getTitlebarActions();
     },
@@ -124,6 +124,21 @@ var HTitleUtils = {
         var re = new RegExp("(^|,)" + id + "($|,)");
         currentset = currentset.replace(re, "$2");
         node.setAttribute("currentset", currentset);
+    },
+
+    /* ::::: Toolkit version ::::: */
+
+    getGtkVersion: function() {
+        if (this.prefs.getPrefType("toolkit") == this.prefs.PREF_STRING) {
+            return (this.prefs.getCharPref("toolkit") == "gtk3") ? 3 : 2;
+        }
+
+        // FIXME: It's bad way to discover toolkit version
+        var req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+                    .createInstance(Ci.nsIXMLHttpRequest);
+        req.open("GET", "chrome://global/content/buildconfig.html", false); // async = false
+        req.send();
+        return (req.response.match(/--enable-default-toolkit=cairo-gtk3/g)) ? 3 : 2;
     },
 
     /* ::::: Use external utilities ::::: */
