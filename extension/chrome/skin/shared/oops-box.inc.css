@@ -6,7 +6,7 @@
 %
 %filter substitution
 %
-%ifdef FIREFOX
+%if defined(FIREFOX) || defined(SEAMONKEY)
 %define mainWindow #main-window
 %elifdef THUNDERBIRD
 %define mainWindow #messengerWindow

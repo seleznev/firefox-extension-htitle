@@ -15,6 +15,10 @@ var HTitleWindowControls = {
     },
 
     show: function() {
+        if (HTitleUtils.isSeaMonkey()) {
+            return; // FIXME
+        }
+
         var windowctls = document.getElementById("window-controls");
         windowctls.setAttribute("htitle", "true");
         HTitleUtils.loadStyle("windowControls"); // Appling CSS
@@ -49,6 +53,10 @@ var HTitleWindowControls = {
     },
 
     hide: function() {
+        if (HTitleUtils.isSeaMonkey()) {
+            return; // FIXME
+        }
+
         HTitleUtils.unloadStyle("windowControls");
 
         var spring = document.getElementById("htitle-menubar-spring");

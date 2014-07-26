@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+<!ENTITY % htitleDTD SYSTEM "chrome://htitle/locale/overlay.dtd">
+%htitleDTD;
+]>
+
+<overlay id="htitle"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <window id="main-window">
+    <hbox id="htitle-overlay-box" insertbefore="tab-view-deck">
+      <vbox id="htitle-message-box">
+        <vbox>
+          <label id="htitle-message-title" value="&opps.label;"/>
+          <label class="htitle-message-desc" value="&opps.description;" crop="end"/>
+          <button label="&clickMe.label;" class="htitle-message-button" oncommand="HTitle.checkWindowState();"/>
+        </vbox>
+      </vbox>
+    </hbox>
+  </window>
+
+</overlay>

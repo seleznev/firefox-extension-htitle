@@ -107,6 +107,10 @@ var HTitleUtils = {
         return (this.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}");
     },
 
+    isSeaMonkey: function() {
+        return (this.appInfo.ID == "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}");
+    },
+
     /* ::::: Change currentset attribute ::::: */
 
     addToCurrentset: function(node, id) {
