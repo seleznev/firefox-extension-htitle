@@ -4,14 +4,16 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE overlay [
-<!ENTITY % htitleDTD SYSTEM "chrome://htitle/locale/overlay.dtd">
-%htitleDTD;
-]>
+<!DOCTYPE overlay SYSTEM "chrome://htitle/locale/overlay.dtd">
+
+<?xml-stylesheet href="chrome://htitle/skin/overlay.css" type="text/css"?>
 
 <overlay id="htitle"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <script type="application/x-javascript" src="chrome://htitle/content/HTitleWindowControls.js"/>
+  <script type="application/x-javascript" src="chrome://htitle/content/HTitle.js"/>
 
   <window id="main-window">
     <hbox id="htitle-overlay-box" insertbefore="tab-view-deck">
