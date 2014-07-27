@@ -26,15 +26,17 @@ var HTitle = {
             return;
         }
 
-        HTitle.window = document.getElementById(HTitleUtils.isThunderbird() ? "messengerWindow" : "main-window");
+        HTitle.window = window.document.documentElement;
 
         HTitle.start();
 
-        if (HTitleUtils.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
-            HTitleWindowControls.setLayoutAttribute();
+        if (typeof HTitleWindowControls != "undefined") {
+            if (HTitleUtils.prefs.getBoolPref("window_controls.get_layout_by_gsettings"))
+                HTitleWindowControls.setLayoutAttribute();
 
-        if (HTitleUtils.prefs.getBoolPref("show_window_controls"))
-            HTitleWindowControls.show();
+            if (HTitleUtils.prefs.getBoolPref("show_window_controls"))
+                HTitleWindowControls.show();
+        }
     },
 
     start: function() {
@@ -93,6 +95,9 @@ var HTitle = {
 
         switch(data) {
             case "show_window_controls":
+                if (typeof HTitleWindowControls == "undefined") {
+                    break;
+                }
                 if (HTitleUtils.prefs.getBoolPref("show_window_controls")) {
                     HTitleUtils.log("Enable show close button", "DEBUG");
                     HTitleWindowControls.updatePosition(null);
@@ -105,20 +110,22 @@ var HTitle = {
                 break;
             case "legacy_mode.enable":
                 if (HTitle.ENABLED && !HTitleShare.defaultMethodFailed && !HTitle.isStopped) {
-                    if (HTitleUtils.prefs.getBoolPref("show_window_controls"))
+                    let wc = (typeof HTitleWindowControls != "undefined");
+                    if (wc && HTitleUtils.prefs.getBoolPref("show_window_controls"))
                         HTitleWindowControls.hide();
 
                     HTitle.stop();
                     HTitleUtils.prefs.setIntPref("hide_mode", 1);
                     HTitle.start();
 
-                    if (HTitleUtils.prefs.getBoolPref("show_window_controls"))
+                    if (wc && HTitleUtils.prefs.getBoolPref("show_window_controls"))
                         HTitleWindowControls.show();
                 }
                 break;
             case "hide_mode":
                 if (HTitle.ENABLED && !HTitle.isStopped) {
-                    if (HTitleUtils.prefs.getBoolPref("show_window_controls"))
+                    let wc = (typeof HTitleWindowControls != "undefined");
+                    if (wc && HTitleUtils.prefs.getBoolPref("show_window_controls"))
                         HTitleWindowControls.hide();
 
                     HTitle.stop();
@@ -126,7 +133,7 @@ var HTitle = {
                         HTitleUtils.prefs.setBoolPref("legacy_mode.enable", false);
                     HTitle.start();
 
-                    if (HTitleUtils.prefs.getBoolPref("show_window_controls"))
+                    if (wc && HTitleUtils.prefs.getBoolPref("show_window_controls"))
                         HTitleWindowControls.show();
                 }
                 break;
@@ -219,7 +226,8 @@ var HTitle = {
 
     shutdown: function() {
         HTitleUtils.prefs.removeObserver("", HTitle);
-        //if (HTitleUtils.prefs.getBoolPref("show_window_controls"))
+        //let wc = (typeof HTitleWindowControls != "undefined");
+        //if (wc && HTitleUtils.prefs.getBoolPref("show_window_controls"))
         //    HTitleWindowControls.hide();
     },
 }
