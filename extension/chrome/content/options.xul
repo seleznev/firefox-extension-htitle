@@ -8,9 +8,9 @@
 
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <setting pref="extensions.htitle.show_window_controls" type="bool"
-           title="&showWindowControls.label;"/>
+           title="&showWindowControls.label;" id="window-controls"/>
   <setting pref="extensions.htitle.hide_mode" type="radio"
-           title="&hideMode.label;" desc="&hideMode.desc;">
+           title="&hideMode.label;" desc="&hideMode.desc;" id="hide-mode">
     <radiogroup>
       <vbox>
         <radio value="1" label="&hideModeAuto.label;" id="hide-mode-auto"/>

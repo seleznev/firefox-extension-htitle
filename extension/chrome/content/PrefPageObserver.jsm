@@ -26,10 +26,16 @@ var PrefPageObserver = {
 
     observe: function(subject, topic, data) {
         if (topic == "addon-options-displayed" && data == HTITLE_ID) {
+            let app_info = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
+            if (app_info.ID == "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}") { // SeaMonkey
+                subject.getElementById("window-controls").remove();
+                subject.getElementById("hide-mode").setAttribute("first-row", "true");
+            }
+
             if (!HTitleShare.defaultMethodFailed) {
                 try {
-                    var X11 = Libs.open("X11");
-                    var Gdk = Libs.open("Gdk", HTitleShare.gtkVersion, X11);
+                    let X11 = Libs.open("X11");
+                    let Gdk = Libs.open("Gdk", HTitleShare.gtkVersion, X11);
                     Libs.close(Gdk);
                     Libs.close(X11);
                 } catch (e) {
@@ -38,7 +44,7 @@ var PrefPageObserver = {
             }
 
             if (HTitleShare.defaultMethodFailed) {
-                var legacy_mode = subject.getElementById("legacy-mode");
+                let legacy_mode = subject.getElementById("legacy-mode");
                 legacy_mode.setAttribute("disabled", "true");
                 legacy_mode.setAttribute("selected", "true");
 
@@ -48,10 +54,10 @@ var PrefPageObserver = {
 
                 legacy_mode.setAttribute("desc", bundle.GetStringFromName("enableLegacyMethod.description"));
 
-                var hide_mode_auto = subject.getElementById("hide-mode-auto");
+                let hide_mode_auto = subject.getElementById("hide-mode-auto");
                 hide_mode_auto.setAttribute("selected", "true");
 
-                var hide_mode_always = subject.getElementById("hide-mode-always");
+                let hide_mode_always = subject.getElementById("hide-mode-always");
                 hide_mode_always.setAttribute("disabled", "true");
             }
         }
