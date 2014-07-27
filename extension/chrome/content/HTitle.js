@@ -212,13 +212,13 @@ var HTitle = {
 
     logWindowState: function(from) {
         if (HTitleShare.debug == false)
-            return
+            return;
 
         switch (window.windowState) {
-            case window.STATE_MAXIMIZED:   var windowState = "maximized"; break;
-            case window.STATE_NORMAL:      var windowState = "normal"; break;
-            case window.STATE_FULLSCREEN:  var windowState = "fullscreen"; break;
-            default: var windowState = window.windowState.toString();
+            case window.STATE_MAXIMIZED:  var windowState = "maximized"; break;
+            case window.STATE_NORMAL:     var windowState = "normal"; break;
+            case window.STATE_FULLSCREEN: var windowState = "fullscreen"; break;
+            default:                      var windowState = window.windowState.toString();
         }
 
         HTitleUtils.log("Action = " + from + "; windowState = " + windowState + ";  hidechrome = " + HTitle.window.getAttribute("hidechrome"), "DEBUG");
