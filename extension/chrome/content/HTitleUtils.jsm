@@ -325,19 +325,33 @@ var HTitleUtils = {
             return layout;
 
         try {
-            let gsettings = Cc["@mozilla.org/gsettings-service;1"]
-                              .getService(Ci.nsIGSettingsService)
-                              .getCollectionForSchema("org.gnome.shell.overrides");
-            let button_layout = gsettings.getString("button-layout");
-            if (/^([a-zA-Z0-9:,]*)$/.test(button_layout)) {
-                layout = button_layout;
-            }
-            this.log("org.gnome.shell.overrides.button-layout = '" + button_layout + "'", "DEBUG");
+            var gsettings = Cc["@mozilla.org/gsettings-service;1"]
+                              .getService(Ci.nsIGSettingsService);
         } catch(e) {
             this.log("GSettings isn't available", "WARNING");
             return layout;
         }
 
+        var button_layout;
+        var keys = ["org.gnome.shell.overrides", "org.gnome.desktop.wm.preferences"];
+        for (let i=0; i<keys.length; i++) {
+            try {
+                button_layout = gsettings.getCollectionForSchema(keys[i])
+                                         .getString("button-layout");
+                this.log(keys[i] + ".button-layout = '" + button_layout + "'", "DEBUG");
+                break;
+            } catch(e) {
+                continue;
+            }
+        }
+
+        if (!button_layout) {
+            this.log("Cann't get value from GSettings", "WARNING");
+            return layout;
+        }
+        else if (/^([a-zA-Z0-9:,]*)$/.test(button_layout)) {
+            layout = button_layout;
+        }
         return layout;
     },
 
