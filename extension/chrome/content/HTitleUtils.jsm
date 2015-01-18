@@ -244,9 +244,8 @@ var HTitleUtils = {
             else {
                 let x11_property = Gdk.x11_get_xatom_by_name_for_display(gdk_display, "_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED");
                 if (action == "set") {
-                    // let t = new Uint8Array([1]);
-                    // let x11_data = ctypes.uint8_t.ptr(t);
-                    let t = new Uint32Array([1]);
+                    let t = new ctypes.ArrayType(ctypes.uint32_t)(1);
+                    t[0] = 1;
                     let x11_data = ctypes.uint32_t.ptr(t);
                     X11.XChangeProperty(x11_display, x11_window, x11_property, X11.XA_CARDINAL, 32, X11.PropModeReplace, x11_data, 1);
                 }
