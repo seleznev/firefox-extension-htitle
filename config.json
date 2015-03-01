@@ -1,7 +1,7 @@
 {
-  "version": "3.3",
+  "version": "3.4",
   "min-version": "29.0",
-  "max-version": "37.0a1",
+  "max-version": "39.0a1",
   "extension": {
     "xpi": "firefox-extension-htitle.xpi"
   }
