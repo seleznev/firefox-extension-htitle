@@ -1,0 +1,12 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY minimize.label   "Minimalizovat">
+<!ENTITY maximize.label   "Maximalizovat">
+<!ENTITY unmaximize.label "Obnovit">
+<!ENTITY close.label      "Zavřít">
+
+<!ENTITY opps.label       "Jejda...">
+<!ENTITY opps.description "Ohraničení okna je poškozené. HTitle potřebuje, abyste potvrdili pokračování kliknutím.">
+<!ENTITY clickMe.label    "Klikněte sem!">

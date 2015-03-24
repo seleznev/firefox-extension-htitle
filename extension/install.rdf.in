@@ -16,6 +16,13 @@
     <em:optionsType>2</em:optionsType>
 
     <em:localized>
+      <Description em:locale="cs">
+        <em:name>HTitle</em:name>
+        <em:description>Skrývá záhlaví okna, pokud je okno maximalizované (např. v GNOME 3).</em:description>
+      </Description>
+    </em:localized>
+
+    <em:localized>
       <Description em:locale="pl">
         <em:name>HTitle</em:name>
         <em:description>Ukrywa pasek tytułowy, kiedy okno jest zmaksymalizowane (jak w środowisku GNOME 3).</em:description>
