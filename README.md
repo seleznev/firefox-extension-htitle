@@ -1,4 +1,4 @@
-# HTitle
+# HTitle (discontinued)
 
 Hide title bar if window is maximized.
 
